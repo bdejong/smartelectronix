@@ -3,10 +3,11 @@ Open source versions of all bram @ smartelectronix plugins. 20 Years after wokin
 
 You can find the original smartelectronix pages here: http://bram.smartelectronix.com
 
-All UIs were created with VstGUI around version 2.x, same for the plugins, they use VST 2.x. You will need the VST SDK an VST GUI SDK: http://www.steinberg.net/en/company/developers.html
+All UIs were created with VstGUI around version 2.x, same for the plugins, they use VST 2.x.
+You will need the VST SDK an VST GUI SDK: http://www.steinberg.net/en/company/developers.html
 
 # Donations
-As they were always non-explicit donation-ware; if anyone still feels like donating for these plugins, you can find my paypal here: http://paypal.me/BramdeJong
+All of these plugins were always "non-explicit donation-ware": http://paypal.me/BramdeJong
 
 # Plugins
 
