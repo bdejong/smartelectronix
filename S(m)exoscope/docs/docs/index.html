@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>S(m)exoScope</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<STYLE>
+BODY {
+	FONT-SIZE: 8pt; COLOR: black; FONT-FAMILY: Verdana, Helvetica
+}
+TD {
+	FONT-SIZE: 8pt; COLOR: black; FONT-FAMILY: Verdana, Helvetica
+}
+</STYLE>
+
+<META content="MSHTML 6.00.2800.1264" name=GENERATOR></HEAD>
+<BODY text=black vLink=#7788bb aLink=#7788bb link=#7788bb bgColor=#f0f0f0 
+background=bg.gif>
+
+<table width=730>
+	<tr>
+		<td align=middle>
+		<h3>s(M)exoscope - VST oscilloscope</h3>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<h4>s(M)exoscope is an oscilloscope VST plugin. You can use it to visually monitor audio wave forms.</h4>
+<div align="center"><img src="oscilloscope_85.png" width="709" height="281" alt="s(M)exoscope" border="0"></div>
+<h4>Why would you do this? Well, why not? There are countless times when being able to see what your audio waveform looks like could be useful. You'll know when the time is right. For all those other times, well, it's very pretty to look at!</h4></td></tr>
+</table>
+<hr width=100%>
+<br>
+<a href="#controls">The Controls</a><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#display">Display controls</a><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#retrigger">Retrigger modes</a><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#threshold">External mode, and Retrigger threshold</a><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#options">s(M)exoscope options</a><br>
+<a href="#analysis">Analysis Tool</a><br>
+		<a href="#versions">The Versions</a><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#std">standard</a><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#mod">modular</a>
+<br><br>
+<hr width=100%>
+<br>	
+<table>
+	<tr>
+		<td><h3><a name="controls">The Controls</a></h3></td></tr>
+	<tr>
+		<td><h4><a name="display">Display controls</a></h4></td></tr>
+	<tr>
+		<td style="vertical-align:top"><img src="oscilloscope_display.png" width="139" height="93" alt="" border="0"></td>
+		<td style="padding-left:10">Both of these knobs control the oscilloscope display.
+		<p><b>Time</b> controls the number of pixels per sample. The lower the number, the finer the resolution of the waveform. The lowest value is 31.62 pixels to draw every sample, and the highest setting is 0.001... meaning that every pixel of length represents 1000 samples.</p>
+<p>The waveform itself will change colours to indicate if it is above or below 1 sample per pixel. At a Time of 1 or lower, a <em>grey</em> waveform display shows that more than one sample is compressed into each pixel. When Time is set higher than 1, a <em>blue</em> waveform indicates that the resolution uses more pixels to draw each sample. The figure below demonstrates the differences between extreme time settings.</p>
+		<p><b>Amp</b> controls the amplitude of the waveform in the display. Simplicity itself: if your waveform is too thin, crank it up! Cut off at the top and bottom of the display window? Turn that amp down.</p>
+<p style="text-align:center"><img src="time_comp.png" width="569" height="328" alt="" border="0"></p></td></tr>
+	<tr></tr>
+	<tr>
+		<td><h4><a name="retrigger">Retrigger modes</a></h4></td></tr>
+		<tr>
+		<td style="vertical-align:top"><img src="oscilloscope_trigmode.png" width="136" height="103" alt="" border="0"></td>
+		<td style="padding-left:10">S(M)exoscope has four modes (note that the <em>modular</em> version of the plugin has five modes. See below for more details) to determine how often it erases the display and starts drawing again (retriggers). Click the display mode button to cycle between the modes.
+	<p><b>Free</b> mode is the default, and means that the display never erases and immediately starts writing again at the left as soon as the waveform reaches the right side of the display area.</p>
+	<p><b>Internal</b> mode retriggers the display at a frequency set by the <b>Internal Trig Speed</b> knob. Values are measured in Hz, and retrigger rates range from as infrequently as 0.441 Hz to as often as 139.4 times a second. This mode is useful if you only want to watch a certain part of a waveform.</p>
+	<p><b>Rising</b> This mode retriggers the display every time a waveform peak rises past a certain level.</p>
+	<p style="text-align:center"><img src="osc_retrig_level.png" width="232" height="238" alt="" border="1"></p>
+	<p>Drag the level slider (to the left of the display) to set the retrigger level above or below the zero crossing. The retrigger level is indicated by the white line.
+	<p><b>Falling</b> Identical to Rising mode, except that the display retriggers only when the waveform <em>falls</em> past the retrigger level.</p></td></tr>
+	<tr>
+		<td><h4><a name="threshold">External mode, and Retrigger threshold</a></h4></td></tr>
+	<tr>
+		<td style="vertical-align:top"><img src="oscilloscope_extmode.png" width="136" height="102" alt="" border="0"></td>
+		<td style="padding-left:10; vertical-align:top">
+		<b>External</b> is the fifth mode, available only in the modular version of s(M)exoscope.<br> In this mode, the display retriggers whenever a <em>trigger</em> -- that is, a sample value of 1 -- is received by the plugin's trigger input. See below for more details on the modular version. 
+		<p>In all modes, the <b>Retrigger Threshold</b> knob determines how soon the display can be retriggered after the last trigger. This threshold is measured in a number of samples. For example, if the Retrigger Threshold is set to 450, then the display will not retrigger unless at least 450 samples have passed through the display since the last retrigger. Useful if you absolutely need to see a certain number of samples in your waveform before it refreshes. Minimum: 1 sample, maximum: 10000 samples.</p></td></tr>
+	<tr>
+		<td><h4><a name="options">s(M)exoscope options</a></h4></td></tr>
+	<tr>
+		<td style="vertical-align:top"><img src="oscilloscope_options.png" width="141" height="95" alt="" border="0"></td>
+		<td style="padding-left:10; vertical-align:top">There are four option buttons you can use to customize the oscilliscope's behaviour even further.
+		<p><b>Sync Redraw</b>, when activated, only updates waveform data when the plugin's internal graphic buffer is full (as opposed to in real-time). In other words, turn this on to <em>slow down</em> how often the display refreshes, and adjust the <em>Time</em> knob again to find the right speed.</p>
+		<p><b>Freeze</b> -- self-explanatory (but here you go anyways). Click this button to freeze the waveform in the display.</p>
+		<p><b>DC-Kill</b> -- click this button to automatically compensate for DC offset, if your waveform is too far off the zero crossing line.</p>
+		<p><b>Channel</b> -- click this button to toggle the displayed waveform between the right and left audio channels.</p></td></tr>
+</table>
+<p>
+<hr width=100%>
+</p>	
+<table>
+	<tr>
+		<td><h3><a name="analysis">Analysis Tool</a></h3></td></tr>
+	<tr>
+		<td><h4>Waveform analysis</h4></td><td style="padding-left:10; vertical-align:top"><br><br></td></tr>
+	<tr>
+		<td style="vertical-align:top"><img src="analyze1.png" width="118" height="79" alt="Analysis tool" border="0"><a name="analyze"></a></td>
+		<td style="padding-left:10; vertical-align:top">The s(M)exoscope also contains a tool that can be used to analyze the waveform currently in the display. Based on where you place a marker, the tool analyzes the x and y dimensions of the waveform to calculate the following:
+<ul>
+	<li>selection amplitude (linear)</li>
+	<li>selection amplitude (decibels)</li>
+	<li>selection length (in samples)</li>
+	<li>selection length (in seconds)</li>
+	<li>selection length (in milliseconds)</li>
+	<li>selection frequency (assuming that the selection is one cycle in length)</li>
+</ul>
+	<p>To use the analysis tool, just left-click anywhere on the s(M)exoscope display, and drag the pointer until you've reached the desired position. The analysis tool always measures from the beginning of the display. It's often useful to use the <b>Freeze</b> control to lock in the display first, then to measure what you see. In the example below, s(M)exoscope is measuring a simple sine wave sample, whose frequency we don't know. The display was frozen at a point where the waveform begins right at the left side of the display, and then measured to the beginning of the next cycle. The result in this case? A 440 Hz tone. Correct!<br><br><img src="analyze2.png" alt="Not-quite-perfect 440" border="1"></p>
+<p>To clear the analysis, right-click anywhere on the display area.</p></td></tr>		
+</table>
+
+<p>
+<hr width=100%>
+</p>	
+<table>
+	<tr>
+		<td><h3><a name="versions">The Versions</a></h3></td></tr>
+	<tr>
+		<td><h4>Standard or modular?</h4></td><td style="padding-left:10; vertical-align:top">There are two versions of the oscilloscope: <b>s(M)exoscope</b> is the standard insert effect version, good to use in any VST host, and <b>s(M)exoscopeModular</b>, optimized especially for modular VST hosts like <a href="http://www.plogue.com/bidule/">Plogue Bidule</a> or <a href="http://www.audiomulch.com/">AudioMulch</a>. The module icons from Plogue Bidule (below, left column) best illustrate the differences between the two.<br><br></td></tr>
+	<tr>
+		<td style="vertical-align:top"><img src="bidule_std.png" width="89" height="34" alt="standard icon" border="0"><a name="std"></a></td>
+		<td style="padding-left:10; vertical-align:top">The <b>standard</b> version, as mentioned before, is used as an insert effect. The plugin has stereo inputs, and audio from the track/channel on which the plugin is inserted passes through it unaltered.
+<br>This version has only four retrigger modes: <em>free</em>, <em>internal</em>, <em>rising</em>, and <em>falling</em>.
+<br>Basically, you should <b>install only this version of the plugin</b>, unless you are using a modular host.</p></td></tr>
+	<tr>
+		<td style="vertical-align:top"><img src="bidule_mod.png" width="133" height="28" alt="modular icon" border="0"><a name="mod"></a></td>
+		<td style="padding-left:10; vertical-align:top">The <b>modular</b> version of s(M)exoscope is identical in operation to the standard version, except for three points:
+<ul>
+	<li>Three sample data inputs -- the first two inputs are for stereo audio, while the third is to receive the trigger samples for the External retrigger mode.</li>
+	<li>No audio outputs -- in a modular host, there is no need for the audio to pass through s(M)exoscope. You should already be hearing the audio through your usual monitoring channels... just draw another set of connections to a new instance of s(M)exoscope, and that's all there is to it.</li>
+	<li>The fifth retrigger mode, External -- you can customize the modular host to send a trigger sample to the plugin's third input whenever you want the display to be retriggered. For advanced scoping of audio... Sound design geeks only need apply.</li></ul>
+</td></tr>
+		
+</table>
+
+</BODY></HTML>

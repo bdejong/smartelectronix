@@ -1,0 +1,3 @@
+LIBRARY			s(M)exoscopeModular
+DESCRIPTION		'Oscilloscope Plugin for VST'
+EXPORTS			main

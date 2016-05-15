@@ -1,0 +1,24 @@
+H2O v1.0
+--------
+
+
+this VST plugin was developed by Smart Electron:x
+
+  -> http://www.smartelectronix.com
+
+graphics by Mat Jarvis
+
+  -> www.MatJarvis.com
+
+for more information, please visit our website, or e-mail us at info@smartelectronix.com
+
+special thanks to Charly Steinberg (MAC build) and Christopher Lenz (BeOS build)
+
+Massive respect to all the other plugin builders and to all the people who have helped us in the past! You know who you are ;)
+
+-------------------------------------------------------------------------------------
+For redistribution -> DON'T remove this text and LEAVE it like it is, please!!!
+You may add additional info below these lines.
+
+You have the right to redistribute on the web, as long as it is CLEARLY mentioned that this plugin was created by Smart Electron:x! For redistribution via magazines etc, please contact info@smartelectronix.com
+-------------------------------------------------------------------------------------

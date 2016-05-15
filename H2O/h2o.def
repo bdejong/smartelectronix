@@ -1,0 +1,3 @@
+LIBRARY			H2O
+DESCRIPTION		'Decompressor for VST,WaveLab,...'
+EXPORTS			main

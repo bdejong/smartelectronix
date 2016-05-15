@@ -1,0 +1,3 @@
+LIBRARY			SupaTrigga
+DESCRIPTION		'SupaTrigga Plugin for VST'
+EXPORTS			main

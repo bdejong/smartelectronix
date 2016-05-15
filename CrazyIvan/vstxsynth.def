@@ -1,0 +1,3 @@
+LIBRARY			CrazyIvan
+DESCRIPTION		'Axe Murderer Ivan'
+EXPORTS			main

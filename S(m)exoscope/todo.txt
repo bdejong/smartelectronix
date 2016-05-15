@@ -1,0 +1,25 @@
+
+[TODO]
+* stereo (left/right/both on display, trigger=left) [Ross Bencina]
+* VST programs [AFH]
+* editable default settings (think bidule / save as default / registry) [AFH]
+
+[CHANGELOG]
+
+v = bugfix
++ = addition
+c = change
+
+[17-04-2004] c   Added sean's graphic readout
+[15-12-2003] c   DC-Killer now defaults to OFF [Ross Bencina]
+[15-12-2003] v   changed the way the trigger works ("<" to "<=" etc...) [Ross Bencina]
+[??-12-2003] +   XY-cross with value readouts
+
+  -- version 1 released
+
+[06-08-2003] +   optional DC-killing [Lee Stacey]
+[05-08-2003] +   freeze [Ross Bencina]
+[05-08-2003] +   if(trigger less than XX seconds ago) don't trigger again [Ross Belcina]
+[05-08-2003] +   waveform zoom when samples/pixel < 1 [Ross Bencina]
+[05-08-2003] +   channel switch [Lee Stacey / Ross Bencina]
+[04-08-2003] v   stupid clipping bug [Lee Stacey]
