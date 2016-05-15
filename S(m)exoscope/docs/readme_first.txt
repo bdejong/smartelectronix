@@ -5,7 +5,7 @@ Bram @ Smartelectronix presents :: The S(m)exoscope
 bram @ smartelectronix.com	:: Code & Conccept
 sean @ deadskinboy.com		:: GUI Design
 kerrydan			:: Documentation
-marc @ smartelectronix.com	:: Mac port
+sophia @ smartelectronix.com	:: Mac port
 
 
 Smexoscope is not an effect, nor is it a synthesiser, don't
