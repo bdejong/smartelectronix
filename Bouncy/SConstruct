@@ -8,15 +8,14 @@ steinberg_path = os.path.abspath(os.path.join("..", "Steinberg"))
 vst_cpp_path = os.path.abspath(os.path.join("..", "Steinberg", "public.sdk", "source", "vst2.x"))
 
 if is_mac:
-    # link_flags = "-arch i386 -arch x86_64"
-    link_flags = ""
-    c_flags = "%s -Wall -pedantic".format(link_flags)
+    link_flags = "-arch i386 -arch x86_64"
+    c_flags = "{} -Wall -pedantic".format(link_flags)
 else:
     link_flags = ""
     c_flags = ""
 
 env = Environment(
-    CFLAGS=c_flags,
+    CPPFLAGS=c_flags,
     LINKFLAGS=link_flags,
     CPPPATH=[vst_cpp_path, steinberg_path]
 )
@@ -29,18 +28,3 @@ if not is_mac:
     sources += Glob("*.def")
 
 env.SharedLibrary(target=app_name, source=sources)
-
-# This could potentially create a VS file...
-"""
-dll = env.SharedLibrary(target = 'bar.dll',
-                        source = barsrcs)
-
-env.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
-                srcs = barsrcs,
-                incs = barincs,
-                localincs = barlocalincs,
-                resources = barresources,
-                misc = barmisc,
-                buildtarget = dll,
-                variant = 'Release')
-"""
