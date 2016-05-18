@@ -18,11 +18,9 @@ void VstXSynth::resume()
 {
 	delayL->resume();
 	delayR->resume();
-
-	wantEvents();
 }
 
-void VstXSynth::process(float **inputs, float **outputs, long sampleFrames)
+void VstXSynth::process(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	VstTimeInfo *vstTimeInfo = this->getTimeInfo(kVstTempoValid);
 
@@ -58,7 +56,7 @@ void VstXSynth::process(float **inputs, float **outputs, long sampleFrames)
 #endif
 }
 
-void VstXSynth::processReplacing(float **inputs, float **outputs, long sampleFrames)
+void VstXSynth::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	VstTimeInfo *vstTimeInfo = this->getTimeInfo(kVstTempoValid);
 

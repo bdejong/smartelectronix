@@ -12,9 +12,6 @@ VstXSynth::VstXSynth (audioMasterCallback audioMaster) : AudioEffectX (audioMast
 	setNumInputs (2);
 	setNumOutputs (2);
 	canProcessReplacing();
-	//canMono();
-	//hasVu(false);
-	//hasClip(false);
 	setUniqueID ('BNCY');
 
 	delayL = new Bouncy(getSampleRate());

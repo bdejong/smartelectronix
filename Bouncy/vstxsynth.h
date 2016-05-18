@@ -34,8 +34,8 @@ public:
 
 	~VstXSynth();
 
-	virtual void process(float **inputs, float **outputs, long sampleframes);
-	virtual void processReplacing(float **inputs, float **outputs, long sampleframes);
+	virtual void process(float **inputs, float **outputs, VstInt32 sampleframes);
+	virtual void processReplacing(float **inputs, float **outputs, VstInt32 sampleframes);
 
 	virtual void setProgram(long program);
 	virtual void setProgramName(char *name);
