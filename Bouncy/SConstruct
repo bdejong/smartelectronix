@@ -1,0 +1,43 @@
+import os, platform
+
+is_mac = "Darwin" in platform.platform()
+
+app_name = os.path.split(os.path.abspath("."))[1]
+
+steinberg_path = os.path.join("..", "Steinberg")
+vst_cpp_path = os.path.join("..", "Steinberg", "public.sdk", "source", "vst2.x")
+vst_h_path = os.path.join("..", "Steinberg", "pluginterfaces", "vst2.x")
+
+if is_mac:
+    link_flags = "-arch i386 -arch x86_64"
+    c_flags = "%s -Wall -pedantic".format(link_flags)
+else:
+    link_flags = ""
+    c_flags = ""
+
+env = Environment(
+    CFLAGS=c_flags,
+    LINKFLAGS=link_flags,
+    CPPPATH=[vst_cpp_path, vst_h_path, steinberg_path]
+)
+
+sources = Glob('*.cpp') + Glob("*.def") + Glob(
+    os.path.join(vst_cpp_path + "*.cpp")
+)
+
+env.SharedLibrary(target=app_name, source=sources)
+
+# This could potentially create a VS file...
+"""
+dll = env.SharedLibrary(target = 'bar.dll',
+                        source = barsrcs)
+
+env.MSVSProject(target = 'Bar' + env['MSVSPROJECTSUFFIX'],
+                srcs = barsrcs,
+                incs = barincs,
+                localincs = barlocalincs,
+                resources = barresources,
+                misc = barmisc,
+                buildtarget = dll,
+                variant = 'Release')
+"""

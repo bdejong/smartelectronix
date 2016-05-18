@@ -3,6 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Registry.h"
+
+#if WIN32
+
 #include "winbase.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -13,7 +16,7 @@ Registry::Registry(std::string base)
 {
 	std::string tmp = "Software\\" + base;
 	LONG error = RegCreateKey(HKEY_CURRENT_USER,tmp.c_str(),&key);
-	
+
 	if(error != ERROR_SUCCESS)
 	{
 		key = 0;
@@ -23,7 +26,7 @@ Registry::Registry(std::string base)
 						NULL,error,MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),(LPTSTR) &lpMsgBuf,0,NULL);
 
 		MessageBox( NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION );
-		
+
 		LocalFree(lpMsgBuf);
 	}
 }
@@ -50,7 +53,7 @@ std::string	Registry::getString(std::string name)
 		DWORD type = 0;
 		BYTE data[256];
 		DWORD size = 256;
-				
+
 		long error = RegQueryValueEx(key,name.c_str(),NULL,&type,data,&size);
 
 		if(error == ERROR_SUCCESS && type == REG_SZ && size != 0)
@@ -63,7 +66,7 @@ std::string	Registry::getString(std::string name)
 	else
 		return "";
 }
-	
+
 void Registry::setLong(std::string name, long data)
 {
 	if(key != 0)
@@ -79,7 +82,7 @@ long Registry::getLong(std::string name)
 		DWORD type = 0;
 		DWORD data;
 		DWORD size = sizeof(data);
-				
+
 		long error = RegQueryValueEx(key,name.c_str(),NULL,&type,(unsigned char *)&data,&size);
 
 		if(error == ERROR_SUCCESS && type == REG_DWORD && size == 4)
@@ -93,3 +96,4 @@ long Registry::getLong(std::string name)
 		return -1;
 }
 
+#endif

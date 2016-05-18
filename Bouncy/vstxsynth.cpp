@@ -7,16 +7,14 @@
 	#include <string>
 #endif
 
-#include "SmexGui.h"
-
 VstXSynth::VstXSynth (audioMasterCallback audioMaster) : AudioEffectX (audioMaster, 0, kNumParams)
 {
 	setNumInputs (2);
 	setNumOutputs (2);
 	canProcessReplacing();
-	canMono();
-	hasVu(false);
-	hasClip(false);
+	//canMono();
+	//hasVu(false);
+	//hasClip(false);
 	setUniqueID ('BNCY');
 
 	delayL = new Bouncy(getSampleRate());
@@ -35,7 +33,7 @@ VstXSynth::VstXSynth (audioMasterCallback audioMaster) : AudioEffectX (audioMast
 	if(reg.getLong("Debug") == 1)
 	{
 		pf = fopen("c:\\bouncy.log","wb");
-			
+
 		fprintf(pf,"Application-path : %s\n",__argv[0]);
 
 		if( Multitap::SSEDetect() )
@@ -61,24 +59,6 @@ VstXSynth::VstXSynth (audioMasterCallback audioMaster) : AudioEffectX (audioMast
 
 	setParam();
 
-/*	BPM = 180.f;
-
-	CSmexGui *gui = new CSmexGui(this);
-
-	gui->addControlKnobBigHeadRight(kMaxDelay);
-	gui->addSpacer(5);
-	gui->addSection();
-	gui->addControlKnobSmallLeft(kDelayShape);
-	gui->addControlKnobSmallLeft(kAmpShape);
-	gui->addSpacer(5);
-	gui->addSection();
-	gui->addControlKnobSmallLeft(kRandAmp);
-	gui->addSpacer(10);
-	gui->addControlKickButton(kRenewRand);
-
-	editor = gui;
-*/
-	
 	resume();
 }
 
@@ -106,16 +86,16 @@ void VstXSynth::getParameterDisplay (long index, char *text)
 {
 	switch(index)
 	{
-		case kMaxDelay : float2string(save[index]*NUM_BEATS,text); break;
-		case kDelayShape : float2string(save[index]*2.f - 1.f,text); break;
-		case kAmpShape : float2string(save[index]*2.f - 1.f,text); break;
+		case kMaxDelay : float2string(save[index]*NUM_BEATS,text, 10); break;
+		case kDelayShape : float2string(save[index]*2.f - 1.f,text, 10); break;
+		case kAmpShape : float2string(save[index]*2.f - 1.f,text, 10); break;
 		case kRenewRand :
 			if(save[kRenewRand] > 0.5f)
 				strcpy(text,"on");
 			else
 				strcpy(text,"off");
 			break;
-		default : float2string(save[index],text); break;
+		default : float2string(save[index],text, 10); break;
 	}
 }
 
@@ -141,7 +121,7 @@ void VstXSynth::setParameter (long index, float value)
 		{
 			if ((save[kMaxDelay] * 60.f * NUM_BEATS) / (BPM * 5.f) > 1.f)
 				save[kMaxDelay] = (BPM*5.f)/(60.f*NUM_BEATS);
-			
+
 			float beatzf = save[kMaxDelay] * NUM_BEATS;
 			long  beatzi = (long)beatzf;
 			float diff = fabsf(beatzf - (float)beatzi);
@@ -156,8 +136,8 @@ void VstXSynth::setParameter (long index, float value)
 			delayR->fillRand();
 		}
 
-		if (editor)
-			((AEffGUIEditor *)editor)->setParameter(index, value);
+		//if (editor)
+		//	((AEffGUIEditor *)editor)->setParameter(index, value);
 
 		setParam();
 	}
@@ -199,7 +179,7 @@ bool VstXSynth::getProductString (char* text)
 	return true;
 }
 
-long VstXSynth::canDo (char* text)
+VstInt32 VstXSynth::canDo (char* text)
 {
 	if (!strcmp(text, "receiveVstTimeInfo"))  return 1;
 	if (!strcmp(text, "receiveVstMidiEvent")) return 1;
@@ -224,13 +204,13 @@ void VstXSynth::getProgramName (char *name)
 	strcpy (name,"");
 }
 
-long VstXSynth::processEvents (VstEvents* ev)
+VstInt32 VstXSynth::processEvents (VstEvents* ev)
 {
 	for (long i = 0; i < ev->numEvents; i++)
 	{
 		if ((ev->events[i])->type != kVstMidiType)
 			continue;
-		
+
 		VstMidiEvent* event = (VstMidiEvent*)ev->events[i];
 		unsigned char* midiData = (unsigned char *)event->midiData;
 
@@ -253,4 +233,3 @@ long VstXSynth::processEvents (VstEvents* ev)
 	}
 	return 1;
 }
-

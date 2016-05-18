@@ -47,14 +47,14 @@ public:
 	virtual void getParameterName(long index, char *text);
 	virtual void setSampleRate(float sampleRate);
 	virtual void resume();
-	virtual long processEvents (VstEvents* ev);
+	virtual VstInt32 processEvents (VstEvents* ev);
 
 	virtual bool getOutputProperties (long index, VstPinProperties* properties);
 	virtual bool getEffectName (char* name);
 	virtual bool getVendorString (char* text);
 	virtual bool getProductString (char* text);
-	virtual long getVendorVersion () {return 1;}
-	virtual long canDo (char* text);
+	virtual VstInt32 getVendorVersion () {return 1;}
+	virtual VstInt32 canDo (char* text);
 
 private:
 
