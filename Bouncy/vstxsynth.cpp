@@ -70,7 +70,7 @@ VstXSynth::~VstXSynth ()
 #endif
 }
 
-void VstXSynth::getParameterLabel (long index, char *label)
+void VstXSynth::getParameterLabel (VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -79,7 +79,7 @@ void VstXSynth::getParameterLabel (long index, char *label)
 	}
 }
 
-void VstXSynth::getParameterDisplay (long index, char *text)
+void VstXSynth::getParameterDisplay (VstInt32 index, char *text)
 {
 	switch(index)
 	{
@@ -96,7 +96,7 @@ void VstXSynth::getParameterDisplay (long index, char *text)
 	}
 }
 
-void VstXSynth::getParameterName (long index, char *label)
+void VstXSynth::getParameterName (VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -108,7 +108,7 @@ void VstXSynth::getParameterName (long index, char *label)
 	}
 }
 
-void VstXSynth::setParameter (long index, float value)
+void VstXSynth::setParameter (VstInt32 index, float value)
 {
 	if(index < kNumParams)
 	{
@@ -140,7 +140,7 @@ void VstXSynth::setParameter (long index, float value)
 	}
 }
 
-float VstXSynth::getParameter (long index)
+float VstXSynth::getParameter (VstInt32 index)
 {
 	if(index < kNumParams)
 		return save[index];
@@ -148,7 +148,7 @@ float VstXSynth::getParameter (long index)
 		return 0.f;
 }
 
-bool VstXSynth::getOutputProperties (long index, VstPinProperties* properties)
+bool VstXSynth::getOutputProperties (VstInt32 index, VstPinProperties* properties)
 {
 	if(index < kNumOutputs)
 	{
@@ -188,7 +188,7 @@ VstInt32 VstXSynth::canDo (char* text)
 	return -1;	// explicitly can't do; 0 => don't know
 }
 
-void VstXSynth::setProgram (long program)
+void VstXSynth::setProgram (VstInt32 program)
 {
 }
 

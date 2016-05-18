@@ -8,7 +8,7 @@
 Multitap::Multitap(unsigned long initialSize)
 {
 	sse = SSEDetect();
-	
+
 	amp = (__m128 *) _aligned_malloc(sizeof(__m128)*32,32);
 	delay = (unsigned long *) _aligned_malloc(sizeof(unsigned long)*32,32);
 	delayfpu = (unsigned long *) _aligned_malloc(sizeof(unsigned long)*32,32);
@@ -19,7 +19,7 @@ Multitap::Multitap(unsigned long initialSize)
 	mask = 0;
 	indexfpu = 0;
 	maskfpu = 0;
-	
+
 	for(long i=0;i<32;i++)
 	{
 		delayfpu[i] = 0;
@@ -57,7 +57,7 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 	//if it isn't, we need to process untill it *IS*
 	unsigned long startSize = (4 - (indexfpu & 3)) & 3;
 	unsigned long blockSize = 0;
-	
+
 	//stupid, but who cares ;-)
 	while(startSize + blockSize + 4 <= nSamples)
 		blockSize += 4;
@@ -67,14 +67,14 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 
 	if(startSize)
 		processFPU(inputs,outputs,startSize,replace);
-	
+
 	inputs += startSize;
 	outputs += startSize;
 
 	if(blockSize)
 	{
 		nSamples = blockSize;
-		
+
 		unsigned long index = indexfpu >> 2;
 
 		_mm_empty();
@@ -90,7 +90,7 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 			{
 				float *x = inputs + 4;
 				float *y = outputs + 4;
-				
+
 				_mm_prefetch((char *) x,0);
 				_mm_prefetch((char *) y,0);
 
@@ -118,12 +118,12 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 					out_sse = _mm_add_ps(_mm_mul_ps(amp[z+3],buffer[tmp4]),out_sse);
 					_mm_prefetch(((char *)&buffer[tmp4]) + 16,0);
 				}
-			
+
 				if(replace)
 					_mm_store_ps(outputs,out_sse);
 				else
 					_mm_store_ps(outputs,_mm_add_ps(out_sse,_mm_load_ps(outputs)));
-				
+
 				index++;
 				index &= mask;
 
@@ -138,7 +138,7 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 			{
 				float *x = inputs + 4;
 				float *y = outputs + 4;
-				
+
 				_mm_prefetch((char *) x,0);
 				_mm_prefetch((char *) y,0);
 
@@ -165,12 +165,12 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 					out_sse = _mm_add_ps(_mm_mul_ps(amp[z+3],buffer[tmp4]),out_sse);
 					_mm_prefetch(((char *)&buffer[tmp4]) + 16,0);
 				}
-			
+
 				if(replace)
 					_mm_storeu_ps(outputs,out_sse);
 				else
 					_mm_storeu_ps(outputs,_mm_add_ps(out_sse,_mm_loadu_ps(outputs)));
-				
+
 				index++;
 				index &= mask;
 
@@ -200,9 +200,9 @@ void Multitap::processFPU(float *inputs, float *outputs, unsigned long nSamples,
 	for(unsigned long j=0;j<nSamples;j++)
 	{
 		bufferfpu[indexfpu] = inputs[j];
-		
+
 		out0 = out1 = out2 = out3 = 0.f;
-			
+
 		for(long i=0;i<32;i+=4)
 		{
 			out0  += bufferfpu[(indexfpu - delayfpu[i+0]) & maskfpu]*ampfpu[(i+0)*4];
@@ -210,7 +210,7 @@ void Multitap::processFPU(float *inputs, float *outputs, unsigned long nSamples,
 			out2  += bufferfpu[(indexfpu - delayfpu[i+2]) & maskfpu]*ampfpu[(i+2)*4];
 			out3  += bufferfpu[(indexfpu - delayfpu[i+3]) & maskfpu]*ampfpu[(i+3)*4];
 		}
-	
+
 		if(replace)
 			outputs[j] = out0 + out1 + out2 + out3;
 		else
@@ -230,7 +230,7 @@ void Multitap::setParameters(const float _amp[32], const float _delay[32])
 
 	if((unsigned long) maxdelay > buffersize*4)
 		setDelay((unsigned long)maxdelay);
-	
+
 	for(i=0;i<32;i++)
 	{
 		delayfpu[i] = ((unsigned long)_delay[i]) & 0xfffffffc;
@@ -258,9 +258,9 @@ void Multitap::setDelay(unsigned long size)
 		_aligned_free(buffer);
 		buffer = 0;
 	}
-	
+
 	buffer = (__m128 *) _aligned_malloc(sizeof(__m128)*buffersize,32);
-	
+
 	resume();
 };
 
@@ -268,7 +268,7 @@ void Multitap::resume()
 {
 	for(unsigned long j=0;j<buffersize;j++)
 		set4(buffer[j],0.f);
-		
+
 	indexfpu = 0;
 };
 
@@ -281,7 +281,7 @@ bool Multitap::SSEDetect()
 		{
 			orps xmm1, xmm2
 		}
-		
+
 		_mm_empty(); //you knever know
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
@@ -313,7 +313,7 @@ Multitap::Multitap(unsigned long initialSize)
 	buffersize = 0;
 	mask = 0;
 	index = 0;
-	
+
 	for(long i=0;i<32;i++)
 	{
 		delay[i] = 0;
@@ -336,9 +336,9 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 	for(unsigned long j=0;j<nSamples;j++)
 	{
 		buffer[index] = inputs[j];
-		
+
 		out0 = out1 = out2 = out3 = 0.f;
-			
+
 		for(long i=0;i<32;i+=4)
 		{
 			out0  += buffer[(index - delay[i+0]) & mask]*amp[i+0];
@@ -346,7 +346,7 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 			out2  += buffer[(index - delay[i+2]) & mask]*amp[i+2];
 			out3  += buffer[(index - delay[i+3]) & mask]*amp[i+3];
 		}
-	
+
 		if(replace)
 			outputs[j] = out0 + out1 + out2 + out3;
 		else
@@ -366,13 +366,13 @@ void Multitap::setParameters(const float _amp[32], const float _delay[32])
 
 	if((unsigned long) maxdelay > buffersize)
 		setDelay((unsigned long)maxdelay);
-	
+
 	for(i=0;i<32;i++)
 	{
 		delay[i] = (unsigned long)_delay[i];
 		amp[i] = _amp[i];
 	}
-};
+}
 
 void Multitap::setDelay(unsigned long size)
 {
@@ -392,18 +392,18 @@ void Multitap::setDelay(unsigned long size)
 		delete buffer;
 		buffer = 0;
 	}
-	
+
 	buffer = new float [buffersize];
-	
+
 	resume();
-};
+}
 
 void Multitap::resume()
 {
 	for(unsigned long j=0;j<buffersize;j++)
 		buffer[j] = 0.f;
-		
+
 	index = 0;
-};
+}
 
 #endif
