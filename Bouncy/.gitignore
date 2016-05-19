@@ -1,2 +1,5 @@
-*.dblite
-*.os
+Bouncy.vst
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
