@@ -64,18 +64,27 @@ CMouseEventResult CWaveDisplay::onMouseDown(CPoint& where, const CButtonState& b
     if (((buttons & kApple) && (buttons & kLButton)) || (buttons & kRButton)) {
         down = true;
         this->where = where;
+        return CMouseEventResult::kMouseEventHandled;
     }
+
+    return CMouseEventResult::kMouseEventNotHandled;
 }
 
 CMouseEventResult CWaveDisplay::onMouseMoved(CPoint& where, const CButtonState& buttons)
 {
     if (down)
+    {
         this->where = where;
+        return CMouseEventResult::kMouseEventHandled;
+    }
+
+    return CMouseEventResult::kMouseEventNotHandled;
 }
 
 CMouseEventResult CWaveDisplay::onMouseUp(CPoint& where, const CButtonState& buttons)
 {
     down = false;
+    return CMouseEventResult::kMouseEventHandled;
 }
 
 inline float cf_lin2db(float lin)

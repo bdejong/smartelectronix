@@ -21,18 +21,19 @@ CSmartelectronixDisplayEditor::~CSmartelectronixDisplayEditor()
 
 bool CSmartelectronixDisplayEditor::open(void* ptr)
 {
-    // !!! always call this !!!
-    AEffGUIEditor::open(ptr);
+		CBitmap* hBackground = new CBitmap("body.bmp");
 
-    CBitmap* hBackground = new CBitmap(IDB_BITMAPBACKGROUND);
-    CBitmap* heads = new CBitmap(IDB_BITMAPHEADS);
+		CRect frameSize (rect.left, rect.top, rect.right, rect.bottom);
+		CFrame* newFrame = new CFrame (frameSize, this);
+		newFrame->open (ptr);
+		newFrame->setBackground(hBackground);
+		newFrame->setBackgroundColor (kWhiteCColor);
+
+		/*
+		setKnobMode(kLinearMode);
+
+		CBitmap* heads = new CBitmap(IDB_BITMAPHEADS);
     CBitmap* readout = new CBitmap(IDB_BITMAPREADOUT);
-
-    //init frame
-    CRect size(0, 0, hBackground->getWidth(), hBackground->getHeight());
-    frame = new CFrame(size, this);
-    frame->setBackground(hBackground);
-    setKnobMode(kLinearMode);
 
     //display = new CWaveDisplay(CRect(38,16,663,285),(CSmartelectronixDisplay*)effect,hBackground,heads,readout);
     display = new CWaveDisplay(CRect(38, 16, 665, 285), (CSmartelectronixDisplay*)effect, hBackground, heads, readout);
@@ -146,7 +147,9 @@ bool CSmartelectronixDisplayEditor::open(void* ptr)
     triggerLevel->setDrawTransparentHandle(false);
     frame->addView(triggerLevel);
 
-    myFaderHandlePixmap->forget();
+    myFaderHandlePixmap->forget();*/
+
+		frame = newFrame;
     hBackground->forget();
 
     return true;
@@ -154,13 +157,9 @@ bool CSmartelectronixDisplayEditor::open(void* ptr)
 
 void CSmartelectronixDisplayEditor::close()
 {
-    /*
-	if(frame != 0)
-	{
-		delete frame;
+		CFrame* oldFrame = frame;
 		frame = 0;
-	}
-	*/
+		oldFrame->forget ();
 }
 
 void CSmartelectronixDisplayEditor::setParameter(long index, float value)

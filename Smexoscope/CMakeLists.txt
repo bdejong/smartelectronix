@@ -47,6 +47,18 @@ ENDIF (APPLE)
 
 project(Smexoscope)
 
+set(PROJECT_BITMAPS
+  bitmaps/blue_knob1_4.bmp
+  bitmaps/body.bmp
+  bitmaps/free_etc.bmp
+  bitmaps/heads.bmp
+  bitmaps/lefr_right.bmp
+  bitmaps/off_on.bmp
+  bitmaps/readout.bmp
+  bitmaps/readout2.bmp
+  bitmaps/slider_new.bmp
+)
+
 set(PROJECT_SOURCE_CODE
   SmartelectronixDisplayMain.cpp
   SmartelectronixDisplay.cpp
@@ -54,8 +66,10 @@ set(PROJECT_SOURCE_CODE
   Label.cpp
   MultiStateButton.cpp
   WaveDisplay.cpp
-  resource.rc
+  ${PROJECT_BITMAPS}
 )
+
+set_source_files_properties(${PROJECT_BITMAPS} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 add_library(Smexoscope MODULE ${PROJECT_SOURCE_CODE} ${VST_SOURCE_CODE} ${PKG_INFO} ${VST_GUI_SOURCE_CODE})
 

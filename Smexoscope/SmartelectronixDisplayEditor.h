@@ -14,7 +14,7 @@ public:
     CSmartelectronixDisplayEditor(AudioEffect* effect);
     virtual ~CSmartelectronixDisplayEditor();
 
-    virtual CBaseObject* newCopy() const { return 0; }
+    //virtual CBaseObject* newCopy() const { return 0; }
 
 protected:
     virtual bool open(void* ptr);
