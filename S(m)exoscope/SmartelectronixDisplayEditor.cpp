@@ -18,7 +18,7 @@ CSmartelectronixDisplayEditor::~CSmartelectronixDisplayEditor()
 {
 }
 
-long CSmartelectronixDisplayEditor::open (void *ptr)
+bool CSmartelectronixDisplayEditor::open (void *ptr)
 {
 	// !!! always call this !!!
 	AEffGUIEditor::open(ptr);
@@ -26,14 +26,14 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 	CBitmap *hBackground = new CBitmap(IDB_BITMAPBACKGROUND);
 	CBitmap *heads = new CBitmap(IDB_BITMAPHEADS);
 	CBitmap *readout = new CBitmap(IDB_BITMAPREADOUT);
-	
+
 	//init frame
 	CRect size(0, 0, hBackground->getWidth (), hBackground->getHeight ());
-	frame = new CFrame(size, ptr, this);
+	frame = new CFrame(size, this);
 	frame->setBackground(hBackground);
 	setKnobMode(kLinearMode);
-	
-	
+
+
 	//display = new CWaveDisplay(CRect(38,16,663,285),(CSmartelectronixDisplay*)effect,hBackground,heads,readout);
 	display = new CWaveDisplay(CRect(38,16,665,285),(CSmartelectronixDisplay*)effect,hBackground,heads,readout);
 	frame->addView(display);
@@ -52,7 +52,7 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 	((CSmartelectronixDisplay *)effect)->getDisplay(CSmartelectronixDisplay::kTimeWindow,temp);
 	timeLabel = new CLabel(CRect(696,72,730,83),temp);
 	frame->addView(timeLabel);
-	
+
 	// amp window
 	ampWindow = new CAnimKnob(CRect(762, 31,762+knob->getWidth(), 31+knob->getHeight()/75), this, CSmartelectronixDisplay::kAmpWindow, 75, 33, knob, CPoint(0,0));
 	ampWindow->setDefaultValue(0.5f);
@@ -62,17 +62,17 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 	((CSmartelectronixDisplay *)effect)->getDisplay(CSmartelectronixDisplay::kAmpWindow,temp);
 	ampLabel = new CLabel(CRect(760,72,794,83),temp);
 	frame->addView(ampLabel);
-	
+
 	// trigger speed
 	triggerSpeed = new CAnimKnob(CRect(700, 134, 700+knob->getWidth(), 134+knob->getHeight()/75), this, CSmartelectronixDisplay::kTriggerSpeed, 75, 33, knob, CPoint(0,0));
 	triggerSpeed->setDefaultValue(0.5f);
 	triggerSpeed->setValue(effect->getParameter(CSmartelectronixDisplay::kTriggerSpeed));
 	frame->addView(triggerSpeed);
-	
+
 	((CSmartelectronixDisplay *)effect)->getDisplay(CSmartelectronixDisplay::kTriggerSpeed,temp);
 	trigLabel = new CLabel(CRect(698,175,732,186),temp);
 	frame->addView(trigLabel);
-	
+
 	// trigger limit
 	triggerLimit = new CAnimKnob(CRect(765, 134, 765+knob->getWidth(), 134+knob->getHeight()/75), this, CSmartelectronixDisplay::kTriggerLimit, 75, 33, knob, CPoint(0,0));
 	triggerLimit->setDefaultValue(0.5f);
@@ -95,7 +95,7 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 	trigger->setValue(effect->getParameter(CSmartelectronixDisplay::kTriggerType));
 	frame->addView(trigger);
 	triggerBitmap->forget();
-	
+
 	CBitmap *onOff = new CBitmap(IDB_BITMAPONOFF);
 	CBitmap *channel = new CBitmap(IDB_BITMAPCHANNEL);
 
@@ -113,7 +113,7 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 	freeze = new COnOffButton(CRect(754, 221, 754+onOff->getWidth(), 221+onOff->getHeight()/2),this,CSmartelectronixDisplay::kFreeze,onOff);
 	freeze->setValue(effect->getParameter(CSmartelectronixDisplay::kFreeze));
 	frame->addView(freeze);
-	
+
 	// channel
 	channelSelector = new COnOffButton(CRect(748, 259, 748+onOff->getWidth(), 259+onOff->getHeight()/2),this,CSmartelectronixDisplay::kChannel,channel);
 	channelSelector->setValue(effect->getParameter(CSmartelectronixDisplay::kChannel));
@@ -121,7 +121,7 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 
 	onOff->forget();
 	channel->forget();
-	
+
 	//trigger level slider
 	CBitmap *myFaderHandlePixmap = new CBitmap (IDB_BITMAPSLIDERHANDLE);
 
@@ -155,11 +155,13 @@ long CSmartelectronixDisplayEditor::open (void *ptr)
 
 void CSmartelectronixDisplayEditor::close()
 {
+	/*
 	if(frame != 0)
 	{
 		delete frame;
 		frame = 0;
 	}
+	*/
 }
 
 void CSmartelectronixDisplayEditor::setParameter (long index, float value)
@@ -183,7 +185,7 @@ void CSmartelectronixDisplayEditor::setParameter (long index, float value)
 	}
 
 	((CSmartelectronixDisplay *)effect)->getDisplay(index,temp);
-	
+
 	switch(index)
 	{
 		case CSmartelectronixDisplay::kTriggerLimit 	: threshLabel->setLabel(temp); break;
@@ -192,10 +194,10 @@ void CSmartelectronixDisplayEditor::setParameter (long index, float value)
 		case CSmartelectronixDisplay::kAmpWindow	: ampLabel->setLabel(temp); break;
 	}
 
-	postUpdate();
+	//postUpdate();
 }
 
-void CSmartelectronixDisplayEditor::valueChanged (CDrawContext* context, CControl* control)
+void CSmartelectronixDisplayEditor::valueChanged (CControl* control)
 {
 	long tag = control->getTag();
 
@@ -203,7 +205,7 @@ void CSmartelectronixDisplayEditor::valueChanged (CDrawContext* context, CContro
 	{
 		//get display...
 		((CSmartelectronixDisplay *)effect)->getDisplay(tag,temp);
-			
+
 		switch(tag)
 		{
 			case CSmartelectronixDisplay::kTriggerLimit 	: threshLabel->setLabel(temp); break;
@@ -216,8 +218,8 @@ void CSmartelectronixDisplayEditor::valueChanged (CDrawContext* context, CContro
 		effect->setParameterAutomated(tag, control->getValue ());
 	}
 
-	if(context != 0)
-		control->update(context);
+	//if(context != 0)
+	//	control->update(context);
 }
 
 void CSmartelectronixDisplayEditor::idle()

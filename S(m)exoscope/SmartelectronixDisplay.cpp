@@ -3,6 +3,16 @@
 
 #include "math.h"
 
+#include <sstream>
+
+template <class T>
+inline std::string to_string (const T& t)
+{
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+}
+
 //-----------------------------------------------------------------------------
 CSmartelectronixDisplay::CSmartelectronixDisplay(audioMasterCallback audioMaster) : AudioEffectX(audioMaster, kNumPrograms, kNumParams)
 {
@@ -15,21 +25,21 @@ CSmartelectronixDisplay::CSmartelectronixDisplay(audioMasterCallback audioMaster
 	setUniqueID('osX2');
 #endif
 
-	
-	canMono();
+
+	//canMono();
 	canProcessReplacing();
 
 	long j;
 	for(j=0;j<OSC_WIDTH*2;j+=2)
 	{
-		peaks[j].h = j/2;
-		peaks[j].v = OSC_HEIGHT/2-1;
-		peaks[j+1].h = j/2;
-		peaks[j+1].v = OSC_HEIGHT/2-1;
-		copy[j].h = j/2;
-		copy[j].v = OSC_HEIGHT/2-1;
-		copy[j+1].h = j/2;
-		copy[j+1].v = OSC_HEIGHT/2-1;
+		peaks[j].x = j/2;
+		peaks[j].y = OSC_HEIGHT/2-1;
+		peaks[j+1].x = j/2;
+		peaks[j+1].y = OSC_HEIGHT/2-1;
+		copy[j].x = j/2;
+		copy[j].y = OSC_HEIGHT/2-1;
+		copy[j+1].x = j/2;
+		copy[j+1].y = OSC_HEIGHT/2-1;
 	}
 
 	setParameter(kTriggerSpeed,0.5f);
@@ -42,7 +52,7 @@ CSmartelectronixDisplay::CSmartelectronixDisplay(audioMasterCallback audioMaster
 	setParameter(kChannel,0.f);
 	setParameter(kFreeze,0.f);
 	setParameter(kDCKill,0.f);
-	
+
 	suspend();
 
 	editor = new CSmartelectronixDisplayEditor(this);
@@ -61,7 +71,7 @@ void CSmartelectronixDisplay::processSub(float **inputs, long sampleFrames)
 		suspend();
 		return;
 	}
-	
+
 	float *samples = SAVE[kChannel] > 0.5 ? inputs[1] : inputs[0];
 
 #if !SIMPLE_VERSION
@@ -82,20 +92,20 @@ void CSmartelectronixDisplay::processSub(float **inputs, long sampleFrames)
 	{
 		// DC filter...
 		dcKill = samples[i] - dcFilterTemp + R * dcKill;
-		
+
 		dcFilterTemp = samples[i];
-		
+
 		if(fabs(dcKill) < 1e-10)
 			dcKill = 0.f;
 
 		// Gain
 		float sample = dcOn ? (float)dcKill : samples[i];
 		sample = clip(sample*gain,1.f);
-		
+
 		// triggers
-		
+
 		bool trigger = false;
-	
+
 		switch(triggerType)
 		{
 			case kTriggerInternal	:
@@ -109,7 +119,7 @@ void CSmartelectronixDisplay::processSub(float **inputs, long sampleFrames)
 					}
 					break;
 				}
-			case kTriggerRising		: 
+			case kTriggerRising		:
 				{
 					// trigger on a rising edge
 					if(sample >= triggerLevel && previousSample < triggerLevel)
@@ -148,10 +158,10 @@ void CSmartelectronixDisplay::processSub(float **inputs, long sampleFrames)
 		if(trigger)
 		{
 			unsigned long j;
-			
+
 			// zero peaks after the last one
 			for(j=index*2;j<OSC_WIDTH*2;j+=2)
-				peaks[j].v = peaks[j+1].v = OSC_HEIGHT/2-1;
+				peaks[j].y = peaks[j+1].y = OSC_HEIGHT/2-1;
 
 			// copy to a buffer for drawing!
 			for(j=0;j<OSC_WIDTH*2;j++)
@@ -191,8 +201,8 @@ void CSmartelectronixDisplay::processSub(float **inputs, long sampleFrames)
 				long min_Y = (long)(OSC_HEIGHT*0.5f - min*0.5f*OSC_HEIGHT) - 1;
 
 				// thanks to David @ Plogue for this interesting hint!
-				peaks[(index<<1)].v = lastIsMax ? min_Y : max_Y;
-				peaks[(index<<1)+1].v = lastIsMax ? max_Y : min_Y;
+				peaks[(index<<1)].y = lastIsMax ? min_Y : max_Y;
+				peaks[(index<<1)+1].y = lastIsMax ? max_Y : min_Y;
 
 				index++;
 			}
@@ -203,7 +213,7 @@ void CSmartelectronixDisplay::processSub(float **inputs, long sampleFrames)
 			//counter = counter - (long)counter;
 			counter -= 1.0;
 		}
-		
+
 		// store for edge-triggers !
 		previousSample = sample;
 	}
@@ -238,7 +248,7 @@ bool CSmartelectronixDisplay::getProductString (char* text)
 }
 
 //-----------------------------------------------------------------------------------------
-long CSmartelectronixDisplay::canDo(char* text)
+VstInt32 CSmartelectronixDisplay::canDo(char* text)
 {
 	// set the capabilities of your plugin
 	if (!strcmp (text, "receiveVstEvents"))    return 0;
@@ -288,7 +298,7 @@ void CSmartelectronixDisplay::setSampleRate(float sampleRate)
 	// TODO: the samplerate has changed...
 }
 
-void CSmartelectronixDisplay::setBlockSize (long blockSize)
+void CSmartelectronixDisplay::setBlockSize (VstInt32 blockSize)
 {
 	// allways call this
 	AudioEffect::setBlockSize(blockSize);
@@ -296,7 +306,7 @@ void CSmartelectronixDisplay::setBlockSize (long blockSize)
 	// TODO: the MAXIMUM block size has changed...
 }
 
-void CSmartelectronixDisplay::process(float **inputs, float **outputs, long sampleFrames)
+void CSmartelectronixDisplay::process(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 #if SIMPLE_VERSION
 	float *in1  =  inputs[0];
@@ -314,7 +324,7 @@ void CSmartelectronixDisplay::process(float **inputs, float **outputs, long samp
 	processSub(inputs,sampleFrames);
 }
 
-void CSmartelectronixDisplay::processReplacing(float **inputs, float **outputs, long sampleFrames)
+void CSmartelectronixDisplay::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 #if SIMPLE_VERSION
 	float *in1  =  inputs[0];
@@ -346,13 +356,13 @@ void CSmartelectronixDisplay::getProgramName(char *name)
 }
 
 //-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::setProgram(long index)
+void CSmartelectronixDisplay::setProgram(VstInt32 index)
 {
 		// this template does not use programs yet
 };
 
 //-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::setParameter(long index, float value)
+void CSmartelectronixDisplay::setParameter(VstInt32 index, float value)
 {
 	SAVE[index] = value;
 
@@ -361,13 +371,13 @@ void CSmartelectronixDisplay::setParameter(long index, float value)
 }
 
 //-----------------------------------------------------------------------------------------
-float CSmartelectronixDisplay::getParameter(long index)
+float CSmartelectronixDisplay::getParameter(VstInt32 index)
 {
 	return SAVE[index];
 }
 
 //-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::getParameterName(long index, char *label)
+void CSmartelectronixDisplay::getParameterName(VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -386,64 +396,66 @@ void CSmartelectronixDisplay::getParameterName(long index, char *label)
 }
 
 //-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::getParameterDisplay(long index, char *text)
+void CSmartelectronixDisplay::getParameterDisplay(VstInt32 index, char *text)
 {
 	switch(index)
 	{
 		case kTriggerType	:
 			{
 				long triggerType = (long)(SAVE[kTriggerType]*kNumTriggerTypes + 0.0001);
-				long2string(triggerType,text);
+				std::string s = to_string(triggerType);
+				std::strcpy(text, s.c_str());
 				break;
 			}
 		case kTriggerLevel	:
 			{
 				float	triggerLevel	= (SAVE[kTriggerLevel]*2.f-1.f);
-				float2string(triggerLevel,text);
+				float2string(triggerLevel,text,25);
 				break;
 			}
 		case kTriggerLimit	:
 			{
 				long triggerLimit = (long)(pow(10.f,SAVE[kTriggerLimit]*4.f)); // [0=>1 1=>10000
-				long2string(triggerLimit,text);
+				std::string s = to_string(triggerLimit);
+				std::strcpy(text, s.c_str());
 				break;
 			}
 		case kTimeWindow	:
 			{
 				double counterSpeed = pow(10.f,-SAVE[kTimeWindow]*5.f + 1.5); // [0=>10 1=>0.001
-				float2string((float)counterSpeed,text);
+				float2string((float)counterSpeed,text,25);
 				break;
 			}
 		case kTriggerSpeed	:
 			{
 				double triggerSpeed = pow(10.0,2.5*SAVE[kTriggerSpeed]-5.0) * getSampleRate();
-				float2string((float)triggerSpeed,text);
+				float2string((float)triggerSpeed,text,25);
 				break;
 			}
 		case kAmpWindow		:
 			{
 				float gain = powf(10.f,SAVE[kAmpWindow]*6.f - 3.f);
-				float2string(gain,text);
+				float2string(gain,text,25);
 				break;
 			}
-		case kChannel		: 
+		case kChannel		:
 			{
 				if(SAVE[index] > 0.5f)
 					strcpy(text, "right");
 				else
 					strcpy(text, "left");
-				
+
 				break;
 			}
-		case kSyncDraw		: 
-		case kFreeze		: 
+		case kSyncDraw		:
+		case kFreeze		:
 		case kDCKill		:
 			{
 				if(SAVE[index] > 0.5f)
 					strcpy(text, "on");
 				else
 					strcpy(text, "off");
-				
+
 				break;
 			}
 		default: strcpy(text,""); break;
@@ -453,7 +465,7 @@ void CSmartelectronixDisplay::getParameterDisplay(long index, char *text)
 }
 
 //-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::getParameterLabel(long index, char *label)
+void CSmartelectronixDisplay::getParameterLabel(VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -484,7 +496,7 @@ void trim(char *text)
 	text[j] = 0;
 }
 
-void CSmartelectronixDisplay::getDisplay(long index, char *text)
+void CSmartelectronixDisplay::getDisplay(VstInt32 index, char *text)
 {
 	getParameterDisplay(index,text);
 	trim(text);

@@ -61,21 +61,21 @@ public:
 	CSmartelectronixDisplay(audioMasterCallback audioMaster);
 	~CSmartelectronixDisplay();
 
-	virtual void	process(float **inputs, float **outputs, long sampleFrames);
-	virtual void	processReplacing(float **inputs, float **outputs, long sampleFrames);
-	
+	virtual void	process(float **inputs, float **outputs, VstInt32 sampleFrames);
+	virtual void	processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames);
+
 	virtual void	setProgramName(char *name);
-	virtual void	setProgram(long index);
+	virtual void	setProgram(VstInt32 index);
 	virtual void	getProgramName(char *name);
-	virtual void	setParameter(long index, float value);
-	virtual float	getParameter(long index);
-	virtual void	getParameterLabel(long index, char *label);
-	virtual void	getParameterDisplay(long index, char *text);
-	virtual void	getParameterName(long index, char *text);
+	virtual void	setParameter(VstInt32 index, float value);
+	virtual float	getParameter(VstInt32 index);
+	virtual void	getParameterLabel(VstInt32 index, char *label);
+	virtual void	getParameterDisplay(VstInt32 index, char *text);
+	virtual void	getParameterName(VstInt32 index, char *text);
 
-	void getDisplay(long index, char *text);
+	void getDisplay(VstInt32 index, char *text);
 
-	virtual long	canDo(char* text);
+	virtual VstInt32 canDo(char* text);
 	virtual bool	getEffectName (char* name);
 	virtual bool	getVendorString (char* text);
 	virtual bool	getProductString (char* text);
@@ -83,7 +83,7 @@ public:
 	virtual void	suspend();
 	virtual void	resume();
 	virtual void	setSampleRate(float sampleRate);
-	virtual void	setBlockSize (long blockSize);
+	virtual void	setBlockSize (VstInt32 blockSize);
 
 	// these should be protected...
 	CPoint peaks[OSC_WIDTH*2];
@@ -96,13 +96,13 @@ protected:
 
 	// index into the peak-array
 	unsigned long index;
-	
+
 	// counter which is used to set the amount of samples / pixel
 	double counter;
-	
+
 	// max/min peak in this block
 	float max, min, maxR, minR;
-	
+
 	// the last peak we encountered was a maximum!
 	bool lastIsMax;
 

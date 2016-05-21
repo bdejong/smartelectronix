@@ -7,14 +7,14 @@
 
 #include "vstgui.h"
 
-class CLabel : public CParamDisplay  
+class CLabel : public CParamDisplay
 {
 public:
-	CLabel(CRect &R, const char *text);
-	
+	CLabel(const CRect &R, const char *text);
+
 	void setLabel(const char *text);
 	void draw(CDrawContext *pContext);
-	
+
 	virtual ~CLabel();
 
 protected:

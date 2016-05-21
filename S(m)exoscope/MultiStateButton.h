@@ -14,12 +14,14 @@
 class CMultiStateButton : public CControl
 {
 public:
-	CMultiStateButton (const CRect &size, CControlListener *listener, long tag,
+	CMultiStateButton (const CRect &size, IControlListener *listener, long tag,
                   CBitmap *background, long nStates, long heightOfOneState);
 	virtual ~CMultiStateButton ();
 
 	virtual void draw (CDrawContext*);
-	virtual void mouse (CDrawContext *pContext, CPoint &where);
+	virtual CMouseEventResult onMouseDown (CPoint& where, const CButtonState& buttons);
+
+	virtual CBaseObject* newCopy () const { return 0; }
 
 private:
 	long nStates, state, heightOfOneState;
