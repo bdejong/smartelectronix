@@ -30,16 +30,18 @@ CSmartelectronixDisplay::CSmartelectronixDisplay(audioMasterCallback audioMaster
 	canProcessReplacing();
 
 	long j;
+  CPoint tmp;
 	for(j=0;j<OSC_WIDTH*2;j+=2)
 	{
-		peaks[j].x = j/2;
-		peaks[j].y = OSC_HEIGHT/2-1;
-		peaks[j+1].x = j/2;
-		peaks[j+1].y = OSC_HEIGHT/2-1;
-		copy[j].x = j/2;
-		copy[j].y = OSC_HEIGHT/2-1;
-		copy[j+1].x = j/2;
-		copy[j+1].y = OSC_HEIGHT/2-1;
+    tmp.x = j/2;
+		tmp.y = OSC_HEIGHT/2-1;
+    peaks.push_back(tmp);
+    peaks.push_back(tmp);
+
+		tmp.x = j/2;
+		tmp.y = OSC_HEIGHT/2-1;
+    copy.push_back(tmp);
+    copy.push_back(tmp);
 	}
 
 	setParameter(kTriggerSpeed,0.5f);

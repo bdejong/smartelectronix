@@ -16,7 +16,7 @@
 // CVuMeter
 //------------------------------------------------------------------------
 CWaveDisplay::CWaveDisplay (const CRect &size, CSmartelectronixDisplay* effect, CBitmap *back, CBitmap *heads, CBitmap *readout)
-			 :CControl (size, 0, 0), effect(effect), back(back), heads(heads), readout(readout)
+			 :CControl (size, 0, 0), effect(effect), back(back), heads(heads), readout(readout), down(false)
 {
 	value = oldValue = 0.f;
 
@@ -54,30 +54,26 @@ void CWaveDisplay::setDirty(const bool val)
 	CView::setDirty(val);
 }
 
-void CWaveDisplay::mouse(CDrawContext *pContext, CPoint &where)
+CMouseEventResult CWaveDisplay::onMouseDown (CPoint& where, const CButtonState& buttons)
 {
-	long button = pContext->getMouseButtons();
-
-	if(((button & kApple) && (button & kLButton)) || (button & kRButton))
+	if(((buttons & kApple) && (buttons & kLButton)) || (buttons & kRButton))
 	{
-		this->where.x = -1;
-	}
-
-	while(button & kLButton) //still pushing that button?
-	{
-		CPoint click;
-		pContext->getMouseLocation(click);
-
-		if(size.pointInside(click))
-			this->where = click;
-		else
-			this->where.x = -1;
-
-		button = pContext->getMouseButtons();
-
-		//doIdleStuff();
+		down = true;
+		this->where = where;
 	}
 }
+
+CMouseEventResult CWaveDisplay::onMouseMoved (CPoint& where, const CButtonState& buttons)
+{
+	if (down)
+		this->where = where;
+}
+
+CMouseEventResult CWaveDisplay::onMouseUp (CPoint& where, const CButtonState& buttons)
+{
+	down = false;
+}
+
 
 inline float cf_lin2db(float lin)
 {
@@ -89,7 +85,7 @@ inline float cf_lin2db(float lin)
 void CWaveDisplay::draw (CDrawContext *pContext)
 {
 	if(OSDC == 0)
-		OSDC = new COffscreenContext::create(getParent(),size.getWidth(),size.getHeight());
+		OSDC = COffscreenContext::create(getFrame(),size.getWidth(),size.getHeight());
 
 	// background, stupid hack, for some reason the rect is offset one pixel??
 	CRect R(0,0,size.getWidth(),size.getHeight());
@@ -117,7 +113,7 @@ void CWaveDisplay::draw (CDrawContext *pContext)
 	OSDC->drawLine(CPoint(0,size.getHeight()/2-1), CPoint(size.getWidth()-1,size.getHeight()/2-1));
 
 	// waveform
-	CPoint *points = (effect->getParameter(CSmartelectronixDisplay::kSyncDraw) > 0.5f) ? effect->copy : effect->peaks;
+	const std::vector<CPoint>& points = (effect->getParameter(CSmartelectronixDisplay::kSyncDraw) > 0.5f) ? effect->getCopy() : effect->getPeaks();
 	double counterSpeedInverse = pow(10.f,effect->getParameter(CSmartelectronixDisplay::kTimeWindow)*5.f - 1.5);
 
 	if(counterSpeedInverse < 1.0) //draw interpolated lines!
@@ -137,7 +133,7 @@ void CWaveDisplay::draw (CDrawContext *pContext)
 			double alpha = phase - (double)index;
 
 			long xi = i;
-			long yi = (long)((1.0-alpha)*points[index<<1].v + alpha*points[(index+1)<<1].v);
+			long yi = (long)((1.0-alpha)*points[index<<1].y + alpha*points[(index+1)<<1].y);
 
 			OSDC->drawLine(CPoint(prevxi,prevyi), CPoint(xi,yi));
 			prevxi = xi;
@@ -150,17 +146,17 @@ void CWaveDisplay::draw (CDrawContext *pContext)
 	{
 		CColor grey = {118,118,118};
 		OSDC->setFrameColor(grey);
-		OSDC->polyLine(points,size.getWidth()*2);
+		OSDC->drawPolygon(points);
 	}
 
 	//TODO clean this mess up...
 	if(where.x != -1)
 	{
 		CPoint whereOffset = where;
-		whereOffset.offset(-size.x,-size.y);
+		whereOffset.offset(-size.left,-size.top);
 		CDrawMode oldMode = OSDC->getDrawMode();
 
-		OSDC->setDrawMode(kXorMode);
+		// OSDC->setDrawMode(kXorMode);
 
 		OSDC->drawLine(CPoint(0,whereOffset.y), CPoint(size.getWidth()-1,whereOffset.y));
 		OSDC->drawLine(CPoint(whereOffset.x,0), CPoint(whereOffset.x,size.getHeight()-1));
@@ -185,27 +181,31 @@ void CWaveDisplay::draw (CDrawContext *pContext)
 		CRect textRect(510,10,650,10+lineSize);
 
 		sprintf(text,"y = %.5f", y);
-		OSDC->drawString(text,textRect,false,kLeftText);
+		OSDC->drawString(text,textRect,kLeftText);
 		textRect.offset(0,lineSize);
 
 		sprintf(text,"y = %.5f dB", cf_lin2db(fabsf(y)));
-		OSDC->drawString(text,textRect,false,kLeftText);
+		OSDC->drawString(text,textRect,kLeftText);
 		textRect.offset(0,lineSize*2);
 
 		sprintf(text,"x = %.2f samples", x);
-		OSDC->drawString(text,textRect,false,kLeftText);
+		OSDC->drawString(text,textRect,kLeftText);
 		textRect.offset(0,lineSize);
 
 		sprintf(text,"x = %.5f seconds", x/effect->getSampleRate());
-		OSDC->drawString(text,textRect,false,kLeftText);
+		OSDC->drawString(text,textRect,kLeftText);
 		textRect.offset(0,lineSize);
 
 		sprintf(text,"x = %.5f ms", 1000.f*x/effect->getSampleRate());
-		OSDC->drawString(text,textRect,false,kLeftText);
+		OSDC->drawString(text,textRect,kLeftText);
 		textRect.offset(0,lineSize);
 
-		sprintf(text,(x != 0) ? "x = %.3f Hz" : "x = infinite Hz", effect->getSampleRate()/x);
-		OSDC->drawString(text,textRect,false,kLeftText);
+		if (x == 0)
+			sprintf(text,"x = infinite Hz");
+		else
+			sprintf(text,"x = %.3f Hz", effect->getSampleRate()/x);
+
+		OSDC->drawString(text,textRect,kLeftText);
 
 
 		OSDC->setDrawMode(oldMode);

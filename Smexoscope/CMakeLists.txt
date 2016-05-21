@@ -1,12 +1,12 @@
 # Global settings
 cmake_minimum_required(VERSION 3.5)
+project(Smexoscope)
 
 set(COMMON_DIR ../Common)
 set(STEINBERG_DIR ../Steinberg)
 set(VST_CPP_PATH ${STEINBERG_DIR}/public.sdk/source/vst2.x)
 
-include_directories(${STEINBERG_DIR})
-include_directories(${VST_CPP_PATH})
+
 
 set(VST_SOURCE_CODE
   ${VST_CPP_PATH}/audioeffect.cpp
@@ -23,59 +23,74 @@ set_source_files_properties(${COMMON_DIR}/PkgInfo PROPERTIES
 set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64")
 
 # VST GUI
-
 set(VSTGUI_DIR ../vstgui/vstgui)
 
 include_directories(${VSTGUI_DIR})
 include_directories(${VSTGUI_DIR}/plugin-bindings)
+include_directories(${STEINBERG_DIR})
+include_directories(${VST_CPP_PATH})
 
 set(VST_GUI_SOURCE_CODE
-  ${VSTGUI_DIR}/vstgui.cpp
-  ${VSTGUI_DIR}/lib/cbitmap.cpp
-  ${VSTGUI_DIR}/lib/cbitmapfilter.cpp
-  ${VSTGUI_DIR}/lib/ccolor.cpp
-  ${VSTGUI_DIR}/lib/cdatabrowser.cpp
-  ${VSTGUI_DIR}/lib/cdrawcontext.cpp
-  ${VSTGUI_DIR}/lib/cdrawmethods.cpp
-  ${VSTGUI_DIR}/lib/cdropsource.cpp
-  ${VSTGUI_DIR}/lib/cfileselector.cpp
-  ${VSTGUI_DIR}/lib/cfont.cpp
-  ${VSTGUI_DIR}/lib/cframe.cpp
-  ${VSTGUI_DIR}/lib/cgradientview.cpp
-  ${VSTGUI_DIR}/lib/cgraphicspath.cpp
-  ${VSTGUI_DIR}/lib/clayeredviewcontainer.cpp
-  ${VSTGUI_DIR}/lib/clinestyle.cpp
-  ${VSTGUI_DIR}/lib/coffscreencontext.cpp
-  ${VSTGUI_DIR}/lib/copenglview.cpp
-  ${VSTGUI_DIR}/lib/cpoint.cpp
-  ${VSTGUI_DIR}/lib/crect.cpp
-  ${VSTGUI_DIR}/lib/crowcolumnview.cpp
-  ${VSTGUI_DIR}/lib/cscrollview.cpp
-  ${VSTGUI_DIR}/lib/cshadowviewcontainer.cpp
-  ${VSTGUI_DIR}/lib/csplitview.cpp
-  ${VSTGUI_DIR}/lib/cstring.cpp
-  ${VSTGUI_DIR}/lib/ctabview.cpp
-  ${VSTGUI_DIR}/lib/ctooltipsupport.cpp
-  ${VSTGUI_DIR}/lib/cview.cpp
-  ${VSTGUI_DIR}/lib/cviewcontainer.cpp
-  ${VSTGUI_DIR}/lib/cvstguitimer.cpp
-  ${VSTGUI_DIR}/lib/vstguidebug.cpp
+#  ${VSTGUI_DIR}/vstgui.cpp
+  ${VSTGUI_DIR}/vstgui_mac.mm
+#  ${VSTGUI_DIR}/lib/cbitmap.cpp
+#  ${VSTGUI_DIR}/lib/cbitmapfilter.cpp
+#  ${VSTGUI_DIR}/lib/ccolor.cpp
+#  ${VSTGUI_DIR}/lib/cdatabrowser.cpp
+#  ${VSTGUI_DIR}/lib/cdrawcontext.cpp
+#  ${VSTGUI_DIR}/lib/cdrawmethods.cpp
+#  ${VSTGUI_DIR}/lib/cdropsource.cpp
+#  ${VSTGUI_DIR}/lib/cfileselector.cpp
+#  ${VSTGUI_DIR}/lib/cfont.cpp
+#  ${VSTGUI_DIR}/lib/cframe.cpp
+#  ${VSTGUI_DIR}/lib/cgradientview.cpp
+#  ${VSTGUI_DIR}/lib/cgraphicspath.cpp
+#  ${VSTGUI_DIR}/lib/clayeredviewcontainer.cpp
+#  ${VSTGUI_DIR}/lib/clinestyle.cpp
+#  ${VSTGUI_DIR}/lib/coffscreencontext.cpp
+#  ${VSTGUI_DIR}/lib/copenglview.cpp
+#  ${VSTGUI_DIR}/lib/cpoint.cpp
+#  ${VSTGUI_DIR}/lib/crect.cpp
+#  ${VSTGUI_DIR}/lib/crowcolumnview.cpp
+#  ${VSTGUI_DIR}/lib/cscrollview.cpp
+#  ${VSTGUI_DIR}/lib/cshadowviewcontainer.cpp
+#  ${VSTGUI_DIR}/lib/csplitview.cpp
+#  ${VSTGUI_DIR}/lib/cstring.cpp
+#  ${VSTGUI_DIR}/lib/ctabview.cpp
+#  ${VSTGUI_DIR}/lib/ctooltipsupport.cpp
+#  ${VSTGUI_DIR}/lib/cview.cpp
+#  ${VSTGUI_DIR}/lib/cviewcontainer.cpp
+#  ${VSTGUI_DIR}/lib/cvstguitimer.cpp
+#  ${VSTGUI_DIR}/lib/vstguidebug.cpp
+  ${VSTGUI_DIR}/plugin-bindings/aeffguieditor.cpp
+#  ${VSTGUI_DIR}/plugin-bindings/plugguieditor.cpp
 )
+
+IF(APPLE)
+  find_library(carbon Carbon)
+  find_library(cocoa Cocoa)
+  find_library(opengl OpenGL)
+  find_library(accelerate Accelerate)
+  find_library(quartz QuartzCore)
+
+  set(systemLibs ${carbon} ${cocoa} ${opengl} ${accelerate} ${quartz})
+ENDIF (APPLE)
 
 # Project settings
 
-project(Smexoscope)
-
 set(PROJECT_SOURCE_CODE
-  Label.cpp
-  MultiStateButton.cpp
-  resource.rc
+  SmartelectronixDisplayMain.cpp
   SmartelectronixDisplay.cpp
   SmartelectronixDisplayEditor.cpp
+  Label.cpp
+  MultiStateButton.cpp
   WaveDisplay.cpp
+  resource.rc
 )
 
 add_library(Smexoscope MODULE ${PROJECT_SOURCE_CODE} ${VST_SOURCE_CODE} ${PKG_INFO} ${VST_GUI_SOURCE_CODE})
+
+target_link_libraries(Smexoscope ${systemLibs})
 
 set_target_properties(Smexoscope PROPERTIES
   BUNDLE true

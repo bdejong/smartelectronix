@@ -1,10 +1,6 @@
-#if !defined(AFX_LABEL_H__083847F7_7666_413A_BC3D_9008556151C2__INCLUDED_)
-#define AFX_LABEL_H__083847F7_7666_413A_BC3D_9008556151C2__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
+#include "audioeffectx.h"
 #include "vstgui.h"
 
 class CLabel : public CParamDisplay
@@ -20,5 +16,3 @@ public:
 protected:
 	char label[256];
 };
-
-#endif

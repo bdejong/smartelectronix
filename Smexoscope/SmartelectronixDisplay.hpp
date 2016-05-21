@@ -1,5 +1,4 @@
-#ifndef __SMARTELECTRONIXDISPLAY_H
-#define __SMARTELECTRONIXDISPLAY_H
+#pragma once
 
 #include "audioeffectx.h"
 
@@ -85,11 +84,12 @@ public:
 	virtual void	setSampleRate(float sampleRate);
 	virtual void	setBlockSize (VstInt32 blockSize);
 
-	// these should be protected...
-	CPoint peaks[OSC_WIDTH*2];
-	CPoint copy[OSC_WIDTH*2];
+	const std::vector<CPoint>& getPeaks() const { return peaks; }
+	const std::vector<CPoint>& getCopy() const { return copy; }
 
 protected:
+	std::vector<CPoint> peaks;
+	std::vector<CPoint> copy;
 
 	// the actual algo :-)
 	void processSub(float **inputs, long sampleFrames);
@@ -121,5 +121,3 @@ protected:
 	// dc killer
 	double dcKill, dcFilterTemp;
 };
-
-#endif

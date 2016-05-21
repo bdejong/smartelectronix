@@ -1,16 +1,10 @@
-// CustomVU.h: interface for the CCustomVU class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_CUSTOMVU_H__5F544B25_7208_4C23_8A52_1EB2FD87F45E__INCLUDED_)
-#define AFX_CUSTOMVU_H__5F544B25_7208_4C23_8A52_1EB2FD87F45E__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#include "audioeffectx.h"
+
+#include "vstgui.h"
 
 #include "Defines.h"
-#include "vstgui.h"
 #include "SmartelectronixDisplay.hpp"
 
 class CWaveDisplay : public CControl
@@ -20,7 +14,10 @@ public:
 	virtual ~CWaveDisplay();
 
 	virtual void draw (CDrawContext *pContext);
-	void mouse(CDrawContext *pContext, CPoint &where);
+	virtual CMouseEventResult onMouseDown (CPoint& where, const CButtonState& buttons);
+	virtual CMouseEventResult onMouseMoved (CPoint& where, const CButtonState& buttons);
+	virtual CMouseEventResult onMouseUp (CPoint& where, const CButtonState& buttons);
+
 	virtual void setDirty (const bool val = true);
 
 	virtual CBaseObject* newCopy () const { return 0; }
@@ -29,6 +26,7 @@ protected:
 	COffscreenContext *OSDC;
 
 	CPoint where;
+	bool down;
 
 	CSmartelectronixDisplay* effect;
 
@@ -38,5 +36,3 @@ protected:
 
 	unsigned char display;
 };
-
-#endif // !defined(AFX_CUSTOMVU_H__5F544B25_7208_4C23_8A52_1EB2FD87F45E__INCLUDED_)

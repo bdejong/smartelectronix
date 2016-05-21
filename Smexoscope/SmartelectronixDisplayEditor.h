@@ -1,13 +1,6 @@
-// AmbienceEditor.h: interface for the AmbienceEditor class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_AMBIENCEEDITOR_H__29C4B114_17DD_4725_AA1C_87CD3429C239__INCLUDED_)
-#define AFX_AMBIENCEEDITOR_H__29C4B114_17DD_4725_AA1C_87CD3429C239__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#include "audioeffectx.h"
 
 #include "aeffguieditor.h"
 
@@ -56,5 +49,3 @@ protected:
 
 	char temp[256];
 };
-
-#endif // !defined(AFX_AMBIENCEEDITOR_H__29C4B114_17DD_4725_AA1C_87CD3429C239__INCLUDED_)

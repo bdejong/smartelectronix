@@ -1,13 +1,6 @@
-// MultiStateButton.h: interface for the CMultiStateButton class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_MULTISTATEBUTTON_H__9F0F90CB_F0C9_4896_AF7A_AC87E2EE29A1__INCLUDED_)
-#define AFX_MULTISTATEBUTTON_H__9F0F90CB_F0C9_4896_AF7A_AC87E2EE29A1__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#include "audioeffectx.h"
 
 #include "vstgui.h"
 
@@ -26,5 +19,3 @@ public:
 private:
 	long nStates, state, heightOfOneState;
 };
-
-#endif // !defined(AFX_MULTISTATEBUTTON_H__9F0F90CB_F0C9_4896_AF7A_AC87E2EE29A1__INCLUDED_)
