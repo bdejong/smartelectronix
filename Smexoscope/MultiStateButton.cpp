@@ -8,69 +8,70 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CMultiStateButton::CMultiStateButton (const CRect &size, IControlListener *listener, long tag,
-                            CBitmap *background, long nStates, long heightOfOneState)
-:	CControl (size, listener, tag, background), nStates(nStates), heightOfOneState(heightOfOneState)
+CMultiStateButton::CMultiStateButton(const CRect& size, IControlListener* listener, long tag,
+    CBitmap* background, long nStates, long heightOfOneState)
+    : CControl(size, listener, tag, background)
+    , nStates(nStates)
+    , heightOfOneState(heightOfOneState)
 {
-	state = 0;
+    state = 0;
 }
 
 //------------------------------------------------------------------------
-CMultiStateButton::~CMultiStateButton ()
-{}
-
-//------------------------------------------------------------------------
-void CMultiStateButton::draw (CDrawContext *pContext)
+CMultiStateButton::~CMultiStateButton()
 {
-	long off;
-
-	if (getBackground())
-		off = (long)(nStates * heightOfOneState * value);
-	else
-		off = 0;
-
-	if (getBackground())
-	{
-		if (getTransparency())
-			getBackground()->draw(pContext, size, CPoint (0, off), 0.f);
-		else
-			getBackground()->draw (pContext, size, CPoint (0, off));
-	}
-	else
-	{
-		if(value)
-			pContext->setFillColor(kRedCColor);
-		else
-			pContext->setFillColor(kGreenCColor);
-
-		pContext->drawRect(size);
-
-		pContext->setFrameColor(kWhiteCColor);
-
-		if(value)
-			pContext->drawString("on",size);
-		else
-			pContext->drawString("off",size);
-	}
-	setDirty (false);
 }
 
 //------------------------------------------------------------------------
-CMouseEventResult CMultiStateButton::onMouseDown (CPoint& where, const CButtonState& buttons)
+void CMultiStateButton::draw(CDrawContext* pContext)
 {
-	if (!getMouseEnabled())
-		return CMouseEventResult::kMouseEventNotHandled;
+    long off;
 
-	if (!(buttons.isLeftButton()))
-		return CMouseEventResult::kMouseEventNotHandled;
+    if (getBackground())
+        off = (long)(nStates * heightOfOneState * value);
+    else
+        off = 0;
 
-	value = (float)(value + 1.0 / (double)(nStates));
-	if(value >= 1.0) value = 0.0;
+    if (getBackground()) {
+        if (getTransparency())
+            getBackground()->draw(pContext, size, CPoint(0, off), 0.f);
+        else
+            getBackground()->draw(pContext, size, CPoint(0, off));
+    } else {
+        if (value)
+            pContext->setFillColor(kRedCColor);
+        else
+            pContext->setFillColor(kGreenCColor);
 
-	//draw (pContext);
-	// doIdleStuff ();
-	if (listener)
-		listener->valueChanged (this);
+        pContext->drawRect(size);
 
-  return CMouseEventResult::kMouseEventHandled;
+        pContext->setFrameColor(kWhiteCColor);
+
+        if (value)
+            pContext->drawString("on", size);
+        else
+            pContext->drawString("off", size);
+    }
+    setDirty(false);
+}
+
+//------------------------------------------------------------------------
+CMouseEventResult CMultiStateButton::onMouseDown(CPoint& where, const CButtonState& buttons)
+{
+    if (!getMouseEnabled())
+        return CMouseEventResult::kMouseEventNotHandled;
+
+    if (!(buttons.isLeftButton()))
+        return CMouseEventResult::kMouseEventNotHandled;
+
+    value = (float)(value + 1.0 / (double)(nStates));
+    if (value >= 1.0)
+        value = 0.0;
+
+    //draw (pContext);
+    // doIdleStuff ();
+    if (listener)
+        listener->valueChanged(this);
+
+    return CMouseEventResult::kMouseEventHandled;
 }

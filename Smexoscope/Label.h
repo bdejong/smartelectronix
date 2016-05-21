@@ -3,16 +3,15 @@
 #include "audioeffectx.h"
 #include "vstgui.h"
 
-class CLabel : public CParamDisplay
-{
+class CLabel : public CParamDisplay {
 public:
-	CLabel(const CRect &R, const char *text);
+    CLabel(const CRect& R, const char* text);
 
-	void setLabel(const char *text);
-	void draw(CDrawContext *pContext);
+    void setLabel(const char* text);
+    void draw(CDrawContext* pContext);
 
-	virtual ~CLabel();
+    virtual ~CLabel();
 
 protected:
-	char label[256];
+    char label[256];
 };
