@@ -5,3 +5,8 @@ Makefile
 Smexoscope.cbp
 Smexoscope.vst
 cmake_install.cmake
+/Debug
+/Release
+/Win32
+/x64
+/*.dir

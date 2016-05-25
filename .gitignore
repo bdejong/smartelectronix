@@ -28,3 +28,10 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio files
+.vs/
+*.sln
+*.vcxproj*
+*.sdf
+*.opensdf
