@@ -14,13 +14,9 @@ public:
     CSmartelectronixDisplayEditor(AudioEffect* effect);
     virtual ~CSmartelectronixDisplayEditor();
 
-    //virtual CBaseObject* newCopy() const { return 0; }
-
 protected:
     virtual bool open(void* ptr);
     virtual void close();
-    virtual void idle();
-
     virtual void setParameter(long index, float value);
     virtual void valueChanged(CControl* control);
 

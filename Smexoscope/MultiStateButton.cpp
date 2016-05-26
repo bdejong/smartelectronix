@@ -68,8 +68,6 @@ CMouseEventResult CMultiStateButton::onMouseDown(CPoint& where, const CButtonSta
     if (value >= 1.0)
         value = 0.0;
 
-    //draw (pContext);
-    // doIdleStuff ();
     if (listener)
         listener->valueChanged(this);
 
