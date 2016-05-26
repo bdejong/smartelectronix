@@ -59,6 +59,7 @@ set(PROJECT_SOURCE
   Label.h
   MultiStateButton.h
   WaveDisplay.h
+  Defines.h
 )
 
 # Project Settings -------------------------------------------------------------
