@@ -209,7 +209,6 @@ void CSmartelectronixDisplayEditor::setParameter(long index, float value)
 
 void CSmartelectronixDisplayEditor::valueChanged(CControl* control)
 {
-    /*
     long tag = control->getTag();
 
     if (tag >= 0 && tag < CSmartelectronixDisplay::kNumParams) {
@@ -237,6 +236,4 @@ void CSmartelectronixDisplayEditor::valueChanged(CControl* control)
         //update control...
         effect->setParameterAutomated(tag, control->getValue());
     }
-
-    */
 }
