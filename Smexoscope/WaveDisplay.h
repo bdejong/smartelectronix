@@ -27,10 +27,6 @@ public:
     CMessageResult notify (CBaseObject* sender, IdStringPtr message) override;
 
 protected:
-    long counter;
-
-    COffscreenContext* OSDC;
-
     CPoint where;
 
     CSmartelectronixDisplay* effect;

@@ -29,12 +29,12 @@ CSmartelectronixDisplay::CSmartelectronixDisplay(
     CPoint tmp;
     for (j = 0; j < OSC_WIDTH * 2; j += 2) {
         tmp.x = j / 2;
-        tmp.y = OSC_HEIGHT / 2 - 1;
+        tmp.y = OSC_HEIGHT * 0.5 - 1;
         peaks.push_back(tmp);
         peaks.push_back(tmp);
 
         tmp.x = j / 2;
-        tmp.y = OSC_HEIGHT / 2 - 1;
+        tmp.y = OSC_HEIGHT * 0.5 - 1;
         copy.push_back(tmp);
         copy.push_back(tmp);
     }
@@ -136,7 +136,7 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
 
             // zero peaks after the last one
             for (j = index * 2; j < OSC_WIDTH * 2; j += 2)
-                peaks[j].y = peaks[j + 1].y = OSC_HEIGHT / 2 - 1;
+                peaks[j].y = peaks[j + 1].y = OSC_HEIGHT * 0.5 - 1;
 
             // copy to a buffer for drawing!
             for (j = 0; j < OSC_WIDTH * 2; j++)
@@ -168,8 +168,8 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
         if (counter >= 1.0) {
             if (index < OSC_WIDTH) {
                 // scale here, better than in the graphics thread :-)
-                long max_Y = (long)(OSC_HEIGHT * 0.5f - max * 0.5f * OSC_HEIGHT) - 1;
-                long min_Y = (long)(OSC_HEIGHT * 0.5f - min * 0.5f * OSC_HEIGHT) - 1;
+                double max_Y = (OSC_HEIGHT * 0.5 - max * 0.5 * OSC_HEIGHT) - 1.0;
+                long min_Y = (OSC_HEIGHT * 0.5 - min * 0.5 * OSC_HEIGHT) - 1.0;
 
                 // thanks to David @ Plogue for this interesting hint!
                 peaks[(index << 1)].y = lastIsMax ? min_Y : max_Y;
