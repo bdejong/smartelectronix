@@ -2,16 +2,18 @@
 
 #include "audioeffectx.h"
 #include "vstgui.h"
+#include <string>
 
 class CLabel : public CParamDisplay {
 public:
-    CLabel(const CRect& R, const char* text);
+    CLabel(const CRect& R, const std::string& text);
 
-    void setLabel(const char* text);
-    void draw(CDrawContext* pContext);
+    void setLabel(const std::string& text);
 
-    virtual ~CLabel();
+    virtual void draw(CDrawContext* pContext);
+
+    virtual ~CLabel() {}
 
 protected:
-    char label[256];
+    std::string _label;
 };

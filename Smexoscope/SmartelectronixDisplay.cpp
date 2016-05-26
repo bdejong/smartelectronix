@@ -21,13 +21,8 @@ CSmartelectronixDisplay::CSmartelectronixDisplay(
     setNumInputs(kNumInputChannels);
     setNumOutputs(kNumOutputChannels);
 
-#if !SIMPLE_VERSION
-    setUniqueID('osX1');
-#else
     setUniqueID('osX2');
-#endif
 
-    // canMono();
     canProcessReplacing();
 
     long j;
@@ -72,10 +67,6 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
     }
 
     float* samples = SAVE[kChannel] > 0.5 ? inputs[1] : inputs[0];
-
-#if !SIMPLE_VERSION
-    float* triggerExternal = inputs[2];
-#endif
 
     // some simple parameter mappings...
     float gain = powf(10.f, SAVE[kAmpWindow] * 6.f - 3.f);
@@ -132,12 +123,6 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
                 trigger = true;
             break;
         }
-#if !SIMPLE_VERSION
-        case kTriggerExternal: {
-            trigger = triggerExternal[i] >= 1.f;
-            break;
-        }
-#endif
         }
 
         // if there's a retrigger, but too fast, kill it
@@ -155,7 +140,7 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
 
             // copy to a buffer for drawing!
             for (j = 0; j < OSC_WIDTH * 2; j++)
-                copy[j] = peaks[j];
+                copy[j].y = peaks[j].y;
 
             // reset everything
             index = 0;
@@ -212,7 +197,7 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
 //-----------------------------------------------------------------------------------------
 bool CSmartelectronixDisplay::getEffectName(char* name)
 {
-    strcpy(name, PLUGIN_NAME);
+    strcpy(name, "s(M)exoscope");
     return true;
 }
 
@@ -226,7 +211,7 @@ bool CSmartelectronixDisplay::getVendorString(char* text)
 //-----------------------------------------------------------------------------------------
 bool CSmartelectronixDisplay::getProductString(char* text)
 {
-    strcpy(text, PLUGIN_NAME);
+    strcpy(text, "s(M)exoscope");
     return true;
 }
 
@@ -280,27 +265,9 @@ void CSmartelectronixDisplay::resume()
     dcKill = dcFilterTemp = 0.0;
 }
 
-//-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::setSampleRate(float sampleRate)
-{
-    // allways call this
-    AudioEffect::setSampleRate(sampleRate);
-
-    // TODO: the samplerate has changed...
-}
-
-void CSmartelectronixDisplay::setBlockSize(VstInt32 blockSize)
-{
-    // allways call this
-    AudioEffect::setBlockSize(blockSize);
-
-    // TODO: the MAXIMUM block size has changed...
-}
-
 void CSmartelectronixDisplay::process(float** inputs, float** outputs,
     VstInt32 sampleFrames)
 {
-#if SIMPLE_VERSION
     float* in1 = inputs[0];
     float* in2 = inputs[1];
     float* out1 = outputs[0];
@@ -310,7 +277,6 @@ void CSmartelectronixDisplay::process(float** inputs, float** outputs,
         out1[i] += in1[i];
         out2[i] += in2[i];
     }
-#endif
 
     processSub(inputs, sampleFrames);
 }
@@ -318,7 +284,6 @@ void CSmartelectronixDisplay::process(float** inputs, float** outputs,
 void CSmartelectronixDisplay::processReplacing(float** inputs, float** outputs,
     VstInt32 sampleFrames)
 {
-#if SIMPLE_VERSION
     float* in1 = inputs[0];
     float* in2 = inputs[1];
     float* out1 = outputs[0];
@@ -328,28 +293,9 @@ void CSmartelectronixDisplay::processReplacing(float** inputs, float** outputs,
         out1[i] = in1[i];
         out2[i] = in2[i];
     }
-#endif
 
     processSub(inputs, sampleFrames);
 }
-
-//-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::setProgramName(char* name)
-{
-    // this template does not use programs yet
-}
-
-//-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::getProgramName(char* name)
-{
-    // this template does not use programs yet
-    strcpy(name, "");
-}
-
-//-----------------------------------------------------------------------------------------
-void CSmartelectronixDisplay::setProgram(VstInt32 index){
-    // this template does not use programs yet
-};
 
 //-----------------------------------------------------------------------------------------
 void CSmartelectronixDisplay::setParameter(VstInt32 index, float value)
@@ -464,48 +410,12 @@ void CSmartelectronixDisplay::getParameterDisplay(VstInt32 index, char* text)
         strcpy(text, "");
         break;
     }
-
-    //	float2string(SAVE[index],text);
 }
 
 //-----------------------------------------------------------------------------------------
 void CSmartelectronixDisplay::getParameterLabel(VstInt32 index, char* label)
 {
-    switch (index) {
-    case kTriggerSpeed:
-        strcpy(label, "");
-        break;
-    case kTriggerType:
-        strcpy(label, "");
-        break;
-    case kTriggerLevel:
-        strcpy(label, "");
-        break;
-    case kTriggerLimit:
-        strcpy(label, "");
-        break;
-    case kTimeWindow:
-        strcpy(label, "");
-        break;
-    case kAmpWindow:
-        strcpy(label, "");
-        break;
-    case kSyncDraw:
-        strcpy(label, "");
-        break;
-    case kChannel:
-        strcpy(label, "");
-        break;
-    case kFreeze:
-        strcpy(label, "");
-        break;
-    case kDCKill:
-        strcpy(label, "");
-        break;
-    default:
-        strcpy(label, "");
-        break;
-    }
+    strcpy(label, "");
 }
 
 void trim(char* text)

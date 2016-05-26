@@ -31,13 +31,8 @@ all else : on / off
     // VST elements
     enum {
         kNumPrograms = 0,
-#if SIMPLE_VERSION
         kNumInputChannels = 2,
         kNumOutputChannels = 2, // VST doesn't like 0 output channels ;-)
-#else
-        kNumInputChannels = 3,
-        kNumOutputChannels = 0,
-#endif
     };
 
     // trigger types
@@ -46,9 +41,6 @@ all else : on / off
         kTriggerRising,
         kTriggerFalling,
         kTriggerInternal,
-#if !SIMPLE_VERSION
-        kTriggerExternal,
-#endif
         kNumTriggerTypes
     };
 
@@ -59,9 +51,6 @@ all else : on / off
     virtual void processReplacing(float** inputs, float** outputs,
         VstInt32 sampleFrames);
 
-    virtual void setProgramName(char* name);
-    virtual void setProgram(VstInt32 index);
-    virtual void getProgramName(char* name);
     virtual void setParameter(VstInt32 index, float value);
     virtual float getParameter(VstInt32 index);
     virtual void getParameterLabel(VstInt32 index, char* label);
@@ -77,8 +66,6 @@ all else : on / off
 
     virtual void suspend();
     virtual void resume();
-    virtual void setSampleRate(float sampleRate);
-    virtual void setBlockSize(VstInt32 blockSize);
 
     const std::vector<CPoint>& getPeaks() const { return peaks; }
     const std::vector<CPoint>& getCopy() const { return copy; }

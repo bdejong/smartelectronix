@@ -21,7 +21,7 @@ CWaveDisplay::CWaveDisplay(const CRect& size, CSmartelectronixDisplay* effect, C
     , back(back)
     , heads(heads)
     , readout(readout)
-    , down(false)
+    , counter(0)
 {
     value = oldValue = 0.f;
 
@@ -37,11 +37,25 @@ CWaveDisplay::CWaveDisplay(const CRect& size, CSmartelectronixDisplay* effect, C
 
     where.x = -1;
     OSDC = 0;
+    timer = new CVSTGUITimer(this, 1000/30, true);
+}
+
+CMessageResult CWaveDisplay::notify (CBaseObject* sender, IdStringPtr message)
+{
+    if (message == CVSTGUITimer::kMsgTimer)
+    {
+        invalid();
+
+        return kMessageNotified;
+    }
+    return kMessageUnknown;
 }
 
 //------------------------------------------------------------------------
 CWaveDisplay::~CWaveDisplay()
 {
+    if (timer)
+        timer->forget();
     if (heads)
         heads->forget();
     if (back)
@@ -53,37 +67,36 @@ CWaveDisplay::~CWaveDisplay()
         OSDC->forget();
 }
 
-//------------------------------------------------------------------------
-void CWaveDisplay::setDirty(const bool val)
-{
-    CView::setDirty(val);
-}
-
 CMouseEventResult CWaveDisplay::onMouseDown(CPoint& where, const CButtonState& buttons)
 {
-    if (((buttons & kApple) && (buttons & kLButton)) || (buttons & kRButton)) {
-        down = true;
+    if (buttons.isLeftButton() && getViewSize().pointInside(where))
+    {
         this->where = where;
         return CMouseEventResult::kMouseEventHandled;
     }
+
+    where.x = -1;
 
     return CMouseEventResult::kMouseEventNotHandled;
 }
 
 CMouseEventResult CWaveDisplay::onMouseMoved(CPoint& where, const CButtonState& buttons)
 {
-    if (down)
+    if (buttons.isLeftButton() && getViewSize().pointInside(where))
     {
         this->where = where;
         return CMouseEventResult::kMouseEventHandled;
     }
+
+    where.x = -1;
 
     return CMouseEventResult::kMouseEventNotHandled;
 }
 
 CMouseEventResult CWaveDisplay::onMouseUp(CPoint& where, const CButtonState& buttons)
 {
-    down = false;
+    where.x = -1;
+
     return CMouseEventResult::kMouseEventHandled;
 }
 
@@ -105,8 +118,15 @@ void CWaveDisplay::draw(CDrawContext* pContext)
 
     back->draw(OSDC, R, CPoint(size.left, size.top));
 
+    char text[256];
+    sprintf(text, "counter=%ld", counter++);
+    OSDC->drawString(text, CRect(0, 0, 100, 100), kLeftText);
+
+
     R(615 - size.left, 240 - size.top, 615 + heads->getWidth() - size.left, 240 + heads->getHeight() / 4 - size.top);
     heads->draw(OSDC, R, CPoint(0, (display * heads->getHeight()) / 4));
+
+    OSDC->setDrawMode(CDrawMode(kAntiAliasing));
 
     // trig-line
     long triggerType = (long)(effect->getParameter(CSmartelectronixDisplay::kTriggerType) * CSmartelectronixDisplay::kNumTriggerTypes + 0.0001);
@@ -144,7 +164,7 @@ void CWaveDisplay::draw(CDrawContext* pContext)
             double alpha = phase - (double)index;
 
             long xi = i;
-            long yi = (long)((1.0 - alpha) * points[index << 1].y + alpha * points[(index + 1) << 1].y);
+            long yi = (long)((1.0 - alpha) * points[index * 2].y + alpha * points[(index + 1) * 2].y);
 
             OSDC->drawLine(CPoint(prevxi, prevyi), CPoint(xi, yi));
             prevxi = xi;
@@ -155,7 +175,9 @@ void CWaveDisplay::draw(CDrawContext* pContext)
     } else {
         CColor grey = { 118, 118, 118 };
         OSDC->setFrameColor(grey);
-        OSDC->drawPolygon(points);
+
+        for (unsigned int i=0; i<points.size()-1; i++)
+            OSDC->drawLine(points[i], points[i+1]);
     }
 
     //TODO clean this mess up...

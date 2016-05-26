@@ -1,5 +1,6 @@
 # Global settings
 cmake_minimum_required(VERSION 3.5)
+project(Smexoscope)
 
 set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
 set(STEINBERG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Steinberg)
@@ -44,8 +45,6 @@ ELSE (APPLE)
 ENDIF (APPLE)
 
 # Project settings
-
-project(Smexoscope)
 
 set(PROJECT_BITMAPS
   bitmaps/blue_knob1_4.bmp
