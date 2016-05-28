@@ -179,8 +179,6 @@ void CWaveDisplay::draw(CDrawContext* pContext)
 
         long lineSize = 10;
 
-        //CColor color = { 169, 101, 46, 0 };
-        //CColor color = { 0, 0, 0, 0 };
         CColor color(179, 111, 56);
 
         pContext->setFontColor(color);
