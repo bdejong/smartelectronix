@@ -1,0 +1,65 @@
+MAKE SURE THAT WANTEVENTS() AND ALL CANDOS ARE IN ORDER
+
+
+
+While translating the source code for MadShifta from Delphi to C++, I 
+also made some changes here and there.  This document lists all of the 
+changes that I made so that you know what's different about the Delphi 
+version vs. this C++ version.  I might have forgotten about a few things, 
+but these are what I remember:
+
+
+
+	changes to the effect:
+
+changed the way how root key works so that it works correctly
+
+make macros for scaling some of the parameters' 0.0 to 1.0 parameter 
+values to their actual values, making it simpler to correctly get the 
+real values
+
+fixed getParameterDisplay() and getParameterLabel() so that the correct 
+information is displayed when not using the GUI or when using host 
+features that utilize that information (like Logic's automation scheme, 
+for example)
+
+extended getInputProperties() and getOutputProperties() to handle the 
+shortLabels
+
+extended canDo() to include more of the stuff that MadShifta can do
+
+
+
+	changes to the graphical interface:
+
+completely re-written to use Steinberg's VSTGUI library
+
+fewer custom mouse cursors (only when they're useful)
+
+clicking on VS won't turn text off (I thought that was a kind of stupid 
+feature and didn't want to implement it)
+
+different "about" splash screen, and you don't have to click on "OK," 
+clicking anywhere will exit it
+
+fixed root key display so that it accurately reflects the actual root 
+key being used
+
+reversed the drag orientation of the "circle" controls (previously, 
+dragging up lowered the value and dragging down increased the value; 
+this was very counter-intuitive to me)
+
+did not implement the effect of turning the display text from white to 
+blue when its background turned red (didn't seem worth the effort and 
+that baby blue on red combination hurt my eyes!)
+
+there is no circular fill effect (filling up with red) for the circle 
+controls (it would have been a pain to implement and didn't seem worth it)
+
+when you click on the www.smartelectronix.com or www.tobybear.de, you 
+will be transported to the respective web page
+
+
+
+Sophia Poirier
+August 12th 2002
