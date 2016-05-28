@@ -33,6 +33,10 @@ Spline wave-shaper with oversampling.
 ## H2O
 Heavy pumping compressor.
 
+## Madshifta
+Strange pitch-shifting and delay effect. A collaboration between me (original algorithm), TobyBear.de (translation to Delphi & UI), Sophia Poirier (translation to C++ and AU).
+
+
 ## OnePingOnly
 Simple ping-generating synth.
 
