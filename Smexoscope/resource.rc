@@ -3,11 +3,11 @@
 // Bitmap
 //
 
-body.png                PNG                     "bitmaps/body.png"
-heads.png               PNG                     "bitmaps/heads.png"
-blue_knob1_4.png        PNG                     "bitmaps/blue_knob1_4.png"
-free_etc.png            PNG                     "bitmaps/free_etc.png"
-off_on.png              PNG                     "bitmaps/off_on.png"
-lefr_right.png          PNG                     "bitmaps/lefr_right.png"
-slider_new.png          PNG                     "bitmaps/slider_new.png"
-readout2.png            PNG                     "bitmaps/readout2.png"
+body.png                PNG                     "images/body.png"
+heads.png               PNG                     "images/heads.png"
+blue_knob1_4.png        PNG                     "images/blue_knob1_4.png"
+free_etc.png            PNG                     "images/free_etc.png"
+off_on.png              PNG                     "images/off_on.png"
+lefr_right.png          PNG                     "images/lefr_right.png"
+slider_new.png          PNG                     "images/slider_new.png"
+readout2.png            PNG                     "images/readout2.png"

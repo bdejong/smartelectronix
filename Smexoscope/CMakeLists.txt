@@ -84,21 +84,21 @@ ELSEIF(APPLE)
     MACOSX_PACKAGE_LOCATION .
   )
   
-  set(PROJECT_BITMAPS
-    bitmaps/blue_knob1_4.png
-    bitmaps/body.png
-    bitmaps/free_etc.png
-    bitmaps/heads.png
-    bitmaps/lefr_right.png
-    bitmaps/off_on.png
-    bitmaps/readout.png
-    bitmaps/readout2.png
-    bitmaps/slider_new.png
+  set(PROJECT_IMAGES
+    images/blue_knob1_4.png
+    images/body.png
+    images/free_etc.png
+    images/heads.png
+    images/lefr_right.png
+    images/off_on.png
+    images/readout.png
+    images/readout2.png
+    images/slider_new.png
   )
   
   project(Smexoscope)
-  set_source_files_properties(${PROJECT_BITMAPS} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-  add_library(Smexoscope MODULE ${PROJECT_SOURCE} ${PROJECT_BITMAPS} ${VST_SOURCE} ${PKG_INFO} ${VSTGUI_SOURCE})
+  set_source_files_properties(${PROJECT_IMAGES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  add_library(Smexoscope MODULE ${PROJECT_SOURCE} ${PROJECT_IMAGES} ${VST_SOURCE} ${PKG_INFO} ${VSTGUI_SOURCE})
   target_link_libraries(Smexoscope ${SYSTEM_LIBS})
 
   set_target_properties(Smexoscope PROPERTIES
