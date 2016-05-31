@@ -1,6 +1,6 @@
 #pragma once
 
-#include "audioeffectx.h"
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 #include "vstgui.h"
 #include <string>
 

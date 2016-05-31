@@ -1,4 +1,4 @@
-#include "audioeffect.h"
+#include "public.sdk/source/vst2.x/audioeffect.h"
 
 #include "SmartelectronixDisplay.hpp"
 

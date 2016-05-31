@@ -1,8 +1,8 @@
 #pragma once
 
-#include "audioeffectx.h"
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 
-#include "aeffguieditor.h"
+#include "plugin-bindings/aeffguieditor.h"
 
 #include "Defines.h"
 #include "Label.h"

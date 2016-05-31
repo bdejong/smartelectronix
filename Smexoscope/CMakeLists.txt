@@ -3,31 +3,28 @@ cmake_minimum_required(VERSION 3.5)
 
 set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
 set(STEINBERG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Steinberg)
+set(VSTGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../vstgui/vstgui)
 include_directories(${STEINBERG_DIR})
+include_directories(${VSTGUI_DIR})
 
 # VST Interface ----------------------------------------------------------------
-set(VST_SOURCE_PATH ${STEINBERG_DIR}/public.sdk/source/vst2.x)
-include_directories(${VST_SOURCE_PATH})
 set(VST_SOURCE
-  ${VST_SOURCE_PATH}/audioeffect.cpp
-  ${VST_SOURCE_PATH}/audioeffectx.cpp
-  ${VST_SOURCE_PATH}/vstplugmain.cpp
-  ${VST_SOURCE_PATH}/aeffeditor.h
-  ${VST_SOURCE_PATH}/audioeffect.h
-  ${VST_SOURCE_PATH}/audioeffectx.h
+  ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
+  ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffectx.cpp
+  ${STEINBERG_DIR}/public.sdk/source/vst2.x/vstplugmain.cpp
+  ${STEINBERG_DIR}/public.sdk/source/vst2.x/aeffeditor.h
+  ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffect.h
+  ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffectx.h
 )
 
 # VST GUI ----------------------------------------------------------------------
-set(VSTGUI_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../vstgui/vstgui)
-include_directories(${VSTGUI_SOURCE_PATH})
-include_directories(${VSTGUI_SOURCE_PATH}/plugin-bindings)
 set(VSTGUI_SOURCE 
-  ${VSTGUI_SOURCE_PATH}/plugin-bindings/aeffguieditor.cpp
-  ${VSTGUI_SOURCE_PATH}/plugin-bindings/aeffguieditor.h
+  ${VSTGUI_DIR}/plugin-bindings/aeffguieditor.cpp
+  ${VSTGUI_DIR}/plugin-bindings/aeffguieditor.h
 )
 
 IF(WIN32)
-  list(APPEND VSTGUI_SOURCE ${VSTGUI_SOURCE_PATH}/vstgui_win32.cpp)
+  list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_win32.cpp)
 ELSEIF(APPLE)
   find_library(CARBON Carbon)
   find_library(COCOA Cocoa)
@@ -35,15 +32,14 @@ ELSEIF(APPLE)
   find_library(ACCELERATE Accelerate)
   find_library(QUARTZ QuartzCore)
   set(SYSTEM_LIBS ${CARBON} ${COCOA} ${OPENGL} ${ACCELERATE} ${QUARTZ})
-  list(APPEND VSTGUI_SOURCE ${VSTGUI_SOURCE_PATH}/vstgui_mac.mm)
+  list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_mac.mm)
 ENDIF(WIN32)
 
 # VST Interface ----------------------------------------------------------------
-set(VST_INTERFACE_PATH ${STEINBERG_DIR}/pluginterfaces/vst2.x)
 set(VST_INTERFACE
-  ${VST_INTERFACE_PATH}/aeffect.h
-  ${VST_INTERFACE_PATH}/aeffectx.h
-  ${VST_INTERFACE_PATH}/vstfxstore.h
+  ${STEINBERG_DIR}/pluginterfaces/vst2.x/aeffect.h
+  ${STEINBERG_DIR}/pluginterfaces/vst2.x/aeffectx.h
+  ${STEINBERG_DIR}/pluginterfaces/vst2.x/vstfxstore.h
 )
 
 # Project Source ---------------------------------------------------------------
@@ -64,24 +60,14 @@ set(PROJECT_SOURCE
 
 # Project Settings -------------------------------------------------------------
 IF(WIN32)
-  set(RESOURCE_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/resource.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
-  )
-  
-  #TODO change based on SIMPLE_VERSION definition
-  set(DEF_FILE
-    ${CMAKE_CURRENT_SOURCE_DIR}/OscilloscopeModular/OscilloscopeModular.def
-  )
-  
   project(Smexoscope)
   add_library(Smexoscope MODULE 
     ${PROJECT_SOURCE} 
     ${VST_SOURCE} 
     ${VSTGUI_SOURCE} 
-    ${RESOURCE_FILES}
     ${VST_INTERFACE}
-    ${DEF_FILE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
+    ${CMAKE_CURRENT_SOURCE_DIR}/OscilloscopeModular/OscilloscopeModular.def
   )
   
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
@@ -99,15 +85,15 @@ ELSEIF(APPLE)
   )
   
   set(PROJECT_BITMAPS
-    bitmaps/blue_knob1_4.bmp
-    bitmaps/body.bmp
-    bitmaps/free_etc.bmp
-    bitmaps/heads.bmp
-    bitmaps/lefr_right.bmp
-    bitmaps/off_on.bmp
-    bitmaps/readout.bmp
-    bitmaps/readout2.bmp
-    bitmaps/slider_new.bmp
+    bitmaps/blue_knob1_4.png
+    bitmaps/body.png
+    bitmaps/free_etc.png
+    bitmaps/heads.png
+    bitmaps/lefr_right.png
+    bitmaps/off_on.png
+    bitmaps/readout.png
+    bitmaps/readout2.png
+    bitmaps/slider_new.png
   )
   
   project(Smexoscope)
