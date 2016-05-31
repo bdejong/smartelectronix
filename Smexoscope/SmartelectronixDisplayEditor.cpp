@@ -79,7 +79,7 @@ bool CSmartelectronixDisplayEditor::open(void* ptr)
 
     // trigger type
     CBitmap* triggerBitmap = new CBitmap("free_etc.png");
-    trigger = new CMultiStateButton(CRect(718, 94, 718 + triggerBitmap->getWidth(), 94 + triggerBitmap->getHeight() / 5), this, CSmartelectronixDisplay::kTriggerType, triggerBitmap, 4, triggerBitmap->getHeight() / 5);
+    trigger = new CMultiStateButton(CRect(718, 94, 718 + triggerBitmap->getWidth(), 94 + triggerBitmap->getHeight() / 5), this, CSmartelectronixDisplay::kTriggerType, triggerBitmap, 4, static_cast<long>(triggerBitmap->getHeight() / 5));
     newFrame->addView(trigger);
     triggerBitmap->forget();
 
@@ -108,12 +108,12 @@ bool CSmartelectronixDisplayEditor::open(void* ptr)
     //trigger level slider
     CBitmap* myFaderHandlePixmap = new CBitmap("slider_new.png");
 
-    int sliderWidth = myFaderHandlePixmap->getWidth();
-    int sliderHeight = 277;
-    int sliderTop = 13;
-    int sliderLeft = 11;
-    int minPos = sliderTop;
-    int maxPos = sliderTop + sliderHeight - myFaderHandlePixmap->getHeight() - 1;
+    CCoord sliderWidth = myFaderHandlePixmap->getWidth();
+    CCoord sliderHeight = 277;
+    CCoord sliderTop = 13;
+    CCoord sliderLeft = 11;
+    int32_t minPos = static_cast<int32_t>(sliderTop);
+    int32_t maxPos = static_cast<int32_t>(sliderTop + sliderHeight - myFaderHandlePixmap->getHeight() - 1);
     triggerLevel = new CSlider(
         CRect(sliderLeft, sliderTop, sliderLeft + sliderWidth, sliderTop + sliderHeight),
         this,
