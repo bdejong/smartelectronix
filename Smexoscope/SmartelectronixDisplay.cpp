@@ -169,7 +169,7 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
             if (index < OSC_WIDTH) {
                 // scale here, better than in the graphics thread :-)
                 double max_Y = (OSC_HEIGHT * 0.5 - max * 0.5 * OSC_HEIGHT) - 1.0;
-                long min_Y = (OSC_HEIGHT * 0.5 - min * 0.5 * OSC_HEIGHT) - 1.0;
+                double min_Y = (OSC_HEIGHT * 0.5 - min * 0.5 * OSC_HEIGHT) - 1.0;
 
                 // thanks to David @ Plogue for this interesting hint!
                 peaks[(index << 1)].y = lastIsMax ? min_Y : max_Y;
