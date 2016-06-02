@@ -107,7 +107,7 @@ IF(WIN32)
     ${VSTGUI_SOURCE}
     ${VST_INTERFACE}
     ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc
-    ${CMAKE_CURRENT_SOURCE_DIR}/OscilloscopeModular/OscilloscopeModular.def
+    ${COMMON_DIR}/exports.def
   )
 
 ELSEIF(APPLE)
