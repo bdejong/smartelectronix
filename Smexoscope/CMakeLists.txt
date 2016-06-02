@@ -1,6 +1,8 @@
 # Global settings --------------------------------------------------------------
 cmake_minimum_required(VERSION 3.5)
 
+project(Smexoscope)
+
 set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
 set(STEINBERG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Steinberg)
 set(VSTGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../vstgui/vstgui)
@@ -60,7 +62,6 @@ set(PROJECT_SOURCE
 
 # Project Settings -------------------------------------------------------------
 IF(WIN32)
-  project(Smexoscope)
   add_library(Smexoscope MODULE 
     ${PROJECT_SOURCE} 
     ${VST_SOURCE} 
@@ -96,7 +97,6 @@ ELSEIF(APPLE)
     images/slider_new.png
   )
   
-  project(Smexoscope)
   set_source_files_properties(${PROJECT_IMAGES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   add_library(Smexoscope MODULE ${PROJECT_SOURCE} ${PROJECT_IMAGES} ${VST_SOURCE} ${PKG_INFO} ${VSTGUI_SOURCE})
   target_link_libraries(Smexoscope ${SYSTEM_LIBS})
