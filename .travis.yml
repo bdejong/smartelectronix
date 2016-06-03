@@ -7,7 +7,7 @@ compiler:
 
 before_script:
   - git submodule update --init --recursive
-  - sh get_steinberg_sk.sh
+  - sh get_steinberg_sdk.sh
   - cmake .
 
 script: make
