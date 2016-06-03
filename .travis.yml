@@ -1,0 +1,13 @@
+os: osx
+
+language: cpp
+
+compiler:
+  - clang
+
+before_script:
+  - git submodule update --init --recursive
+  - ./get_steinberg_sk.sh
+  - cmake .
+
+script: make
