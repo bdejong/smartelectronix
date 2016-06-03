@@ -44,3 +44,10 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
+
+# Cmake
+CMakeCache.txt
+CMakeFiles
+CMakeLists.txt.user
+cmake_install.cmake
+x64/

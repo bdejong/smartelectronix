@@ -1,0 +1,134 @@
+cmake_minimum_required(VERSION 3.5)
+
+#*******************************************************************************
+# Adds VST SDK to target
+#
+# @param target The cmake target to which the VST SDK will be added.
+#*******************************************************************************
+function(add_vstsdk target)
+  set(STEINBERG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Steinberg)
+
+  set(VST_SOURCE
+    ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
+    ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffectx.cpp
+    ${STEINBERG_DIR}/public.sdk/source/vst2.x/vstplugmain.cpp
+    ${STEINBERG_DIR}/public.sdk/source/vst2.x/aeffeditor.h
+    ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffect.h
+    ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffectx.h
+  )
+
+  set(VST_INTERFACE
+    ${STEINBERG_DIR}/pluginterfaces/vst2.x/aeffect.h
+    ${STEINBERG_DIR}/pluginterfaces/vst2.x/aeffectx.h
+    ${STEINBERG_DIR}/pluginterfaces/vst2.x/vstfxstore.h
+  )
+
+  source_group("vst2.x" FILES ${VST_SOURCE})
+  source_group("Interfaces" FILES ${VST_INTERFACE})
+  
+  target_sources(${target} PUBLIC ${VST_SOURCE} ${VST_INTERFACE})
+  target_include_directories(${target} PUBLIC ${STEINBERG_DIR})
+  
+endfunction(add_vstsdk)
+
+#*******************************************************************************
+# Adds VSTGUI to target
+#
+# @param target The cmake target to which the VSTGUI libray will be added.
+#*******************************************************************************
+function(add_vstgui target)
+
+  file(GLOB TARGET_PNG ${CMAKE_CURRENT_SOURCE_DIR}/images/*.png)
+
+  set(VSTGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../vstgui/vstgui)
+
+  set(VSTGUI_SOURCE
+    ${VSTGUI_DIR}/plugin-bindings/aeffguieditor.cpp
+    ${VSTGUI_DIR}/plugin-bindings/aeffguieditor.h
+  )
+
+  IF(WIN32)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_win32.cpp)
+    # TODO rc should have same name/location for each module
+    target_sources(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc)
+  ELSEIF(APPLE)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_mac.mm)
+    find_library(CARBON Carbon)
+    find_library(COCOA Cocoa)
+    find_library(OPENGL OpenGL)
+    find_library(ACCELERATE Accelerate)
+    find_library(QUARTZ QuartzCore)
+    target_link_libraries(${target} ${CARBON} ${COCOA} ${OPENGL} ${ACCELERATE} ${QUARTZ})
+  ENDIF(WIN32)
+  
+  source_group("vstgui" FILES ${VSTGUI_SOURCE})
+  
+  target_sources(${target} PUBLIC ${VSTGUI_SOURCE} ${TARGET_PNG})
+  target_include_directories(${target} PUBLIC ${VSTGUI_DIR})
+  
+endfunction(add_vstgui)
+
+#*******************************************************************************
+# Generates a VST cmake target
+#
+# @param target_name The name of the target to generate
+# @param gui Set TRUE if the target has a gui; otherwise set FALSE
+#*******************************************************************************
+function(build_vst target_name gui)
+  
+  set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
+
+  # TODO Modules should use either all .h or .hpp - also perhaps in a sub folder
+  file(GLOB TARGET_CPP *.cpp)
+  file(GLOB TARGET_HPP *.hpp)
+  file(GLOB TARGET_H *.h)
+  set(TARGET_SOURCE ${TARGET_CPP} ${TARGET_HPP} ${TARGET_H})
+  
+  add_library(${target_name} MODULE ${TARGET_SOURCE})
+  add_vstsdk(${target_name})
+  if (${gui})
+    add_vstgui(${target_name})
+  endif(${gui})
+
+  IF(WIN32)
+    target_sources(${target_name} PUBLIC ${COMMON_DIR}/exports.def)
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
+  ELSEIF(APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64")
+    set(PKG_INFO ${COMMON_DIR}/PkgInfo)
+    set_source_files_properties(${COMMON_DIR}/PkgInfo PROPERTIES
+      MACOSX_PACKAGE_LOCATION .
+    )
+  
+    set_source_files_properties(${TARGET_IMAGES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+    target_sources(${target_name} PUBLIC ${PKG_INFO} )
+
+    set_target_properties(${target_name} PROPERTIES
+      BUNDLE true
+      BUNDLE_EXTENSION vst
+      MACOSX_BUNDLE_INFO_PLIST ${COMMON_DIR}/Info.plist.in
+    )
+
+    set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 11)
+  ENDIF(WIN32)
+  
+endfunction(build_vst)
+
+#*******************************************************************************
+# Convenience function for generating VST cmake targets with guis
+#
+# @param target_name The name of the target to generate
+#*******************************************************************************
+function(build_vst_gui target_name)
+  build_vst(${target_name} TRUE)
+endfunction(build_vst_gui)
+
+#*******************************************************************************
+# Convenience function for generating VST cmake targets without guis
+#
+# @param target_name The name of the target to generate
+#*******************************************************************************
+function(build_vst_nogui target_name)
+  build_vst(${target_name} FALSE)
+endfunction(build_vst_nogui)
