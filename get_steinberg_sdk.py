@@ -6,10 +6,11 @@ import os
 
 class ProgressReporter:
     def __init__(self):
-        self.progress = 0
+        self.progress = None
 
     def __call__(self, block_count, block_size, total):
         progress = (block_count * block_size * 100) / total
+        progress = (progress / 20) * 20
         if progress != self.progress:
             print "{}%".format(progress)
             self.progress = progress

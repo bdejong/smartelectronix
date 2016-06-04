@@ -13,7 +13,7 @@ configuration:
 before_build:
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
-  - cmake -G "Visual Studio 14" --debug-output Smexoscope
+  - cmake -G "Visual Studio 14" Smexoscope
 
 build:
   project: Smexoscope.sln
