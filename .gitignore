@@ -54,3 +54,7 @@ Debug/
 Release/
 x64/
 Win32/
+
+# Build Tree
+/buildx86
+/buildx64
