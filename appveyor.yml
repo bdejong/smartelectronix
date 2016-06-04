@@ -17,6 +17,5 @@ before_build:
   - pushd build%PLATFORM%
   - if %PLATFORM% == x86 (cmake ../) else (cmake -G "Visual Studio 14 2015 Win64" ../)
 
-build:
-  project: build%PLATFORM%\Smartelectronix.sln
-
+build_script:
+  - cmake --build build%PLATFORM% --config %CONFIGURATION%
