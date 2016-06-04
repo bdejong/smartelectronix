@@ -1,7 +1,4 @@
 Makefile
 Smexoscope.cbp
 Smexoscope.vst
-/Debug
-/Release
-/Win32
 /*.dir

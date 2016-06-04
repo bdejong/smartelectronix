@@ -50,4 +50,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeLists.txt.user
 cmake_install.cmake
+Debug/
+Release/
 x64/
+Win32/
