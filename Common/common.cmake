@@ -38,6 +38,7 @@ endfunction(add_vstsdk)
 #*******************************************************************************
 function(add_vstgui target)
 
+  #TODO no file globbing
   file(GLOB TARGET_PNG ${CMAKE_CURRENT_SOURCE_DIR}/images/*.png)
 
   set(VSTGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../vstgui/vstgui)
@@ -49,7 +50,7 @@ function(add_vstgui target)
 
   IF(WIN32)
     list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_win32.cpp)
-    # TODO rc should have same name/location for each module
+    # TODO Generate rc files
     target_sources(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc)
   ELSEIF(APPLE)
     list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_mac.mm)
