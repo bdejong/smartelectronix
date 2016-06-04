@@ -6,7 +6,8 @@ You can find the original smartelectronix pages here: http://bram.smartelectroni
 All UIs were created with VstGUI around version 2.x, same for the plugins, they use VST 2.x.
 You will need the VST SDK an VST GUI SDK: http://www.steinberg.net/en/company/developers.html
 
-[![Build Status](https://travis-ci.org/bdejong/smartelectronix.svg?branch=master)](https://travis-ci.org/bdejong/smartelectronix)
+- OS X Build: [![Build Status](https://travis-ci.org/bdejong/smartelectronix.svg?branch=master)](https://travis-ci.org/bdejong/smartelectronix)
+- Windows Build: [!Build Status](https://ci.appveyor.com/api/projects/status/github/bdejong/smartelectronix)](https://ci.appveyor.com/project/bdejong/smartelectronix)
 
 ## Commerial non-GPL licensing
 
