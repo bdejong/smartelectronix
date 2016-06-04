@@ -16,6 +16,7 @@ before_build:
   - mkdir build%PLATFORM%
   - pushd build%PLATFORM%
   - if %PLATFORM% == x86 (cmake ../) else (cmake -G "Visual Studio 14 2015 Win64" ../)
+  - cd..
 
 build_script:
   - cmake --build build%PLATFORM% --config %CONFIGURATION%
