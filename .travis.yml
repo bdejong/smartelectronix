@@ -8,6 +8,6 @@ compiler:
 before_script:
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
-  - cmake .
+  - cmake Smexoscope
 
 script: make
