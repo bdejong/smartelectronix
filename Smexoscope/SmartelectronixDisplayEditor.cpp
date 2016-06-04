@@ -30,7 +30,7 @@ bool CSmartelectronixDisplayEditor::open(void* ptr)
     setKnobMode(kLinearMode);
 
     CBitmap* heads = new CBitmap("heads.png");
-    CBitmap* readout = new CBitmap("readout2.png");
+    CBitmap* readout = new CBitmap("readout.png");
     display = new CWaveDisplay(CRect(38, 16, 665, 285), (CSmartelectronixDisplay*)effect, hBackground, heads, readout);
     newFrame->addView(display);
     heads->forget();
