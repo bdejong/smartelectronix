@@ -6,6 +6,7 @@ compiler:
   - clang
 
 before_script:
+  - brew upgrade cmake
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
   - cmake Smexoscope
