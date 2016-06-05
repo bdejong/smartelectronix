@@ -46,6 +46,7 @@ ipch/
 *.VC.VC.opendb
 
 # Cmake
+Makefile
 CMakeCache.txt
 CMakeFiles
 CMakeLists.txt.user
