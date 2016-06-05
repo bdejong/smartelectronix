@@ -16,6 +16,7 @@ script: make
 
 before_deploy:
   - zip -r Smexoscope.vst.zip Smexoscope/Smexoscope.vst
+  - file Smexoscope.vst.zip
 
 deploy:
   provider: releases
