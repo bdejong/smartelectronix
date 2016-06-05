@@ -3,9 +3,9 @@ os: Visual Studio 2015
 matrix:
   fast_finish: true
 
-# platform:
-#   - x86
-#   - x64
+platform:
+  - x86
+  - x64
 
 configuration:
   - Release
@@ -13,7 +13,10 @@ configuration:
 before_build:
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
-  - cmake -G "Visual Studio 14" Smexoscope
+  - mkdir build%PLATFORM%
+  - pushd build%PLATFORM%
+  - if %PLATFORM% == x86 (cmake ../) else (cmake -G "Visual Studio 14 2015 Win64" ../)
+  - cd..
 
-build:
-  project: Smexoscope.sln
+build_script:
+  - cmake --build build%PLATFORM% --config %CONFIGURATION%
