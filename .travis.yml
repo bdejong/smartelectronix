@@ -10,11 +10,11 @@ before_script:
   - brew upgrade cmake
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
-  - cmake Smexoscope
+  - cmake .
 
 script: make
 
-after_script:
+before_deploy:
   - zip -r Smexoscope.vst.zip Smexoscope.vst
 
 deploy:
