@@ -21,12 +21,15 @@ before_build:
 build_script:
   - cmake --build build%PLATFORM% --config %CONFIGURATION%
 
+artifacts:
+  - path: build%PLATFORM%\Smexoscope\Release\Smexoscope.dll
+    name: Smexoscope
+
 deploy:
   provider: GitHub
   description: "Smexoscope Windows"
   auth_token:
     secure: xe9XPoDfnyZLB7uIULqAWtTN4kwZBnsHVv9is3AlF3q+PJn05Smyl7RRptUSZk8r
-  artifact: build%PLATFORM%\Smexoscope\Release\Smexoscope.dll
   draft: false
   prerelease: false
   on:
