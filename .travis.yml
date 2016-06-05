@@ -15,13 +15,12 @@ before_script:
 script: make
 
 before_deploy:
-  - zip -r Smexoscope.vst.zip Smexoscope/Smexoscope.vst
-  - file Smexoscope.vst.zip
+  - zip -r Smexoscope/Smexoscope.vst.zip Smexoscope/Smexoscope.vst
 
 deploy:
   provider: releases
   api_key:
     secure: R0s15mi0n7SxMhlLz6yUE6ZuGoZBSRnMbD0RNOxIr0/YaXbkziZqvAb3F2ab92Szd/QadH2PtddBC4xcm2OmjvSaYfpNbuQj/rvNC7pmrnAPRuoszRDHTGeD2HEnoaUDPP4JO4t9rEncEt80XK4K+SKvOWAqaSBgg66IkEgJdi8MtVhJ1Jesqdb+2QanPCKfRx10ZUlcxhEhA8vEoPhbJtZ1yqkQTDbORCjBrixgTA4D7mKN8ouuQOpW4v2E6vXdXwDskbGI1EhOFl6hEU6qRjFh54On4hQz/q2R2MDth6YtBh4simyMencv5qa+Ou7KVWcAPY6MzFukTp9HfLacmTNyD4WuIJ4Oy9TZTSgaSyMGmgeWyVjck5KmHYE/VNP3XKYeZvWgMWkUKnRHcvRf5Flts8y35HSK51Bp0uApwRAwDNOBrlpLiEO9q0228kr4E8jtF8P5Ilqn6gLusZG5j3Y1rphq/yOie5Imn/5P4bgkCdCrm+m4j+c83RJ7P4yjcp0kGB9aEbx65OK2OlITwESXFmTozexD6tq54jiFayhwUZVuYFkA+ibRHJbu19AhvOMda18fLkX1AEh9VkKHlAx7tukBO9MBdIS78TqVD+IOvXKbnouEwHGuUKcXU+TjBjPcocO0vqWnmtQyz/7uJcr1qJEjKqjym1wsRyydSIM=
-  file: bdejong/smartelectronix/Smexoscope.vst.zip
+  file: "Smexoscope/Smexoscope.vst.zip"
   on:
     tags: true
