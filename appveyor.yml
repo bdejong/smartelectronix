@@ -20,3 +20,15 @@ before_build:
 
 build_script:
   - cmake --build build%PLATFORM% --config %CONFIGURATION%
+
+deploy:
+  provider: GitHub
+  description: "Smexoscope Windows"
+  auth_token:
+    secure: xe9XPoDfnyZLB7uIULqAWtTN4kwZBnsHVv9is3AlF3q+PJn05Smyl7RRptUSZk8r
+  artifact: build%PLATFORM%\Smexoscope\Release\Smexoscope.dll
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
