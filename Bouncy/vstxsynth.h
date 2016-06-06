@@ -1,16 +1,12 @@
-#ifndef __VstXSynth__
-#define __VstXSynth__
+#pragma once
 
 #include <string.h>
-
-#ifndef __AudioEffectX__
-#include "audioeffectx.h"
-#endif
-
-#include "Bouncy.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "public.sdk/source/vst2.x/audioeffectx.h"
+
+#include "Bouncy.h"
 
 #define NUM_BEATS 16.f
 
@@ -76,5 +72,3 @@ private:
 	FILE *pf;
 #endif
 };
-
-#endif

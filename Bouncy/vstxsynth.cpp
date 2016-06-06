@@ -1,6 +1,4 @@
-#ifndef __VstXSynth__
 #include "vstxsynth.h"
-#endif
 
 #if WIN32
 	#include "Registry.h"
