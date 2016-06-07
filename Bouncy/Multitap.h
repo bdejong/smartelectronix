@@ -1,13 +1,13 @@
 #pragma once
 
-#if WIN32
+#if _MSC_VER
 
 #include "xmmintrin.h"
 
 class Multitap
 {
 public:
-	
+
 	void process(float *inputs, float *outputs, unsigned long nSamples, bool replace);
 	void resume();
 
@@ -19,21 +19,21 @@ public:
 	}
 
 protected:
-	
+
 	Multitap(unsigned long initialSize);
 	~Multitap();
-	
+
 	void setDelay(unsigned long size);
-	void setParameters(const float _amp[32], const float _delay[32]);	
+	void setParameters(const float _amp[32], const float _delay[32]);
 
 private:
-	
+
 	void processFPU(float *inputs, float *outputs, unsigned long nSamples, bool replace);
 	void set4(__m128 &x, float y);
-	
+
 	__m128 *buffer;
 	__m128 *amp;
-	
+
 	unsigned long buffersize;
 	unsigned long mask;
 	unsigned long *delay;
@@ -49,22 +49,22 @@ private:
 class Multitap
 {
 public:
-	
+
 	void process(float *inputs, float *outputs, unsigned long nSamples, bool replace);
 	void resume();
 
 protected:
-	
+
 	Multitap(unsigned long initialSize);
 	~Multitap();
-	
+
 	void setDelay(unsigned long size);
-	void setParameters(const float _amp[32], const float _delay[32]);	
+	void setParameters(const float _amp[32], const float _delay[32]);
 
 private:
-	
+
 	float *buffer;
-	
+
 	float amp[32];
 	unsigned long delay[32];
 

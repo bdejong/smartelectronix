@@ -1,10 +1,6 @@
-// Registry.cpp: implementation of the RegWriter class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "Registry.h"
 
-#if WIN32
+#if _MSC_VER
 
 #include "winbase.h"
 

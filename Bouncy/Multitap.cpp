@@ -1,6 +1,6 @@
 #include "Multitap.h"
 
-#if WIN32
+#if _MSC_VER
 
 #include <windows.h>
 #include <assert.h>
