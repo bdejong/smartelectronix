@@ -16,14 +16,14 @@ before_build:
   - mkdir build%PLATFORM%
   - pushd build%PLATFORM%
   - if %PLATFORM% == x86 (cmake ../) else (cmake -G "Visual Studio 14 2015 Win64" ../)
-  - cd..
+  - cd ..
 
 build_script:
   - cmake --build build%PLATFORM% --config %CONFIGURATION%
 
 artifacts:
-  - path: build%PLATFORM%\Smexoscope\Release\Smexoscope.dll
-    name: Smexoscope
+  - path: build$(PLATFORM)\Smexoscope\Release\Smexoscope.dll
+    name: Smexoscope-$(PLATFORM)
 
 deploy:
   provider: GitHub
@@ -33,4 +33,4 @@ deploy:
   draft: false
   prerelease: false
   on:
-    appveyor_repo_tag: false
+    appveyor_repo_tag: true
