@@ -1,9 +1,14 @@
 #include "Multitap.h"
 
-#if _MSC_VER
+#if _WIN32
 
 #include <windows.h>
 #include <assert.h>
+
+#if _WIN64
+#include <bitset>
+#include <intrin.h>
+#endif
 
 Multitap::Multitap(unsigned long initialSize)
 {
@@ -77,7 +82,9 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 
 		unsigned long index = indexfpu >> 2;
 
-		_mm_empty();
+#ifndef _WIN64
+		_mm_empty(); // No MMX on x64
+#endif
 
 		_mm_prefetch(((char *)&delay[0]),0);
 		_mm_prefetch(((char *)&amp[0]),0);
@@ -179,7 +186,9 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 			}
 		}
 
+#ifndef _WIN64
 		_mm_empty();
+#endif
 	}
 
 	indexfpu += blockSize;
@@ -274,7 +283,25 @@ void Multitap::resume()
 
 bool Multitap::SSEDetect()
 {
-	bool SSE = true;
+#if _WIN64
+    int cpuInfo[4] = { -1 };
+
+    __cpuid(cpuInfo, 0);
+    int nIds_ = cpuInfo[0];
+
+    if (nIds_ >= 1)
+    {
+        __cpuidex(cpuInfo, 1, 0);
+        std::bitset<32> f_1_EDX;
+        f_1_EDX = cpuInfo[3];
+        return f_1_EDX[25];
+    }
+
+    return false;
+
+#else
+    bool SSE = true;
+
 	__try
 	{
 		__asm
@@ -289,7 +316,8 @@ bool Multitap::SSEDetect()
 		SSE = false;
 	}
 
-	return SSE;
+    return SSE;
+#endif
 }
 
 void Multitap::set4(__m128 &x, float y)
