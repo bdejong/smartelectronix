@@ -4,3 +4,4 @@ project(Smartelectronix)
 
 add_subdirectory(Smexoscope)
 add_subdirectory(Bouncy)
+add_subdirectory(OnePingOnly)
