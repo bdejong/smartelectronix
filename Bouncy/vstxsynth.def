@@ -1,3 +1,0 @@
-LIBRARY			Bouncy
-DESCRIPTION		'Bouncing ball delay'
-EXPORTS			main
