@@ -1,34 +1,13 @@
-// Compressor.cpp: implementation of the CCompressor class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "Compressor.h"
 #include "math.h"
 #include "stdio.h"
+#include <cmath>
+#include <limits>
 
-#define IS_DENORMAL(f) (((*(unsigned int *)&(f))&0x7f800000)==0)
-
-#ifdef MAC
-        #define iexp_                           0
-        #define iman_                           1
-#else //LittleEndian
-        #define iexp_                           1
-        #define iman_                           0
-#endif
-
-const double _double2fixmagic = 68719476736.0*1.5;
-const long   _shiftamt        = 16;
-
-inline long fastcast(double val)
+inline bool IS_DENORMAL(const float flt)
 {
-   val += _double2fixmagic;
-   return ((long*)&val)[iman_] >> _shiftamt;
-};
-
-inline long fastcast(float val)
-{
-   return fastcast((double)val);
-};
+	return flt != 0 && std::fabsf( flt ) < std::numeric_limits<float>::min();
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -41,7 +20,7 @@ CCompressor::CCompressor(float samplerate)
 	release = 40.f;
 
 	nLUT = 4000; //more than enough!
-	
+
 	LUT = new float[nLUT];
 	dLUT = new float[nLUT];
 
@@ -77,7 +56,7 @@ void CCompressor::process(float **input, float **output, long nSamples)
 	float ntmp;
 	float inL,inR,in;
 	float m;
-	
+
 	float nLUTf_1 = (float)nLUT - 1.f;
 
 	if(saturate)
@@ -123,20 +102,20 @@ void CCompressor::process(float **input, float **output, long nSamples)
 			}
 
 		}
-			
+
 		//get the envelope
 		if(e < in)
 			e = ga*(e-in) + in;
 		else
 			e = gr*(e-in) + in;
-		
+
 		//lopass
 		eLP += 0.001f*(e - eLP);
-		
+
 		//calc the compressor response
 
 		ntmp = eLP*nLUTf_1;
-		n = fastcast(ntmp);
+		n = int(ntmp);
 
 		if(n >= nLUT)
 			m = LUT[nLUT-1];
@@ -152,7 +131,7 @@ void CCompressor::process(float **input, float **output, long nSamples)
 
 		inL *= m;//smooth;
 		inR *= m;//smooth;
-		
+
 		//saturate left
 		//signum(x)*(2*abs(x) - x*x), stolen from POD
 		if(inL>0.f)
@@ -231,20 +210,20 @@ void CCompressor::process(float **input, float **output, long nSamples)
 			}
 
 		}
-			
+
 		//get the envelope
 		if(e < in)
 			e = ga*(e-in) + in;
 		else
 			e = gr*(e-in) + in;
-		
+
 		//lopass
 		eLP += 0.001f*(e - eLP);
-		
+
 		//calc the compressor response
 
 		ntmp = eLP*nLUTf_1;
-		n = fastcast(ntmp);
+		int(ntmp);
 
 		if(n >= nLUT)
 			m = LUT[nLUT-1];
@@ -260,7 +239,7 @@ void CCompressor::process(float **input, float **output, long nSamples)
 
 		inL *= m;//smooth;
 		inR *= m;//smooth;
-		
+
 		//saturate left
 		//signum(x)*(2*abs(x) - x*x), stolen from POD
 		if(inL>0.f)
@@ -302,7 +281,7 @@ void CCompressor::process(float **input, float **output, long nSamples)
 }
 
 void CCompressor::processReplacing(float **input, float **output, long nSamples)
-{	
+{
 	float *in1  =  input[0];
 	float *in2  =  input[1];
 	float *out1 = output[0];
@@ -313,7 +292,7 @@ void CCompressor::processReplacing(float **input, float **output, long nSamples)
 	float ntmp;
 	float inL,inR,in;
 	float m;
-	
+
 	float nLUTf_1 = (float)nLUT - 1.f;
 
 	if(saturate)
@@ -359,20 +338,20 @@ void CCompressor::processReplacing(float **input, float **output, long nSamples)
 			}
 
 		}
-			
+
 		//get the envelope
 		if(e < in)
 			e = ga*(e-in) + in;
 		else
 			e = gr*(e-in) + in;
-		
+
 		//lopass
 		eLP += 0.001f*(e - eLP);
-		
+
 		//calc the compressor response
 
 		ntmp = eLP*nLUTf_1;
-		n = fastcast(ntmp);
+		n = int(ntmp);
 
 		if(n >= nLUT)
 			m = LUT[nLUT-1];
@@ -388,7 +367,7 @@ void CCompressor::processReplacing(float **input, float **output, long nSamples)
 
 		inL *= m;//smooth;
 		inR *= m;//smooth;
-		
+
 		//saturate left
 		//signum(x)*(2*abs(x) - x*x), stolen from POD
 		if(inL>0.f)
@@ -467,20 +446,20 @@ void CCompressor::processReplacing(float **input, float **output, long nSamples)
 			}
 
 		}
-			
+
 		//get the envelope
 		if(e < in)
 			e = ga*(e-in) + in;
 		else
 			e = gr*(e-in) + in;
-		
+
 		//lopass
 		eLP += 0.001f*(e - eLP);
-		
+
 		//calc the compressor response
 
 		ntmp = eLP*nLUTf_1;
-		n = fastcast(ntmp);
+		n = int(ntmp);
 
 		if(n >= nLUT)
 			m = LUT[nLUT-1];
@@ -496,7 +475,7 @@ void CCompressor::processReplacing(float **input, float **output, long nSamples)
 
 		inL *= m;//smooth;
 		inR *= m;//smooth;
-		
+
 		//saturate left
 		//signum(x)*(2*abs(x) - x*x), stolen from POD
 		if(inL>0.f)
@@ -546,22 +525,22 @@ void CCompressor::CalcLUT()
 	float y,z,zz;
 
 	float k = 2.f*amount/(1.f-amount);
-		
+
 	for(int i=0;i<nLUT-1;i++)
 	{
 		if(i==0)
 			z = 1/nLUTf_2;
 		else
 			z = (float)i/nLUTf_2;
-		
+
 		zz = z*z;
 		y = (zz + z*10.f)/(zz + z*9.f + 1);
-		
+
 		LUT[i] = 0.5f*postamp*(1.f+k)*y/(1.f+k*y)/z;
 	}
 	LUT[nLUT-1] = LUT[nLUT-2];
 
-	for(i=0;i<nLUT-1;i++)
+	for(int i=0;i<nLUT-1;i++)
 		dLUT[i] = LUT[i+1] - LUT[i];
 	dLUT[nLUT-1] = 0.f;
 

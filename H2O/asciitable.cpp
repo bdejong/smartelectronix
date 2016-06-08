@@ -89,6 +89,6 @@ void fillasciitable()
 	//ASCII = place
 
 	ASCII[0] = 0;
-	for(i=1;i<256;i++)
+	for(int i=1;i<256;i++)
 		ASCII[i] = ASCII[i-1] + DASCII[i-1];
 }

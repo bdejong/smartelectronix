@@ -3,12 +3,17 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "H2Oeffect.h"
-#include "AEffEditor.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "math.h"
+
+#include "AEffEditor.hpp"
+
 #include "asciitable.h"
+#include "compressor.h"
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -16,7 +21,7 @@
 H2Oprogram::H2Oprogram()
 {
 	strcpy (name, "Init");
-	
+
 	fPreAmp = 0.5f;
 	fAttack = 0.3f;
 	fRelease = 0.1f;
@@ -33,12 +38,12 @@ H2Oeffect::H2Oeffect(audioMasterCallback audioMaster)
 	:AudioEffectX(audioMaster,kNumPrograms,kNumParams)
 {
 	programs = new H2Oprogram[kNumPrograms];
-	
+
 	comp = new CCompressor(this->getSampleRate());
-	
+
 	if (programs)
 		setProgram (0);
-	
+
 	if (audioMaster)
 	{
 		setNumInputs (2);
@@ -47,7 +52,7 @@ H2Oeffect::H2Oeffect(audioMasterCallback audioMaster)
 		canMono(true);
 		setUniqueID('H2OF');
 	}
-	
+
 	resume();
 }
 
@@ -55,21 +60,21 @@ H2Oeffect::~H2Oeffect()
 {
 	if(programs)
 		delete [] programs;
-	
+
 	delete comp;
 }
 
-void H2Oeffect::process(float **inputs, float **outputs, long sampleFrames)
+void H2Oeffect::process(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	comp->process(inputs,outputs,sampleFrames);
 }
 
-void H2Oeffect::processReplacing(float **inputs, float **outputs, long sampleFrames)
+void H2Oeffect::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	comp->processReplacing(inputs,outputs,sampleFrames);
 }
 
-void H2Oeffect::setProgram (long program)
+void H2Oeffect::setProgram (VstInt32 program)
 {
 	H2Oprogram *ap = &programs[program];
 	curProgram = program;
@@ -82,10 +87,10 @@ void H2Oeffect::setProgram (long program)
 	setParameter(kSaturate,ap->fSaturate);
 }
 
-void H2Oeffect::setParameter (long index, float value)
+void H2Oeffect::setParameter (VstInt32 index, float value)
 {
 	H2Oprogram *ap = &programs[curProgram];
-	
+
 	switch(index)
 	{
 		case kAttack : fAttack = ap->fAttack = value; comp->setAttack(value); break;
@@ -95,13 +100,13 @@ void H2Oeffect::setParameter (long index, float value)
 		case kPreAmp : fPreAmp = ap->fPreAmp = value; comp->setPreamp(value); break;
 		case kSaturate : fSaturate = ap->fSaturate = value; comp->setSaturate(value); break;
 	}
-	
+
 	if(editor)
 		editor->postUpdate();
 }
 
 
-float H2Oeffect::getParameter (long index)
+float H2Oeffect::getParameter (VstInt32 index)
 {
 	float v = 0;
 
@@ -114,11 +119,11 @@ float H2Oeffect::getParameter (long index)
 		case kPreAmp : v = fPreAmp; break;
 		case kSaturate : v = fSaturate; break;
 	}
-	
+
 	return v;
 }
 
-void H2Oeffect::getParameterName (long index, char *label)
+void H2Oeffect::getParameterName (VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -134,11 +139,11 @@ void H2Oeffect::getParameterName (long index, char *label)
 
 void float2string2(float value, char *text)
 {
-	long c = 0, neg = 0;
+	VstInt32 c = 0, neg = 0;
 	char string[32];
 	char *s;
 	double v, integ, i10, mantissa, m10, ten = 10.;
-	
+
 	v = (double)value;
 	if(v < 0)
 	{
@@ -162,16 +167,16 @@ void float2string2(float value, char *text)
 	*s-- = 0;
 	*s-- = '.';
 	c++;
-	
+
 	integ = floor(v);
 	i10 = fmod(integ, ten);
-	*s-- = (long)i10 + '0';
+	*s-- = (VstInt32)i10 + '0';
 	integ /= ten;
 	c++;
 	while(integ >= 1. && c < 8)
 	{
 		i10 = fmod(integ, ten);
-		*s-- = (long)i10 + '0';
+		*s-- = (VstInt32)i10 + '0';
 		integ /= ten;
 		c++;
 	}
@@ -192,7 +197,7 @@ void float2string2(float value, char *text)
 		else
 		{
 			m10 = fmod(mantissa, ten);
-			*s-- = (long)m10 + '0';
+			*s-- = (VstInt32)m10 + '0';
 			mantissa /= 10.;
 		}
 		c++;
@@ -205,7 +210,7 @@ void dB2string2(float value, char *text)
 	if(value <= 0.f)
 	{
 /*#if MAC
-		strcpy(text, "   -°   ");
+		strcpy(text, "   -ï¿½   ");
 #else
 		strcpy(text, "  -oo   ");
 #endif*/
@@ -217,7 +222,7 @@ void dB2string2(float value, char *text)
 		float2string2((float)(20. * log10(value)), text);
 }
 
-void H2Oeffect::getParameterDisplay (long index, char *text)
+void H2Oeffect::getParameterDisplay (VstInt32 index, char *text)
 {
 	switch(index)
 	{
@@ -235,7 +240,7 @@ void H2Oeffect::getParameterDisplay (long index, char *text)
 	}
 }
 
-void H2Oeffect::getParameterLabel (long index, char *label)
+void H2Oeffect::getParameterLabel (VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -257,7 +262,7 @@ void H2Oeffect::resume ()
 {
 }
 
-bool H2Oeffect::getOutputProperties (long index, VstPinProperties* properties)
+bool H2Oeffect::getOutputProperties (VstInt32 index, VstPinProperties* properties)
 {
 	if (index < kNumOutputs)
 	{
@@ -272,12 +277,12 @@ bool H2Oeffect::getOutputProperties (long index, VstPinProperties* properties)
 			else
 				sprintf (properties->label, "H2O %d",index+1);
 		}
-		
+
 		properties->flags = kVstPinIsActive;
-		
+
 		if(index < 2)
 			properties->flags |= kVstPinIsStereo; // make channel 1+2 stereo
-		
+
 		return true;
 	}
 	return false;
@@ -323,7 +328,7 @@ bool H2Oeffect::getProductString (char* text)
 	return true;
 }
 
-long H2Oeffect::canDo (char* text)
+VstInt32 H2Oeffect::canDo (char* text)
 {
 	if (!strcmp(text, "receiveVstTimeInfo"))  return 0;
 	if (!strcmp(text, "receiveVstMidiEvent")) return 0;
