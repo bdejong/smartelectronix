@@ -1,25 +1,23 @@
-// PingSynth.cpp: implementation of the PingSynth class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "PingSynth.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "math.h"
-#include "AEffEditor.hpp"
+#include <cmath>
+#include <limits>
 
-#define IS_DENORMAL(f) (((*(unsigned int *)&(f))&0x7f800000)==0)
+#include "delay.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+inline bool IS_DENORMAL(const float flt)
+{
+	return flt != 0 && std::fabsf( flt ) < std::numeric_limits<float>::min();
+}
 
 PingSynth::PingSynth(audioMasterCallback audioMaster)
 	:AudioEffectX(audioMaster,kNumPrograms,kNumParams)
 {
 	programs = new PingSynthProgram[kNumPrograms];
-	
+
 	DelayL = new CDelay((int)(getSampleRate()*3));
 	DelayR = new CDelay((int)(getSampleRate()*3));
 
@@ -30,25 +28,23 @@ PingSynth::PingSynth(audioMasterCallback audioMaster)
 		alpha[index] = 1.9701f;
 		d1[index]=d2[index]=0.f;
 	}
-		
+
 	if (programs)
 		setProgram (0);
-	
+
 	if (audioMaster)
 	{
 		setNumInputs(0);				// 1 input. so this inst. can be seen in Logic...
 		setNumOutputs(kNumOutputs);	// 2 outputs
 		canProcessReplacing(true);
-		hasVu(false);
-		hasClip(false);
 		isSynth();
 		setUniqueID('Ping');
 	}
-	
+
 	for(int k=0;k<200;k++)
 		Notes[k].Note = -1; //no notes yet!
 	nNotes=0;
-	
+
 	resume();
 }
 
@@ -61,22 +57,22 @@ PingSynth::~PingSynth()
 	delete DelayR;
 }
 
-long PingSynth::processEvents (VstEvents* ev)
+VstInt32 PingSynth::processEvents (VstEvents* ev)
 {
 	nNotes=0; //no notes yet
 
 	NoteData *pNotes = Notes;
 	long velocity, note;
-	
+
 	for (long i = 0; i < ev->numEvents; i++)
 	{
 		if ((ev->events[i])->type != kVstMidiType)
 			continue;
-		
+
 		VstMidiEvent* event = (VstMidiEvent*)ev->events[i];
 		char* midiData = event->midiData;
 		long status = midiData[0] & 0xf0;		// ignoring channel
-		
+
 		if(status == 0x90)	// note on only
 		{
 			velocity = midiData[2] & 0x7f;	//velocity
@@ -95,13 +91,13 @@ long PingSynth::processEvents (VstEvents* ev)
 	return 1;
 }
 
-void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
+void PingSynth::process(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	NoteData *pNotes = Notes;
-		
+
 	float *out1 = outputs[0];
     float *out2 = outputs[1];
-	
+
 	float out,o,oL,oR,noise;
 
 	long n=0;
@@ -121,7 +117,7 @@ void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
 			index = pNotes->Note;
 			in[index] = g[index]*pNotes++->Velocity;
 			nNotes--;
-			
+
 			while(pNotes->Time == n && nNotes) //checking for other notes on this timeframe
 			{
 				index = pNotes->Note;
@@ -129,12 +125,12 @@ void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
 				nNotes--;
 				MoreThanOne = true; //more than one note at this timeframe!
 			}
-						
+
 			oL = oR = o = 0;
-			
+
 			//the main loop
 			//I tried doing an "optimised" '*' loop but it actualy slowed down the thing!
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = beta[i]*(in[i] - out_2[i]) + alpha[i]*(in_1[i]-out_1[i]) + in_2[i];
@@ -151,7 +147,7 @@ void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
 
 			*out1++ += DelayL->getVal(oL)*fMaster;
 			*out2++ += DelayR->getVal(oR)*fMaster;
-			
+
 			if(MoreThanOne)
 			{
 				for(int i=0;i<nPing;i++)
@@ -160,18 +156,18 @@ void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
 			}
 			else
 				in[index] = 0.f;
-						
+
 			n++; //we did one more sample
-			
+
 			//check to see if there are any more notes
 			if(!nNotes)
 				goto NoMoreNotes;
 		}
 		else
 		{
-			
+
 			oL=oR=o=0;
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = -beta[i]*out_2[i] + alpha[i]*(in_1[i]-out_1[i]) + in_2[i];
@@ -179,13 +175,13 @@ void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
 				out_1[i]=out;
 				in_2[i]=in_1[i];
 				in_1[i]=0;
-				
+
 				o = out*(1 + NoiseAmount[i]*noise);
 				o *= d2[i]/(1+d1[i]*o*o);
 				oL += bal[i]*o;
 				oR += baltmp[i]*o;
 			}
-			
+
 			*out1++ += DelayL->getVal(oL)*fMaster;
 			*out2++ += DelayR->getVal(oR)*fMaster;
 
@@ -200,13 +196,13 @@ void PingSynth::process(float **inputs, float **outputs, long sampleFrames)
 NoMoreNotes:
 
 	sampleFrames -= n; //we've done n samples
-	
+
 	if(sampleFrames>2) //more than two samples to go...
 	{
 		noise = rand()/16384.f - 1.f;
-		
+
 		oL=oR=o=0;
-			
+
 		//in=0
 		for(int i=0;i<nPing;i++)
 		{
@@ -215,34 +211,34 @@ NoMoreNotes:
 			out_1[i] = out;
 			in_2[i] = in_1[i];
 			in_1[i] = 0; //we HAVE to clear these out!, they'll be used in the next round!
-					
+
 			o = out*(1 + NoiseAmount[i]*noise);
 			o *= d2[i]/(1+d1[i]*o*o);
 			oL += bal[i]*o;
 			oR += baltmp[i]*o;
 		}
-			
+
 		*out1++ += DelayL->getVal(oL)*fMaster;
 		*out2++ += DelayR->getVal(oR)*fMaster;
-			
+
 		noise = rand()/16384.f - 1.f;
-		
+
 		oL=oR=o=0;
-		
+
 		//in=in_1=0;
-		for(i=0;i<nPing;i++)
+		for(int i=0;i<nPing;i++)
 		{
 			out = -beta[i]*out_2[i] - alpha[i]*out_1[i] + in_2[i];
 			out_2[i] = out_1[i];
 			out_1[i] = out;
 			in_2[i] = 0; //we HAVE to clear these out!, they'll be used in the next round!
-						
+
 			o = out*(1 + NoiseAmount[i]*noise);
 			o *= d2[i]/(1+d1[i]*o*o);
 			oL += bal[i]*o;
 			oR += baltmp[i]*o;
 		}
-		
+
 		*out1++ += DelayL->getVal(oL)*fMaster;
 		*out2++ += DelayR->getVal(oR)*fMaster;
 
@@ -253,21 +249,21 @@ NoMoreNotes:
 		while(sampleFrames--) //this loop will be called the most (I *think*)
 		{
 			noise = rand()/16384.f - 1.f;
-			
+
 			oL=oR=o=0;
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = -beta[i]*out_2[i] - alpha[i]*out_1[i];
 				out_2[i] = out_1[i];
 				out_1[i] = out;
-				
+
 				o = out*(1 + NoiseAmount[i]*noise);
 				o *= d2[i]/(1+d1[i]*o*o);
 				oL += bal[i]*o;
 				oR += (1- bal[i])*o;
 			}
-			
+
 			*out1++ += DelayL->getVal(oL)*fMaster;
 			*out2++ += DelayR->getVal(oR)*fMaster;
 		}
@@ -277,9 +273,9 @@ NoMoreNotes:
 		while(sampleFrames--)
 		{
 			noise = rand()/16384.f - 1.f;
-			
+
 			oL=oR=o=0;
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = -beta[i]*out_2[i] + alpha[i]*(in_1[i]-out_1[i]) + in_2[i];
@@ -287,22 +283,22 @@ NoMoreNotes:
 				out_1[i] = out;
 				in_2[i] = in_1[i];
 				in_1[i] = 0;
-				
+
 				o = out*(1 + NoiseAmount[i]*noise);
 				o *= d2[i]/(1+d1[i]*o*o);
 				oL += bal[i]*o;
 				oR += baltmp[i]*o;
 			}
-			
+
 			*out1++ += DelayL->getVal(oL)*fMaster;
 			*out2++ += DelayR->getVal(oR)*fMaster;
 		}
 	}
 
 end:
-	
+
 	Notes->Note = -1;
-	
+
 	for(int i=0;i<nPing;i++) //avoid the "de-normalisation trap"
 	{
 		if(IS_DENORMAL(out_1[i]))
@@ -313,13 +309,13 @@ end:
 	}
 }
 
-void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFrames)
+void PingSynth::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	NoteData *pNotes = Notes;
-		
+
 	float *out1 = outputs[0];
     float *out2 = outputs[1];
-	
+
 	float out,o,oL,oR,noise;
 
 	long n=0;
@@ -339,7 +335,7 @@ void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFra
 			index = pNotes->Note;
 			in[index] = g[index]*pNotes++->Velocity;
 			nNotes--;
-			
+
 			while(pNotes->Time == n && nNotes) //checking for other notes on this timeframe
 			{
 				index = pNotes->Note;
@@ -347,12 +343,12 @@ void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFra
 				nNotes--;
 				MoreThanOne = true; //more than one note at this timeframe!
 			}
-						
+
 			oL = oR = o = 0;
-			
+
 			//the main loop
 			//I tried doing an "optimised" '*' loop but it actualy slowed down the thing!
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = beta[i]*(in[i] - out_2[i]) + alpha[i]*(in_1[i]-out_1[i]) + in_2[i];
@@ -369,7 +365,7 @@ void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFra
 
 			*out1++ = DelayL->getVal(oL)*fMaster;
 			*out2++ = DelayR->getVal(oR)*fMaster;
-			
+
 			if(MoreThanOne)
 			{
 				for(int i=0;i<nPing;i++)
@@ -378,18 +374,18 @@ void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFra
 			}
 			else
 				in[index] = 0.f;
-						
+
 			n++; //we did one more sample
-			
+
 			//check to see if there are any more notes
 			if(!nNotes)
 				goto NoMoreNotes;
 		}
 		else
 		{
-			
+
 			oL=oR=o=0;
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = -beta[i]*out_2[i] + alpha[i]*(in_1[i]-out_1[i]) + in_2[i];
@@ -397,13 +393,13 @@ void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFra
 				out_1[i]=out;
 				in_2[i]=in_1[i];
 				in_1[i]=0;
-				
+
 				o = out*(1 + NoiseAmount[i]*noise);
 				o *= d2[i]/(1+d1[i]*o*o);
 				oL += bal[i]*o;
 				oR += baltmp[i]*o;
 			}
-			
+
 			*out1++ = DelayL->getVal(oL)*fMaster;
 			*out2++ = DelayR->getVal(oR)*fMaster;
 
@@ -418,13 +414,13 @@ void PingSynth::processReplacing(float **inputs, float **outputs, long sampleFra
 NoMoreNotes:
 
 	sampleFrames -= n; //we've done n samples
-	
+
 	if(sampleFrames>2) //more than two samples to go...
 	{
 		noise = rand()/16384.f - 1.f;
-		
+
 		oL=oR=o=0;
-			
+
 		//in=0
 		for(int i=0;i<nPing;i++)
 		{
@@ -433,34 +429,34 @@ NoMoreNotes:
 			out_1[i] = out;
 			in_2[i] = in_1[i];
 			in_1[i] = 0; //we HAVE to clear these out!, they'll be used in the next round!
-					
+
 			o = out*(1 + NoiseAmount[i]*noise);
 			o *= d2[i]/(1+d1[i]*o*o);
 			oL += bal[i]*o;
 			oR += baltmp[i]*o;
 		}
-			
+
 		*out1++ = DelayL->getVal(oL)*fMaster;
 		*out2++ = DelayR->getVal(oR)*fMaster;
-			
+
 		noise = rand()/16384.f - 1.f;
-		
+
 		oL=oR=o=0;
-		
+
 		//in=in_1=0;
-		for(i=0;i<nPing;i++)
+		for(int i=0;i<nPing;i++)
 		{
 			out = -beta[i]*out_2[i] - alpha[i]*out_1[i] + in_2[i];
 			out_2[i] = out_1[i];
 			out_1[i] = out;
 			in_2[i] = 0; //we HAVE to clear these out!, they'll be used in the next round!
-						
+
 			o = out*(1 + NoiseAmount[i]*noise);
 			o *= d2[i]/(1+d1[i]*o*o);
 			oL += bal[i]*o;
 			oR += baltmp[i]*o;
 		}
-		
+
 		*out1++ = DelayL->getVal(oL)*fMaster;
 		*out2++ = DelayR->getVal(oR)*fMaster;
 
@@ -471,21 +467,21 @@ NoMoreNotes:
 		while(sampleFrames--) //this loop will be called the most (I *think*)
 		{
 			noise = rand()/16384.f - 1.f;
-			
+
 			oL=oR=o=0;
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = -beta[i]*out_2[i] - alpha[i]*out_1[i];
 				out_2[i] = out_1[i];
 				out_1[i] = out;
-				
+
 				o = out*(1 + NoiseAmount[i]*noise);
 				o *= d2[i]/(1+d1[i]*o*o);
 				oL += bal[i]*o;
 				oR += (1- bal[i])*o;
 			}
-			
+
 			*out1++ = DelayL->getVal(oL)*fMaster;
 			*out2++ = DelayR->getVal(oR)*fMaster;
 		}
@@ -495,9 +491,9 @@ NoMoreNotes:
 		while(sampleFrames--)
 		{
 			noise = rand()/16384.f - 1.f;
-			
+
 			oL=oR=o=0;
-			
+
 			for(int i=0;i<nPing;i++)
 			{
 				out = -beta[i]*out_2[i] + alpha[i]*(in_1[i]-out_1[i]) + in_2[i];
@@ -505,22 +501,22 @@ NoMoreNotes:
 				out_1[i] = out;
 				in_2[i] = in_1[i];
 				in_1[i] = 0;
-				
+
 				o = out*(1 + NoiseAmount[i]*noise);
 				o *= d2[i]/(1+d1[i]*o*o);
 				oL += bal[i]*o;
 				oR += baltmp[i]*o;
 			}
-			
+
 			*out1++ = DelayL->getVal(oL)*fMaster;
 			*out2++ = DelayR->getVal(oR)*fMaster;
 		}
 	}
 
 end:
-	
+
 	Notes->Note = -1;
-	
+
 	for(int i=0;i<nPing;i++) //avoid the "de-normalisation trap"
 	{
 		if(IS_DENORMAL(out_1[i]))
@@ -545,8 +541,6 @@ void PingSynth::resume ()
 {
 	for(int i=0;i<nPing;i++)
 		in[i]=in_1[i]=in_2[i]=out_1[i]=out_2[i]=0;
-	
-	wantEvents ();
 }
 
 void PingSynth::SetFreq(int index, float freq)
@@ -586,7 +580,7 @@ void PingSynth::SetNoise(int index, float n)
 void PingSynth::SetDistortion(int index, float dist)
 {
 	dist *= 10.f;
-	
+
 	d1[index] = dist;
 
 	if(dist>1)
@@ -625,7 +619,7 @@ void PingSynth::getProgramName (char *name)
 void PingSynth::setSampleRate(float sampleRate)
 {
 	AudioEffect::setSampleRate (sampleRate);
-	
+
 	DelayL->setMaxDelay((int)(sampleRate*3));
 	DelayR->setMaxDelay((int)(sampleRate*3));
 	DelayL->setDelay((int)(sampleRate*3*fDelay));
@@ -657,7 +651,7 @@ bool PingSynth::getProductString (char* text)
 	return true;
 }
 
-long PingSynth::canDo (char* text)
+VstInt32 PingSynth::canDo (char* text)
 {
 	if (!strcmp (text, "receiveVstEvents"))
 		return 1;
@@ -666,17 +660,17 @@ long PingSynth::canDo (char* text)
 	return -1;	// explicitly can't do; 0 => don't know
 }
 
-bool PingSynth::getInputProperties(long index, VstPinProperties* properties)
+bool PingSynth::getInputProperties(VstInt32 index, VstPinProperties* properties)
 {
 	return false;
 }
 
-bool PingSynth::getOutputProperties(long index, VstPinProperties* properties)
+bool PingSynth::getOutputProperties(VstInt32 index, VstPinProperties* properties)
 {
 	if ( (index >= 0) && (index < 2) )
 	{
-		sprintf (properties->label, "OnePingOnly output %ld", index+1);
-		sprintf (properties->shortLabel, "Out %ld", index+1);
+		sprintf (properties->label, "OnePingOnly output %i", index+1);
+		sprintf (properties->shortLabel, "Out %i", index+1);
 		properties->flags = (kVstPinIsStereo | kVstPinIsActive);
 		return true;
 	}

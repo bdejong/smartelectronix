@@ -1,3 +1,0 @@
-LIBRARY			ONEPINGONLY
-DESCRIPTION		'Ping Synth for VST,WaveLab,...'
-EXPORTS			main

@@ -34,6 +34,9 @@
 *.sln
 *.vcxproj*
 
+# VST specific
+*.vst
+
 # Visual C++ cache files
 ipch/
 *.aps

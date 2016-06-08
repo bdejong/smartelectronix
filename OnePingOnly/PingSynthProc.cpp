@@ -1,23 +1,25 @@
 #include "PingSynth.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include "math.h"
-#include "AEffEditor.hpp"
+#include <sstream>
+
 #include "defs.h"
 
 PingSynthProgram::PingSynthProgram()
 {
 	static bool FirstProgram = true;
-	
+
 	if(FirstProgram)
 	{
 		FirstProgram=false;
 		srand((unsigned)time(0));
 	}
 
-	
+
 	for(int i=0;i<nPing;i++)
 	{
 		this->fAmp[i] = 1.f;
@@ -31,7 +33,7 @@ PingSynthProgram::PingSynthProgram()
 	this->fDelay = 0.25f;
 	this->fFeed = 0.6f;
 	this->fMaster = 1.f;
-	
+
 	strcpy (name, "Init");
 }
 
@@ -39,7 +41,7 @@ PingSynthProgram::~PingSynthProgram()
 {
 }
 
-void PingSynth::setProgram (long program)
+void PingSynth::setProgram (VstInt32 program)
 {
 	PingSynthProgram *ap = &programs[program];
 	curProgram = program;
@@ -59,15 +61,15 @@ void PingSynth::setProgram (long program)
 	setParameter (kMaster,ap->fMaster);
 }
 
-void PingSynth::setParameter (long index, float value)
+void PingSynth::setParameter (VstInt32 index, float value)
 {
 	PingSynthProgram *ap = &programs[curProgram];
-	
+
 	if(index<nPar*nPing)
 	{
 		int ParamIndex = index % nPar;
 		int PingIndex  = index / nPar;
-			
+
 		switch(ParamIndex)
 		{
 			case kFreq:		fFreq[PingIndex]		= ap->fFreq[PingIndex]		= value; SetFreq(PingIndex,fFreq[PingIndex]); break;
@@ -87,12 +89,10 @@ void PingSynth::setParameter (long index, float value)
 			case kMaster : fMaster = ap->fMaster = value; break;
 		}
 	}
-	if(editor)
-		editor->postUpdate();
 }
 
 
-float PingSynth::getParameter (long index)
+float PingSynth::getParameter (VstInt32 index)
 {
 	float v = 0;
 
@@ -100,8 +100,8 @@ float PingSynth::getParameter (long index)
 	{
 		int ParamIndex = index % nPar;
 		int PingIndex  = index / nPar;
-		
-		
+
+
 		switch(ParamIndex)
 		{
 			case kFreq:		v=fFreq[PingIndex];		break;
@@ -126,21 +126,21 @@ float PingSynth::getParameter (long index)
 	return v;
 }
 
-void CreateString(char *label, char *string, int index)
-{	
-	long i = 0;
-	strcpy(&label[i],string);
-	i = strlen(label);
-	_itoa(index+1,&label[i],10);	
+void CreateString(char *label, const char *str, int index)
+{
+	std::stringstream ss;
+	ss << str;
+	ss << (index+1);
+	strcpy(label,ss.str().c_str());
 }
 
-void PingSynth::getParameterName (long index, char *label)
+void PingSynth::getParameterName (VstInt32 index, char *label)
 {
 	if(index<nPar*nPing)
 	{
 		int ParamIndex = index % nPar;
 		int PingIndex  = index / nPar;
-		
+
 		switch(ParamIndex)
 		{
 			case kFreq :		CreateString(label,"Freq",PingIndex);break;
@@ -162,41 +162,47 @@ void PingSynth::getParameterName (long index, char *label)
 	}
 }
 
+void long2string(const long number, char* str)
+{
+	std::stringstream ss;
+	ss << number;
+	strcpy(str, ss.str().c_str());
+}
 
-void PingSynth::getParameterDisplay (long index, char *text)
+void PingSynth::getParameterDisplay (VstInt32 index, char *text)
 {
 	if(index<nPar*nPing)
 	{
 		int ParamIndex = index % nPar;
 		int PingIndex  = index / nPar;
-		
+
 		switch(ParamIndex)
 		{
-			case kFreq :		float2string(2000.f*fFreq[PingIndex],text);break;
-			case kAmp :			float2string(fAmp[PingIndex],text);break;
-			case kDuration :	float2string(3.f*fDuration[PingIndex],text);break;
-			case kBal :			float2string(fBal[PingIndex],text);break;
-			case kDist :		float2string(fDist[PingIndex],text);break;
-			case kNoise :		float2string(fNoise[PingIndex],text);break;
+			case kFreq :		float2string(2000.f*fFreq[PingIndex],text, 25);break;
+			case kAmp :			float2string(fAmp[PingIndex],text, 25);break;
+			case kDuration :	float2string(3.f*fDuration[PingIndex],text, 25);break;
+			case kBal :			float2string(fBal[PingIndex],text, 25);break;
+			case kDist :		float2string(fDist[PingIndex],text, 25);break;
+			case kNoise :		float2string(fNoise[PingIndex],text, 25);break;
 		}
 	}
 	else
 	{
 		switch(index)
 		{
-			case kDelay: float2string(fDelay*3.f,text); break;
+			case kDelay: float2string(fDelay*3.f,text, 25); break;
 			case kFeed:  long2string((long)(fFeed*100.f),text); break;
-			case kMaster:  dB2string(fMaster,text); break;
+			case kMaster:  dB2string(fMaster,text,25); break;
 		}
 	}
 }
 
-void PingSynth::getParameterLabel (long index, char *label)
+void PingSynth::getParameterLabel (VstInt32 index, char *label)
 {
 	if(index<nPar*nPing)
 	{
 		int ParamIndex = index % nPar;
-	
+
 		switch(ParamIndex)
 		{
 			case kFreq:		strcpy(label,"Hz");		break;

@@ -1,23 +1,14 @@
-// PingSynth.h: interface for the PingSynth class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_PINGSYNTH_H__52F698A4_DD93_11D3_9312_A3F8F095C838__INCLUDED_)
-#define AFX_PINGSYNTH_H__52F698A4_DD93_11D3_9312_A3F8F095C838__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include <string.h>
-#include "audioeffectx.h"
-#include "delay.h"
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 
 #define nPing 128
 #define nPar  6
 #define lownote 0
 
 class PingSynth;
+class CDelay;
 
 class PingSynthProgram
 {
@@ -31,7 +22,7 @@ private:
 };
 
 enum
-{	
+{
 	kNumPrograms = 12,
 	kNumOutputs = 2,
 	kFreq = 0, kDuration, kAmp, kBal, kNoise, kDist,
@@ -54,29 +45,29 @@ public:
 	PingSynth(audioMasterCallback audioMaster);
 	virtual ~PingSynth();
 
-	virtual void process(float **inputs, float **outputs, long sampleFrames);
-	virtual void processReplacing(float **inputs, float **outputs, long sampleFrames);
-	virtual long processEvents (VstEvents* ev);
+	virtual void process(float **inputs, float **outputs, VstInt32 sampleFrames);
+	virtual void processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames);
+	virtual VstInt32 processEvents (VstEvents* ev);
 
 	virtual void resume();
 	virtual void suspend();
 
 	virtual void setProgramName(char *name);
 	virtual void getProgramName(char *name);
-	virtual void setProgram (long program);
-	virtual void setParameter(long index, float value);
-	virtual float getParameter(long index);
-	virtual void getParameterLabel(long index, char *label);
-	virtual void getParameterDisplay(long index, char *text);
-	virtual void getParameterName(long index, char *text);
+	virtual void setProgram (VstInt32 program);
+	virtual void setParameter(VstInt32 index, float value);
+	virtual float getParameter(VstInt32 index);
+	virtual void getParameterLabel(VstInt32 index, char *label);
+	virtual void getParameterDisplay(VstInt32 index, char *text);
+	virtual void getParameterName(VstInt32 index, char *text);
 	virtual void setSampleRate(float sampleRate);
 
 	bool getEffectName (char* name);
 	bool getVendorString (char* text);
 	bool getProductString (char* text);
-	long canDo (char* text);
-	bool getOutputProperties(long index, VstPinProperties* properties);
-	bool getInputProperties(long index, VstPinProperties* properties);
+	VstInt32 canDo (char* text);
+	bool getOutputProperties(VstInt32 index, VstPinProperties* properties);
+	bool getInputProperties(VstInt32 index, VstPinProperties* properties);
 
 private:
 	void SetDuration(int index, float duration);
@@ -87,11 +78,11 @@ private:
 	void SetDistortion(int index, float dist);
 	void SetDelay(float delay);
 	void SetFeed(float feed);
-		
+
 	PingSynthProgram *programs;
 	NoteData Notes[200];
 	int nNotes;
-	
+
 	//stuff
 	float amp[nPing];
 	float bal[nPing];
@@ -105,7 +96,7 @@ private:
 	float gamma[nPing];
 	float g[nPing];
 	float in[nPing],in_1[nPing],in_2[nPing],out_1[nPing],out_2[nPing];
-	
+
 	//data
 	float fFreq[nPing];
 	float fDuration[nPing];
@@ -121,5 +112,3 @@ private:
 	CDelay *DelayL;
 	CDelay *DelayR;
 };
-
-#endif // !defined(AFX_PINGSYNTH_H__52F698A4_DD93_11D3_9312_A3F8F095C838__INCLUDED_)
