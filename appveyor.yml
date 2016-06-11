@@ -15,7 +15,7 @@ before_build:
   - python get_steinberg_sdk.py
 
 build_script:
-  - ps: .\build.ps1 %PLATFORM% %CONFIGURATION%
+  - ps: .\build.ps1 $env:PLATFORM $env:CONFIGURATION
 
 # artifacts:
 #   - path: build$(PLATFORM)\Smexoscope\Release\Smexoscope.dll
