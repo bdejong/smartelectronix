@@ -13,13 +13,9 @@ configuration:
 before_build:
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
-  - mkdir build%PLATFORM%
-  - pushd build%PLATFORM%
-  - if %PLATFORM% == x86 (cmake ../) else (cmake -G "Visual Studio 14 2015 Win64" ../)
-  - cd ..
 
 build_script:
-  - cmake --build build%PLATFORM% --config %CONFIGURATION%
+  - ps: .\build.ps1 %PLATFORM% %CONFIGURATION%
 
 # artifacts:
 #   - path: build$(PLATFORM)\Smexoscope\Release\Smexoscope.dll
