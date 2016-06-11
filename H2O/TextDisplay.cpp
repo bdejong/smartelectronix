@@ -1,82 +1,75 @@
-// TextDisplay.cpp: implementation of the CTextDisplay class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "TextDisplay.h"
-#include "resource.h"
 #include "asciitable.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTextDisplay::CTextDisplay(CRect &size, CControlListener *listener, int tag)
-	:CControl (size,listener,tag)
+CTextDisplay::CTextDisplay(const CRect& size, IControlListener* listener, int tag)
+    : CControl(size, listener, tag)
 {
-	ascii = 0;
-	ascii = new CBitmap(IDB_ASCII);
+    ascii = 0;
+    ascii = new CBitmap("images/ascii.png");
 
-	fillasciitable();
+    fillasciitable();
 }
 
 CTextDisplay::~CTextDisplay()
 {
 }
 
-void CTextDisplay::draw (CDrawContext* pContext)
+void CTextDisplay::draw(CDrawContext* pContext)
 {
-	//this should be done off-screen, but I didn't feel like it.
-	//I'll fix it in the next version (+ Mat's aplha-strip...)
-	
-	CColor rectColor  = {  0,   0,   0,  0}; 
-	CColor fontColor  = {  255,   255,   255,  0}; 
-	CColor frameColor = {  0,   0,   0,  0}; 
-    
-	CColor tmp = pContext->getFontColor();
-	pContext->setFontColor(fontColor);
-	pContext->setFont(kSystemFont,10);
+    //this should be done off-screen, but I didn't feel like it.
+    //I'll fix it in the next version (+ Mat's aplha-strip...)
 
-	CRect tmprect = size;
-	tmprect.offset(3,-1);
-	pContext->setFillColor(rectColor);
-	pContext->setFrameColor(frameColor);
-	
-	pContext->drawRect(size);
-	pContext->fillRect(size);
-	//pContext->drawString(todisplay,tmprect,false,kLeftText);
+    CColor rectColor = { 0, 0, 0, 0 };
+    CColor fontColor = { 255, 255, 255, 0 };
+    CColor frameColor = { 0, 0, 0, 0 };
 
-	CRect sourcerect;
-	CPoint bitmapoffset;
+    CColor tmp = pContext->getFontColor();
+    pContext->setFontColor(fontColor);
+    pContext->setFont(kSystemFont, 10);
 
-	int left = size.left+3; //our staring point!
-	int top = size.top; //our staring point!
-	int bottom = size.top + ascii->getHeight(); //our staring point!
-	int place;
-	int width;
+    CRect tmprect = size;
+    tmprect.offset(3, -1);
+    pContext->setFillColor(rectColor);
+    pContext->setFrameColor(frameColor);
 
-	for(int i=0;i<256;i++)
-	{
-		if(todisplay[i] == 0)
-			break;
-			
-		PlaceAndWidth(todisplay[i],place,width);
-		if(place != -1)
-		{
-			sourcerect(left,top,left+width,bottom);
+    pContext->drawRect(size);
+    // pContext->fillRect(size);
+    // pContext->drawString(todisplay,tmprect,false,kLeftText);
 
-			//draw
-			bitmapoffset(place,0);
-			ascii->draw(pContext,sourcerect,bitmapoffset);
+    CRect sourcerect;
+    CPoint bitmapoffset;
 
-			left += width;
-		}
-	}
-	
-	setDirty(false);
+    int left = size.left + 3; //our staring point!
+    int top = size.top; //our staring point!
+    int bottom = size.top + ascii->getHeight(); //our staring point!
+    int place;
+    int width;
+
+    for (int i = 0; i < 256; i++) {
+        if (todisplay[i] == 0)
+            break;
+
+        PlaceAndWidth(todisplay[i], place, width);
+        if (place != -1) {
+            sourcerect(left, top, left + width, bottom);
+
+            //draw
+            bitmapoffset(place, 0);
+            ascii->draw(pContext, sourcerect, bitmapoffset);
+
+            left += width;
+        }
+    }
+
+    setDirty(false);
 }
 
-void CTextDisplay::setText(char *text)
+void CTextDisplay::setText(const char* text)
 {
-	strcpy(todisplay,text);
-	setDirty(true);
+    strcpy(todisplay, text);
+    setDirty(true);
 }
