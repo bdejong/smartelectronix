@@ -2,9 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <sstream>
 #include "math.h"
 
 const float fadeCoeff = (float)exp(log(0.01)/FADETIME);
+
+void long2string(const long number, char* str)
+{
+    std::stringstream ss;
+    ss << number;
+    strcpy(str, ss.str().c_str());
+}
 
 //-----------------------------------------------------------------------------
 SupaTrigger::SupaTrigger(audioMasterCallback audioMaster) : AudioEffectX(audioMaster, kNumPrograms, kNumParams)
@@ -15,8 +23,7 @@ SupaTrigger::SupaTrigger(audioMasterCallback audioMaster) : AudioEffectX(audioMa
 	setNumInputs(2);		// stereo in
 	setNumOutputs(NUMBERIO);		// stereo out
 	setUniqueID('GLTC');	// TODO: Change for plugin identification
-	canMono();				// makes sense to feed both inputs with the same signal
-	canProcessReplacing();	// supports both accumulating and replacing output
+	canProcessReplacing();
 
 	randomize();
 
@@ -66,19 +73,19 @@ void SupaTrigger::getProgramName(char *name)
 }
 
 //-----------------------------------------------------------------------------------------
-void SupaTrigger::setParameter(long index, float value)
+void SupaTrigger::setParameter(VstInt32 index, float value)
 {
 	SAVE[index] = value;
 }
 
 //-----------------------------------------------------------------------------------------
-float SupaTrigger::getParameter(long index)
+float SupaTrigger::getParameter(VstInt32 index)
 {
 	return SAVE[index];
 }
 
 //-----------------------------------------------------------------------------------------
-void SupaTrigger::getParameterName(long index, char *label)
+void SupaTrigger::getParameterName(VstInt32 index, char *label)
 {
 #if 1
 	switch(index)
@@ -112,7 +119,7 @@ void SupaTrigger::getParameterName(long index, char *label)
 }
 
 //-----------------------------------------------------------------------------------------
-void SupaTrigger::getParameterDisplay(long index, char *text)
+void SupaTrigger::getParameterDisplay(VstInt32 index, char *text)
 {
 	switch(index)
 	{
@@ -130,7 +137,7 @@ void SupaTrigger::getParameterDisplay(long index, char *text)
 }
 
 //-----------------------------------------------------------------------------------------
-void SupaTrigger::getParameterLabel(long index, char *label)
+void SupaTrigger::getParameterLabel(VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -148,7 +155,8 @@ void SupaTrigger::getParameterLabel(long index, char *label)
 }
 
 //-----------------------------------------------------------------------------------------
-void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bool replacing)
+//void SupaTrigger::process(float **inputs, float **outputs, VstInt32 sampleFrames, bool replacing)
+void SupaTrigger::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	float *in1  =  inputs[0];
     float *in2  =  inputs[1];
@@ -162,21 +170,10 @@ void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bo
 	{
 		positionInMeasure = 0xffffffff;
 
-		if(replacing)
+		for(unsigned long i=0;i<(unsigned)sampleFrames;i++)
 		{
-			for(unsigned long i=0;i<(unsigned)sampleFrames;i++)
-			{
-				outputs[0][i] = in1[i];
-				outputs[1][i] = in2[i];
-			}
-		}
-		else
-		{
-			for(unsigned long i=0;i<(unsigned)sampleFrames;i++)
-			{
-				outputs[0][i] += in1[i];
-				outputs[1][i] += in2[i];
-			}
+			outputs[0][i] = in1[i];
+			outputs[1][i] = in2[i];
 		}
 
 		return;
@@ -279,16 +276,8 @@ void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bo
 				unsigned long difference = (displacement * samplesInMeasure)/MAXSLIDES;
 				unsigned long bufferIndex = difference <= sliceEnd ? sliceEnd - difference : 0;
 
-				if(replacing)
-				{
-					outputs[0][i] = leftBuffer[bufferIndex] * gain;
-					outputs[1][i] = rightBuffer[bufferIndex] * gain;
-				}
-				else
-				{
-					outputs[0][i] += leftBuffer[bufferIndex] * gain;
-					outputs[1][i] += rightBuffer[bufferIndex] * gain;
-				}
+				outputs[0][i] = leftBuffer[bufferIndex] * gain;
+				outputs[1][i] = rightBuffer[bufferIndex] * gain;
 
 				first = true;
 			}
@@ -316,16 +305,8 @@ void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bo
 				unsigned long bufferIndex = (unsigned long)floorf(position);
 				float alpha = position - bufferIndex;
 
-				if(replacing)
-				{
-					outputs[0][i] = hermiteInverse(leftBuffer,bufferIndex,alpha) * gain;
-					outputs[1][i] = hermiteInverse(rightBuffer,bufferIndex,alpha) * gain;
-				}
-				else
-				{
-					outputs[0][i] += hermiteInverse(leftBuffer,bufferIndex,alpha) * gain;
-					outputs[1][i] += hermiteInverse(rightBuffer,bufferIndex,alpha) * gain;
-				}
+				outputs[0][i] = hermiteInverse(leftBuffer,bufferIndex,alpha) * gain;
+				outputs[1][i] = hermiteInverse(rightBuffer,bufferIndex,alpha) * gain;
 			}
 		}
 		else
@@ -335,16 +316,8 @@ void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bo
 				unsigned long difference = (displacement * samplesInMeasure)/MAXSLIDES;
 				unsigned long bufferIndex = positionInMeasure > difference ? positionInMeasure - difference : 0;
 
-				if(replacing)
-				{
-					outputs[0][i] = leftBuffer[bufferIndex] * gain;
-					outputs[1][i] = rightBuffer[bufferIndex] * gain;
-				}
-				else
-				{
-					outputs[0][i] += leftBuffer[bufferIndex] * gain;
-					outputs[1][i] += rightBuffer[bufferIndex] * gain;
-				}
+				outputs[0][i] = leftBuffer[bufferIndex] * gain;
+				outputs[1][i] = rightBuffer[bufferIndex] * gain;
 
 				first = true;
 			}
@@ -366,16 +339,8 @@ void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bo
 				unsigned long bufferIndex = (unsigned long)floorf(position);
 				float alpha = position - bufferIndex;
 
-				if(replacing)
-				{
-					outputs[0][i] = hermiteInverse(leftBuffer,bufferIndex,alpha) * gain;
-					outputs[1][i] = hermiteInverse(rightBuffer,bufferIndex,alpha) * gain;
-				}
-				else
-				{
-					outputs[0][i] += hermiteInverse(leftBuffer,bufferIndex,alpha) * gain;
-					outputs[1][i] += hermiteInverse(rightBuffer,bufferIndex,alpha) * gain;
-				}
+				outputs[0][i] = hermiteInverse(leftBuffer,bufferIndex,alpha) * gain;
+				outputs[1][i] = hermiteInverse(rightBuffer,bufferIndex,alpha) * gain;
 			}
 		}
 
@@ -392,18 +357,18 @@ void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames, bo
     }
 }
 
-void SupaTrigger::process(float **inputs, float **outputs, long sampleFrames)
-{
-	process(inputs,outputs,sampleFrames,false);
-}
+//void SupaTrigger::process(float **inputs, float **outputs, VstInt32 sampleFrames)
+//{
+//	process(inputs,outputs,sampleFrames,false);
+//}
 
 //-----------------------------------------------------------------------------------------
-void SupaTrigger::processReplacing(float **inputs, float **outputs, long sampleFrames)
-{
-	process(inputs,outputs,sampleFrames,true);
-}
+//void SupaTrigger::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
+//{
+//	process(inputs,outputs,sampleFrames,true);
+//}
 
-long SupaTrigger::canDo (char* text)
+VstInt32 SupaTrigger::canDo (char* text)
 {
 	if (!strcmp (text, "receiveVstEvents"))    return 0;
 	if (!strcmp (text, "receiveVstMidiEvent")) return 0;
@@ -597,18 +562,18 @@ void SupaTrigger::randomize()
 
 bool SupaTrigger::getEffectName (char* name)
 {
-	strcpy (name, "SupaTrigga");
+	strcpy(name, "SupaTrigga");
 	return true;
 }
 
 bool SupaTrigger::getVendorString (char* text)
 {
-	strcpy (text, "Bram @ Smartelectronix");
+	strcpy(text, "Bram @ Smartelectronix");
 	return true;
 }
 
 bool SupaTrigger::getProductString (char* text)
 {
-	strcpy (text, "SupaTrigga");
+	strcpy(text, "SupaTrigga");
 	return true;
 }
