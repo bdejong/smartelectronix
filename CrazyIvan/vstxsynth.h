@@ -1,11 +1,8 @@
-#ifndef __VstXSynth__
-#define __VstXSynth__
+#pragma once
 
 #include <string.h>
 
-#ifndef __AudioEffectX__
-#include "audioeffectx.h"
-#endif
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 
 #include "OnePoleLP.h"
 #include "MovingDelay.h"
@@ -15,74 +12,71 @@
 
 enum
 {
-	kmurder,
-		kbits,
-		kand,
-		kxor,
-		kpower,
-	kfreq1,
-		kdfreq1,
-		kvibfreq,
-		kdvibfreq,
-		kfeed1,
-	kfreq2,
-		kmindelay,
-		kmaxdelay,
-		kdist,
-		kdamp,
-		kfeed2,
-	klimiter,
-		kattack,
-		krelease,
-	kamp,
-	kdrywet,
-	krandomise, //allways keep this 1 last
-	kNumParams
+    kmurder,
+        kbits,
+        kand,
+        kxor,
+        kpower,
+    kfreq1,
+        kdfreq1,
+        kvibfreq,
+        kdvibfreq,
+        kfeed1,
+    kfreq2,
+        kmindelay,
+        kmaxdelay,
+        kdist,
+        kdamp,
+        kfeed2,
+    klimiter,
+        kattack,
+        krelease,
+    kamp,
+    kdrywet,
+    krandomise, //allways keep this 1 last
+    kNumParams
 };
 
 
 class VstXSynth : public AudioEffectX
 {
 public:
-	VstXSynth(audioMasterCallback audioMaster);
-	~VstXSynth();
+    VstXSynth(audioMasterCallback audioMaster);
+    ~VstXSynth();
 
-	virtual void process(float **inputs, float **outputs, long sampleframes);
-	virtual void processReplacing(float **inputs, float **outputs, long sampleframes);
+    virtual void processReplacing(float **inputs, float **outputs, VstInt32 sampleframes) override;
 
-	virtual void setProgram(long program);
-	virtual void setProgramName(char *name);
-	virtual void getProgramName(char *name);
-	virtual void setParameter(long index, float value);
-	virtual float getParameter(long index);
-	virtual void getParameterLabel(long index, char *label);
-	virtual void getParameterDisplay(long index, char *text);
-	virtual void getParameterName(long index, char *text);
-	virtual void setSampleRate(float sampleRate);
-	virtual void resume();
+    virtual void setProgram(VstInt32 program) override {};
+    virtual void setProgramName(char *name) override {};
+    virtual void getProgramName(char *name) override;
+    virtual void setParameter(VstInt32 index, float value) override;
+    virtual float getParameter(VstInt32 index) override;
+    virtual void getParameterLabel(VstInt32 index, char *label) override;
+    virtual void getParameterDisplay(VstInt32 index, char *text) override;
+    virtual void getParameterName(VstInt32 index, char *text) override;
+    virtual void setSampleRate(float sampleRate) override;
+    virtual void resume() override;
 
-	virtual bool getOutputProperties (long index, VstPinProperties* properties);
-	virtual bool getEffectName (char* name);
-	virtual bool getVendorString (char* text);
-	virtual bool getProductString (char* text);
-	virtual long getVendorVersion () {return 1;}
-	virtual long canDo (char* text);
+    virtual bool getOutputProperties(VstInt32 index, VstPinProperties* properties) override;
+    virtual bool getEffectName(char* name) override;
+    virtual bool getVendorString(char* text) override;
+    virtual bool getProductString(char* text) override;
+    virtual VstInt32 getVendorVersion() override {return 1;}
+    virtual VstInt32 canDo (char* text) override;
 
-	void randomise();
+    void randomise();
 
-	short mask;
-	float ivan_output;
+    short mask;
+    float ivan_output;
 
-	COnePoleLP LP;
-	CMovingDelay Delay;
-	CTriOsc S,S2;
-	CFlanger F;
-	EnvFollower E;
+    COnePoleLP LP;
+    CMovingDelay Delay;
+    CTriOsc S,S2;
+    CFlanger F;
+    EnvFollower E;
 
-	bool isDirty;
+    bool isDirty;
 
-	float SAVE[kNumParams];
-	float SCALED[kNumParams];
+    float SAVE[kNumParams];
+    float SCALED[kNumParams];
 };
-
-#endif
