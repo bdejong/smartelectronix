@@ -10,8 +10,8 @@
 
 EnvFollower::EnvFollower()
 {
-	SampleRateF = 44100.f;
-	SetParams(50.f,50.f);
+    SampleRateF = 44100.f;
+    SetParams(50.f,50.f);
 }
 
 EnvFollower::~EnvFollower()

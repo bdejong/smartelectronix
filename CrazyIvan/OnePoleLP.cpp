@@ -10,8 +10,8 @@
 
 COnePoleLP::COnePoleLP()
 {
-	Value = 0;
-	lambda = 0.5f;
+    Value = 0;
+    lambda = 0.5f;
 }
 
 COnePoleLP::~COnePoleLP()
@@ -19,5 +19,5 @@ COnePoleLP::~COnePoleLP()
 
 void COnePoleLP::SetParams(float lambda)
 {
-	this->lambda = lambda;
+    this->lambda = lambda;
 }

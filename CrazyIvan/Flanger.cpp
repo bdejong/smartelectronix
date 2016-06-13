@@ -11,8 +11,8 @@
 
 CFlanger::CFlanger()
 {
-	SetParams();
-	suspend();
+    SetParams();
+    suspend();
 }
 
 CFlanger::~CFlanger()
@@ -20,34 +20,34 @@ CFlanger::~CFlanger()
 
 float CFlanger::GetVal(float in)
 {
-	float a = in*tmp2/(1+dist*in*in);
+    float a = in*tmp2/(1+dist*in*in);
 
-	float tmp = a + f*(out-a);
-	out = tmp - dry*(D.GetVal(tmp,T.GetVal(freq)) + tmp);
+    float tmp = a + f*(out-a);
+    out = tmp - dry*(D.GetVal(tmp,T.GetVal(freq)) + tmp);
 
-	if(fabs(out) < 1e-10)
-		out = 0.f;
+    if(fabs(out) < 1e-10)
+        out = 0.f;
 
-	if(fabs(out) > 1e10)
-		out = 0.f;
-		
-	return out;
+    if(fabs(out) > 1e10)
+        out = 0.f;
+        
+    return out;
 }
 
 void CFlanger::SetParams(float freq, float feed, float dry, float dist, float mindelay, float maxdelay)
 {
-	T.SetParams(mindelay,maxdelay);
-	
-	this->freq = freq;
-	this->f = feed;
-	this->freq = freq;
-	this->dry = dry;
-	this->dist = dist;
-	this->maxdelay = maxdelay;
-	this->mindelay = mindelay;
-	
-	if(dist<=1)
-		tmp2 = 1.f + dist;
-	else
-		tmp2 = 2*(float)sqrt(dist);
+    T.SetParams(mindelay,maxdelay);
+    
+    this->freq = freq;
+    this->f = feed;
+    this->freq = freq;
+    this->dry = dry;
+    this->dist = dist;
+    this->maxdelay = maxdelay;
+    this->mindelay = mindelay;
+    
+    if(dist<=1)
+        tmp2 = 1.f + dist;
+    else
+        tmp2 = 2*(float)sqrt(dist);
 }
