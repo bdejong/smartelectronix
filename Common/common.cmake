@@ -37,13 +37,13 @@ endfunction(add_vstsdk)
 # @param PROJECT_IMAGES    List of image paths for the project.
 #*******************************************************************************
 function(create_resource_file PROJECT_IMAGES)
-  set(resources)
-  foreach (imagePath ${PROJECT_IMAGES})
-    get_filename_component(filename ${image} NAME)
-    list(APPEND resources "${filename}\tPNG\t\"${imagePath}\"\n")
-  endforeach(imagePath ${PROJECT_IMAGES})
+  set(RESOURCES_LIST)
+  foreach (IMAGE_PATH ${PROJECT_IMAGES})
+    get_filename_component(IMAGE_FILENAME ${IMAGE_PATH} NAME)
+    list(APPEND RESOURCES_LIST "${IMAGE_FILENAME}\tPNG\t\"${IMAGE_PATH}\"\n")
+  endforeach(IMAGE_PATH ${PROJECT_IMAGES})
 
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/resource.rc ${resources})
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/resource.rc ${RESOURCES_LIST})
 endfunction(create_resource_file)
 
 #*******************************************************************************
