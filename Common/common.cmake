@@ -32,6 +32,21 @@ function(add_vstsdk VST_TARGET)
 endfunction(add_vstsdk)
 
 #*******************************************************************************
+# Create windows .rc resource file
+#
+# @param PROJECT_IMAGES    List of image paths for the project.
+#*******************************************************************************
+function(create_resource_file PROJECT_IMAGES)
+  set(RESOURCES)
+  foreach (image ${PROJECT_IMAGES})
+    get_filename_component(FILENAME ${image} NAME)
+    list(APPEND RESOURCES "${FILENAME}\t\tPNG\t\t\"images/${FILENAME}\"\n")
+  endforeach(image ${PROJECT_IMAGES})
+
+  file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc ${RESOURCES})
+endfunction(create_resource_file)
+
+#*******************************************************************************
 # Adds VSTGUI to target
 #
 # @param VST_TARGET        The cmake target to which the VSTGUI libray will be
@@ -50,7 +65,8 @@ function(add_vstgui VST_TARGET VST_TARGET_IMAGES)
   IF(WIN32)
 
     list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_win32.cpp)
-    # TODO Generate rc files - for now make sure projects use the same path
+
+    create_resource_file("${VST_TARGET_IMAGES}")
     target_sources(${VST_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc)
 
   ELSEIF(APPLE)
