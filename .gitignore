@@ -58,6 +58,7 @@ Debug/
 Release/
 x64/
 Win32/
+install_manifest.txt
 
 # Build Tree
 /buildx86

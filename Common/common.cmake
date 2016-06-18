@@ -120,6 +120,8 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     )
     set_property(TARGET ${VST_TARGET} PROPERTY CXX_STANDARD 11)
 
+    install(TARGETS ${VST_TARGET} DESTINATION ~/Library/Audio/Plug-Ins/VST)
+
   ENDIF(WIN32)
 
 endfunction(build_vst)
