@@ -27,7 +27,6 @@ void CTextDisplay::draw(CDrawContext* pContext)
     CColor fontColor = { 255, 255, 255, 0 };
     CColor frameColor = { 0, 0, 0, 0 };
 
-    CColor tmp = pContext->getFontColor();
     pContext->setFontColor(fontColor);
     pContext->setFont(kSystemFont, 10);
 

@@ -16,7 +16,7 @@ H2Oedit::~H2Oedit()
 {
 }
 
-void H2Oedit::setParameter(long index, float value)
+void H2Oedit::setParameter(VstInt32 index, float value)
 {
     H2Oeffect::setParameter(index, value);
 

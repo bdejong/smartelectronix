@@ -16,11 +16,11 @@ public:
     virtual ~H2Oeditor();
 
 protected:
-    virtual bool open(void* ptr);
-    virtual void close();
+    virtual bool open(void* ptr) override;
+    virtual void close() override;
 
-    virtual void setParameter(long index, float value);
-    virtual void valueChanged (CControl* pControl);
+    virtual void setParameter (VstInt32 index, float value) override;
+    virtual void valueChanged (CControl* pControl) override;
 
     // Bitmaps
     CBitmap* hBack;

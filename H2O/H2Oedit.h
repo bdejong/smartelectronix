@@ -6,5 +6,5 @@ class H2Oedit : public H2Oeffect {
 public:
     H2Oedit(audioMasterCallback audioMaster);
     virtual ~H2Oedit();
-    virtual void setParameter(long index, float value);
+    virtual void setParameter(VstInt32 index, float value) override;
 };

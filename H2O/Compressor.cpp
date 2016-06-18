@@ -51,20 +51,15 @@ void CCompressor::process(float** input, float** output, long nSamples)
     float* out1 = output[0];
     float* out2 = output[1];
 
-    int n;
-    float alpha;
-    float ntmp;
-    float inL, inR, in;
-    float m;
-
     float nLUTf_1 = (float)nLUT - 1.f;
 
     if (saturate)
         while (nSamples--) {
             //preamplify
-            inL = (*in1++) * preamp;
-            inR = (*in2++) * preamp;
-
+            float inL = (*in1++) * preamp;
+            float inR = (*in2++) * preamp;
+            float in;
+            
             //this is just input = max(abs(L),abs(R))
             if (inL > 0.f) {
                 if (inR > 0.f) {
@@ -103,13 +98,14 @@ void CCompressor::process(float** input, float** output, long nSamples)
 
             //calc the compressor response
 
-            ntmp = eLP * nLUTf_1;
-            n = int(ntmp);
+            float ntmp = eLP * nLUTf_1;
+            int n = int(ntmp);
+            float m;
 
             if (n >= nLUT)
                 m = LUT[nLUT - 1];
             else {
-                alpha = (float)n - ntmp;
+                float alpha = (float)n - ntmp;
                 m = LUT[n] + alpha * dLUT[n];
             }
 
@@ -154,8 +150,9 @@ void CCompressor::process(float** input, float** output, long nSamples)
         while (nSamples--) //non saturating
         {
             //preamplify
-            inL = (*in1++) * preamp;
-            inR = (*in2++) * preamp;
+            float inL = (*in1++) * preamp;
+            float inR = (*in2++) * preamp;
+            float in;
 
             if (inL > 0.f) {
                 if (inR > 0.f) {
@@ -194,13 +191,14 @@ void CCompressor::process(float** input, float** output, long nSamples)
 
             //calc the compressor response
 
-            ntmp = eLP * nLUTf_1;
-            int(ntmp);
+            float ntmp = eLP * nLUTf_1;
+            int n = int(ntmp);
+            float m;
 
             if (n >= nLUT)
                 m = LUT[nLUT - 1];
             else {
-                alpha = (float)n - ntmp;
+                float alpha = (float)n - ntmp;
                 m = LUT[n] + alpha * dLUT[n];
             }
 
@@ -251,19 +249,14 @@ void CCompressor::processReplacing(float** input, float** output, long nSamples)
     float* out1 = output[0];
     float* out2 = output[1];
 
-    int n;
-    float alpha;
-    float ntmp;
-    float inL, inR, in;
-    float m;
-
     float nLUTf_1 = (float)nLUT - 1.f;
 
     if (saturate)
         while (nSamples--) {
             //preamplify
-            inL = (*in1++) * preamp;
-            inR = (*in2++) * preamp;
+            float inL = (*in1++) * preamp;
+            float inR = (*in2++) * preamp;
+            float in;
 
             //this is just input = max(abs(L),abs(R))
             if (inL > 0.f) {
@@ -303,13 +296,14 @@ void CCompressor::processReplacing(float** input, float** output, long nSamples)
 
             //calc the compressor response
 
-            ntmp = eLP * nLUTf_1;
-            n = int(ntmp);
+            float ntmp = eLP * nLUTf_1;
+            int n = int(ntmp);
+            float m;
 
             if (n >= nLUT)
                 m = LUT[nLUT - 1];
             else {
-                alpha = (float)n - ntmp;
+                float alpha = (float)n - ntmp;
                 m = LUT[n] + alpha * dLUT[n];
             }
 
@@ -354,8 +348,9 @@ void CCompressor::processReplacing(float** input, float** output, long nSamples)
         while (nSamples--) //non saturating
         {
             //preamplify
-            inL = (*in1++) * preamp;
-            inR = (*in2++) * preamp;
+            float inL = (*in1++) * preamp;
+            float inR = (*in2++) * preamp;
+            float in;
 
             if (inL > 0.f) {
                 if (inR > 0.f) {
@@ -394,13 +389,14 @@ void CCompressor::processReplacing(float** input, float** output, long nSamples)
 
             //calc the compressor response
 
-            ntmp = eLP * nLUTf_1;
-            n = int(ntmp);
+            float ntmp = eLP * nLUTf_1;
+            int n = int(ntmp);
+            float m;
 
             if (n >= nLUT)
                 m = LUT[nLUT - 1];
             else {
-                alpha = (float)n - ntmp;
+                float alpha = (float)n - ntmp;
                 m = LUT[n] + alpha * dLUT[n];
             }
 
@@ -447,7 +443,7 @@ void CCompressor::processReplacing(float** input, float** output, long nSamples)
 //calculates the LUT
 void CCompressor::CalcLUT()
 {
-    float nLUTf_1 = (float)nLUT - 1.f;
+    //float nLUTf_1 = (float)nLUT - 1.f;
     float nLUTf_2 = (float)nLUT - 2.f;
 
     float y, z, zz;

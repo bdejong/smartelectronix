@@ -118,7 +118,7 @@ void H2Oeditor::close()
     frame = 0;
 }
 
-void H2Oeditor::setParameter(long index, float value)
+void H2Oeditor::setParameter(VstInt32 index, float value)
 {
     if (!frame)
         return;
