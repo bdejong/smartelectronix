@@ -37,13 +37,13 @@ endfunction(add_vstsdk)
 # @param PROJECT_IMAGES    List of image paths for the project.
 #*******************************************************************************
 function(create_resource_file PROJECT_IMAGES)
-  set(RESOURCES)
-  foreach (image ${PROJECT_IMAGES})
-    get_filename_component(FILENAME ${image} NAME)
-    list(APPEND RESOURCES "${FILENAME}\t\tPNG\t\t\"images/${FILENAME}\"\n")
-  endforeach(image ${PROJECT_IMAGES})
+  set(resources)
+  foreach (imagePath ${PROJECT_IMAGES})
+    get_filename_component(filename ${image} NAME)
+    list(APPEND resources "${filename}\tPNG\t\"${imagePath}\"\n")
+  endforeach(imagePath ${PROJECT_IMAGES})
 
-  file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc ${RESOURCES})
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/resource.rc ${resources})
 endfunction(create_resource_file)
 
 #*******************************************************************************
@@ -67,7 +67,7 @@ function(add_vstgui VST_TARGET VST_TARGET_IMAGES)
     list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_win32.cpp)
 
     create_resource_file("${VST_TARGET_IMAGES}")
-    target_sources(${VST_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/resource.rc)
+    target_sources(${VST_TARGET} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/resource.rc)
 
   ELSEIF(APPLE)
     list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_mac.mm)
