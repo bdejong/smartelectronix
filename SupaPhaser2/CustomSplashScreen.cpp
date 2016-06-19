@@ -1,6 +1,11 @@
 #ifndef NOGUI_BUILD
 #include "CustomSplashScreen.h"
 
+#if WIN32
+    #include <Winuser.h>    
+    #include <Shellapi.h>
+    #pragma comment(lib, "Shell32.lib")
+#endif
 
 #if MAC && !defined(__MACH__)
 	#include <InternetConfig.h>
@@ -68,7 +73,8 @@ long launch_url(const char *urlstring)
 #endif
 
 #if WIN32
-	return (long) ShellExecute(NULL, "open", urlstring, NULL, NULL, SW_SHOWNORMAL);
+    //NOTE forced this to non-unicode since the function is using char instead of wchar_t
+	return (long) ShellExecuteA(NULL, "open", urlstring, NULL, NULL, SW_SHOWNORMAL);
 #endif
 }
 
@@ -77,7 +83,7 @@ long launch_url(const char *urlstring)
 //------------------------------------------------------------------------
 // one click draw its pixmap, an another click redraw its parent
 CCustomSplashScreen::CCustomSplashScreen (const CRect &size,
-                              CControlListener *listener, 
+                              IControlListener *listener,
                               long     tag,
                               CBitmap *background,
                               CRect   &toDisplay,
@@ -94,24 +100,23 @@ CCustomSplashScreen::~CCustomSplashScreen()
 {}
 
 //------------------------------------------------------------------------
-void CCustomSplashScreen::draw (CDrawContext *pContext)
+void CCustomSplashScreen::draw(CDrawContext *pContext)
 {
-	if (value && pBackground)
+	if (value && getBackground())
 	{
-		pBackground->draw(pContext, toDisplay, offset);
+        getBackground()->draw(pContext, toDisplay, offset);
 	}
 	setDirty (false);
 }
 
 //------------------------------------------------------------------------
-void CCustomSplashScreen::mouse (CDrawContext *pContext, CPoint &where)
+CMouseEventResult CCustomSplashScreen::onMouseDown(CPoint& where, const CButtonState& buttons)
 {
-	if (!bMouseEnabled)
-		return;
+    if (!getMouseEnabled())
+        return CMouseEventResult::kMouseEventNotHandled;
 
-	long button = pContext->getMouseButtons ();
-	if(!(button & kLButton))
-		return;
+    if (!(buttons.isLeftButton()))
+        return CMouseEventResult::kMouseEventNotHandled;
 
 	//relative
 	CRect closeRect(220,100,272,113);
@@ -138,26 +143,26 @@ void CCustomSplashScreen::mouse (CDrawContext *pContext, CPoint &where)
 	if(value == onValue)
 	{
 		//ON
-		if(getParent () && getParent()->setModalView (this))
+		if(getParentView() && getParentView()->getFrame()->setModalView(this))
 		{
 			keepSize = size;
 			size = toDisplay;
-			draw(pContext);
+            setDirty(true);
 			if (listener)
-				listener->valueChanged (pContext, this);
+				listener->valueChanged(this);
 		}
 	}
 	else
 	{
 		//OFF
 		size = keepSize;
-		if(getParent())
+		if(getParentView())
 		{
-			getParent()->setModalView(NULL);
-			getParent()->draw(pContext);
+            getParentView()->getFrame()->setModalView(NULL);
+            getParentView()->getFrame()->setDirty(true);
 		}
 		if(listener)
-			listener->valueChanged(pContext, this);
+			listener->valueChanged(this);
 	}
 	setDirty ();
 }
@@ -169,12 +174,12 @@ void CCustomSplashScreen::unSplash ()
 	value = offValue;
 
 	size = keepSize;
-	if (getParent ())
+	if (getParentView())
 	{
-		if (getParent ()->getModalView () == this)
+		if (getParentView()->getFrame()->getModalView() == this)
 		{
-			getParent ()->setModalView (NULL);
-			getParent ()->redraw ();
+            getParentView()->getFrame()->setModalView(NULL);
+            getParentView()->getFrame()->setDirty(true);
 		}
 	}
 }

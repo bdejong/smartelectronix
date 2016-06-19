@@ -4,7 +4,7 @@
 
 #include "ASupaPhaser.h"
 #include "ASupaEditor.h"
-#include "aeffectx.h"
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "math.h"
@@ -19,6 +19,13 @@ void InitNoise(float *Noise, int bufSize)
 		Noise[i] = (float)(((double)rand())/(RAND_MAX*1048576.0));
 }
 
+//void long2string(const long number, char* str)
+//{
+    //std::stringstream ss;
+    //ss << number;
+    //strcpy(str, ss.str().c_str());
+//}
+
 ASupaPhaser::ASupaPhaser(audioMasterCallback audioMaster)
 				:AudioEffectX(audioMaster, kNumPrograms, kNumParams)
 {
@@ -32,7 +39,6 @@ ASupaPhaser::ASupaPhaser(audioMasterCallback audioMaster)
 
 	setNumInputs(2);
 	setNumOutputs(2);
-	canMono(true);
 	canProcessReplacing(true);
 
 	prevOutR = prevOutL = 0.f;
@@ -88,7 +94,7 @@ ASupaPhaser::~ASupaPhaser()
 		delete Noise;
 }
 
-void ASupaPhaser::setParameter (long index, float value)
+void ASupaPhaser::setParameter(VstInt32 index, float value)
 {
 	if(index < kNumParams && value >= 0.0 && value <= 1.0 )
 	{
@@ -106,7 +112,7 @@ void ASupaPhaser::setParameter (long index, float value)
 		((ASupaEditor *)editor)->setParameter(index, value);
 }
 
-float ASupaPhaser::getParameter (long index)
+float ASupaPhaser::getParameter(VstInt32 index)
 {
 	if(index < kNumParams)
 		return SAVE[index];
@@ -114,7 +120,7 @@ float ASupaPhaser::getParameter (long index)
 		return 0.f;
 }
 
-void ASupaPhaser::getParameterName (long index, char *label)
+void ASupaPhaser::getParameterName(VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -137,54 +143,54 @@ void ASupaPhaser::getParameterName (long index, char *label)
 	}
 }
 
-void ASupaPhaser::getParameterDisplay (long index, char *text)
+void ASupaPhaser::getParameterDisplay(VstInt32 index, char *text)
 {
 	switch(index)
 	{
-		case kDistort:	long2string((long)(SAVE[index]*100.f),text);break;
-		case kMinEnv:	long2string((long)(SAVE[index]*100.f),text);break;
-		case kMaxEnv:	long2string((long)(SAVE[index]*100.f),text);break;
+		case kDistort:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kMinEnv:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kMaxEnv:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
 		case kRelease:
 			{
 				if(SAVE[index] < 0.0001f)
-					long2string((long)(0.0001f*1000.f),text);
+                    int2string((VstInt32)(0.0001f*1000.f),text, kVstMaxParamStrLen);
 				else
-					long2string((long)(SAVE[index]*1000.f),text);
+                    int2string((VstInt32)(SAVE[index]*1000.f),text, kVstMaxParamStrLen);
 					
 				break;
 			}
 		case kAttack:
 			{
 				if(SAVE[index] < 0.0001f)
-					long2string((long)(0.0001f*1000.f),text);
+                    int2string((VstInt32)(0.0001f*1000.f),text, kVstMaxParamStrLen);
 				else
-					long2string((long)(SAVE[index]*0.4f*1000.f),text);
+                    int2string((VstInt32)(SAVE[index]*0.4f*1000.f),text, kVstMaxParamStrLen);
 					
 				break;
 			}
-		case kMixture:	long2string((long)(SAVE[index]*100.f),text);break;
-		case kFeed:		long2string((long)(SAVE[index]*100.f),text);break;
+		case kMixture:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kFeed:		int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
 		case kFreq:		
 			{
 				if(SAVE[kExtend] > 0.5f)
-					float2string(ScaleFreq(SAVE[kFreq],4, 10.f),text);
+					float2string(ScaleFreq(SAVE[kFreq],4, 10.f),text, kVstMaxProductStrLen);
 				else
-					float2string(ScaleFreq(SAVE[kFreq],4, 2.f),text);
+					float2string(ScaleFreq(SAVE[kFreq],4, 2.f),text, kVstMaxProductStrLen);
 				
 				text[5] = 0;
 				
 				break;
 			}
-		case kStereo:	long2string((long)(SAVE[index]*360.f),text);break;
-		case kMinFreq:	long2string((long)(SAVE[index]*100.f),text);break;
-		case kMaxFreq:	long2string((long)(SAVE[index]*100.f),text);break;
+		case kStereo:	int2string((VstInt32)(SAVE[index]*360.f),text, kVstMaxParamStrLen);break;
+		case kMinFreq:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kMaxFreq:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
 		case kGain:		
 			{
-				dB2string(gainMap(SAVE[index]),text);
+				dB2string(gainMap(SAVE[index]),text, kVstMaxProductStrLen);
 				text[4] = 0;
 				break;
 			}
-		case kDryWet:	long2string(100 - (long)(SAVE[index]*100),text);break;
+		case kDryWet:	int2string(100 - (VstInt32)(SAVE[index]*100),text, kVstMaxParamStrLen);break;
 		case kExtend:
 			{
 				if(SAVE[kExtend] > 0.5f)
@@ -199,7 +205,7 @@ void ASupaPhaser::getParameterDisplay (long index, char *text)
 				if(n < 3) n = 3;
 				if(n > MaxnStages) n = MaxnStages;
 				
-				long2string(n,text);
+                int2string(n,text, kVstMaxParamStrLen);
 				
 				break;
 			}
@@ -234,7 +240,7 @@ void ASupaPhaser::getParameterDisplay (long index, char *text)
 	}
 }
 
-void ASupaPhaser::getParameterLabel (long index, char *label)
+void ASupaPhaser::getParameterLabel(VstInt32 index, char *label)
 {
 	switch(index)
 	{
@@ -297,157 +303,7 @@ void phase2(float *y1, float *in_11, float *y2, float *in_12, int n, float input
 	}
 }
 
-void ASupaPhaser::process(float **inputs, float **outputs, long sampleFrames)
-{
-	float *in1  =  inputs[0];
-	float *in2  =  inputs[1];
-	float *out1 = outputs[0];
-	float *out2 = outputs[1];
-
-	//some usefull pointers
-	float *pNoise = Noise;
-
-	//input to phaser
-	float inputL, inputR;
-
-	//make it quicker...
-	float aL,aR,inL,inR;
-
-	//LFO vars
-	float LFO1,LFO2;
-
-	float feed = SAVE[kFeed]*0.99f;
-	float outtmp = gainMap(SAVE[kGain])*(float)sqrt(1-feed*feed);
-	float freqtmp1 = (1-SAVE[kMixture])*(SAVE[kMaxFreq]+SAVE[kMinFreq])*0.5f;
-	float freqtmp2 = (SAVE[kMaxFreq]-SAVE[kMinFreq])*0.5f*(1-SAVE[kMixture]);
-	float freq = ScaleFreq(SAVE[kFreq],4,SAVE[kExtend] > 0.5f ? 10.f : 2.f);
-	
-	Osc1.setfreq(freq);
-	Osc2.setfreq(freq);
-	Osc2.setstereo(Osc1.getphase(),SAVE[kStereo]);
-
-	int nStages = Float2Int(SAVE[knStages],0,(double)MaxnStages);
-	if(nStages < 3) nStages = 3;
-	if(nStages > MaxnStages) nStages = MaxnStages;
-
-	// envelope gen 1
-	float ga, ga2;
-	if(SAVE[kAttack] < 0.0001f)
-		ga = (float) expf(-1.f/(getSampleRate()*0.0001f));
-	else
-		ga = (float) expf(-1.f/(getSampleRate()*SAVE[kAttack]*0.4f)); //400Ms Max
-
-	ga2 = 1-ga;
-
-	// envelope gen 2
-	float gr, gr2;
-	if(SAVE[kRelease] < 0.0001f)
-		gr = (float) expf(-1.f/(getSampleRate()*0.0001f));
-	else
-		gr = (float) expf(-1.f/(getSampleRate()*SAVE[kRelease]));
-
-	gr2 = 1-gr;
-
-	float envtmp2 = SAVE[kMaxEnv]*2.5f - SAVE[kMinEnv]*1.5f;
-	float envtmp1 = SAVE[kMinEnv]*1.5f;
-
-	// distortion
-	float distMap = sqrtf(SAVE[kDistort]) * 0.95f;
-	float dist = distMap;
-	float k = 2.f*0.99f*distMap/(1.f-0.99f*distMap);
-	float k2 = (1.f + k)*(1.f - DIST_FIX*SAVE[kDistort]);
-
-	unsigned char x = (unsigned char) (SAVE[kInvert] * 3.0);
-	bool invertWet = (x & 0x2) == 2;
-	bool invertFeed = (x & 0x1) == 1;
-
-	while(sampleFrames--)
-	{
-		inL = (*in1++) + (*pNoise);
-        inR = (*in2++) + (*pNoise);
-		pNoise++;
-
-		/////////////////////////////////////////////////////////////////////////////////////////
-		//LEFT
-		/////////////////////////////////////////////////////////////////////////////////////////
-				
-		//LFO
-		LFO1 = Osc1.GetVal();
-		
-		//Envelope
-		float env1in = fabsf(inL);
-			
-		if(ENV1 < env1in)
-			ENV1 = ga*(ENV1-env1in) + env1in;
-		else
-			ENV1 = gr*(ENV1-env1in) + env1in;
-			
-		float envscale = envtmp1 + envtmp2*ENV1;
-		if(envscale>1.f)
-			envscale=1.f;
-
-		//phaser parameter
-		aL = -SAVE[kMixture]*envscale - freqtmp1 - (float)LFO1*freqtmp2;
-
-		//Distortion
-		inL *= k2/(1.f+k*env1in);
-				
-		inputL = inL + prevOutL*feed; //input to the phaser is a mix of x and the feedback signal
-
-		/////////////////////////////////////////////////////////////////////////////////////////
-		//RIGHT
-		/////////////////////////////////////////////////////////////////////////////////////////
-		
-		//LFO
-		LFO2 = Osc2.GetVal();
-				
-		//Envelope
-		float env2in = fabsf(inR);
-		
-		if(ENV2 < env2in)
-			ENV2 = ga*(ENV2-env2in) + env2in;
-		else
-			ENV2 = gr*(ENV2-env2in) + env2in;
-			
-		envscale = envtmp1 + envtmp2*ENV2;
-		if(envscale>1.f)
-			envscale=1.f;
-
-		//phaser var
-		aR = -SAVE[kMixture]*envscale - freqtmp1 - (float)LFO2*freqtmp2;
-
-		//Distort
-		inR *= k2/(1.f+k*env2in);
-				
-		inputR = inR + prevOutR*feed;
-
-		
-		//blah...
-		phase2(y1,in_11,y2,in_12,nStages,inputL,inputR,aL,aR);
-
-		prevOutL = y1[nStages-1];
-		prevOutR = y2[nStages-1];
-
-		if(invertWet)
-		{
-			*out1++ += (SAVE[kDryWet]*(inL + prevOutL) - prevOutL)*outtmp;
-			*out2++ += (SAVE[kDryWet]*(inR + prevOutR) - prevOutR)*outtmp;
-		}
-		else
-		{
-			*out1++ += (SAVE[kDryWet]*(inL - prevOutL) + prevOutL)*outtmp;
-			*out2++ += (SAVE[kDryWet]*(inR - prevOutR) + prevOutR)*outtmp;
-		}
-
-		if(invertFeed)
-		{
-			prevOutL = -prevOutL;	
-			prevOutR = -prevOutR;
-		}
-	}
-}
-
-void ASupaPhaser::processReplacing(float **inputs, float **outputs, long sampleFrames)
+void ASupaPhaser::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
 {
 	float *in1  =  inputs[0];
 	float *in2  =  inputs[1];
@@ -617,7 +473,7 @@ void ASupaPhaser::suspend()
 	Osc2.setstereo(Osc1.getphase(),SAVE[kStereo]);
 }
 
-void ASupaPhaser::setBlockSize(long blockSize)
+void ASupaPhaser::setBlockSize(VstInt32 blockSize)
 {
 	AudioEffect::setBlockSize(blockSize);
 	if(Noise != NULL)
@@ -634,25 +490,25 @@ void ASupaPhaser::setSampleRate(float sampleRate)
 	Osc2.setstereo(Osc1.getphase(),SAVE[kStereo]);
 }
 
-bool ASupaPhaser::getEffectName (char* name)
+bool ASupaPhaser::getEffectName(char* name)
 {
 	strcpy (name, "SupaPhaser");
 	return true;
 }
 
-bool ASupaPhaser::getVendorString (char* text)
+bool ASupaPhaser::getVendorString(char* text)
 {
 	strcpy (text, "Bram @ Smartelectronix");
 	return true;
 }
 
-bool ASupaPhaser::getProductString (char* text)
+bool ASupaPhaser::getProductString(char* text)
 {
 	strcpy (text, "SupaPhaser");
 	return true;
 }
 
-long ASupaPhaser::canDo (char* text)
+VstInt32 ASupaPhaser::canDo(char* text)
 {
 	if (!strcmp(text, "receiveVstTimeInfo"))  return 0;
 	if (!strcmp(text, "receiveVstMidiEvent")) return 0;
@@ -664,7 +520,7 @@ long ASupaPhaser::canDo (char* text)
 	return -1;	// explicitly can't do; 0 => don't know
 }
 
-bool ASupaPhaser::getInputProperties (long index, VstPinProperties* properties)
+bool ASupaPhaser::getInputProperties(VstInt32 index, VstPinProperties* properties)
 {
     if (index < 2)
     {
@@ -675,7 +531,7 @@ bool ASupaPhaser::getInputProperties (long index, VstPinProperties* properties)
     return false;
 }
 
-bool ASupaPhaser::getOutputProperties (long index, VstPinProperties* properties)
+bool ASupaPhaser::getOutputProperties(VstInt32 index, VstPinProperties* properties)
 {
     if (index < 2)
     {
@@ -686,7 +542,7 @@ bool ASupaPhaser::getOutputProperties (long index, VstPinProperties* properties)
     return false;
 }
 
-bool ASupaPhaser::getProgramNameIndexed (long category, long index, char* text)
+bool ASupaPhaser::getProgramNameIndexed(VstInt32 category, VstInt32 index, char* text)
 {
     if (index < kNumPrograms)
     {
@@ -696,18 +552,7 @@ bool ASupaPhaser::getProgramNameIndexed (long category, long index, char* text)
     return false;
 }
 
-bool ASupaPhaser::copyProgram (long destination)
-{
-    if (destination < kNumPrograms)
-    {
-        memcpy(presets[destination],presets[curProgram],sizeof(float)*kNumParams);
-		strcpy(presetName[destination],presetName[curProgram]);
-        return true;
-    }
-    return false;
-}
-
-void ASupaPhaser::setProgram (long program)
+void ASupaPhaser::setProgram(VstInt32 program)
 {
 	curProgram = program;
 	
@@ -717,13 +562,13 @@ void ASupaPhaser::setProgram (long program)
 		setParameter(i,SAVE[i]);
 }
 
-void ASupaPhaser::setProgramName (char *name)
+void ASupaPhaser::setProgramName(char *name)
 {
 	strcpy(presetName[curProgram], name);
 }
 
 //------------------------------------------------------------------------
-void ASupaPhaser::getProgramName (char *name)
+void ASupaPhaser::getProgramName(char *name)
 {
 	strcpy (name, presetName[curProgram]);
 }

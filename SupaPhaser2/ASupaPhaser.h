@@ -2,14 +2,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_ASUPAPHASER_H__75AAFEE4_CF6A_11D3_9312_8E696182DB38__INCLUDED_)
-#define AFX_ASUPAPHASER_H__75AAFEE4_CF6A_11D3_9312_8E696182DB38__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "audioeffectx.h"
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 #include "WavetableFPOsc.h"
 #include "math.h"
 
@@ -37,32 +32,30 @@ public:
 	ASupaPhaser(audioMasterCallback audioMaster);
 	~ASupaPhaser();
 	
-	virtual void  process(float **inputs, float **outputs, long sampleFrames);
-	virtual void  processReplacing(float **inputs, float **outputs, long sampleFrames);
+	virtual void  processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames) override;
 		
-	virtual void  setParameter(long index, float value);
-	virtual float getParameter(long index);
+	virtual void  setParameter(VstInt32 index, float value) override;
+	virtual float getParameter(VstInt32 index) override;
 
-	virtual void  getParameterLabel(long index, char *label);
-	virtual void  getParameterDisplay(long index, char *text);
-	virtual void  getParameterName(long index, char *text);
-	virtual void  setSampleRate(float sampleRate);
+	virtual void  getParameterLabel(VstInt32 index, char *label) override;
+	virtual void  getParameterDisplay(VstInt32 index, char *text) override;
+	virtual void  getParameterName(VstInt32 index, char *text) override;
+	virtual void  setSampleRate(float sampleRate) override;
 	
-	virtual void  suspend();
-	virtual void  setBlockSize(long blockSize);
+	virtual void  suspend() override;
+	virtual void  setBlockSize(VstInt32 blockSize) override;
 
-	virtual bool getEffectName (char* name);
-	virtual bool getVendorString (char* text);
-	virtual bool getProductString (char* text);
-	virtual long canDo (char* text);
+	virtual bool getEffectName(char* name) override;
+	virtual bool getVendorString(char* text) override;
+	virtual bool getProductString(char* text) override;
+	virtual VstInt32 canDo(char* text) override;
 
-	virtual bool getInputProperties (long index, VstPinProperties* properties);
-	virtual bool getOutputProperties (long index, VstPinProperties* properties);
-	virtual bool getProgramNameIndexed (long category, long index, char* text);
-	virtual bool copyProgram (long destination);
-	virtual void setProgram (long program);
-	virtual void setProgramName (char *name);
-	virtual void getProgramName (char *name);
+	virtual bool getInputProperties(VstInt32 index, VstPinProperties* properties) override;
+	virtual bool getOutputProperties(VstInt32 index, VstPinProperties* properties) override;
+	virtual bool getProgramNameIndexed(VstInt32 category, VstInt32 index, char* text) override;
+	virtual void setProgram(VstInt32 program) override;
+	virtual void setProgramName(char *name) override;
+	virtual void getProgramName(char *name) override;
 
 	enum
 	{
@@ -139,5 +132,3 @@ private:
 		return powf(10,(db/20.f));
 	};
 };
-
-#endif // !defined(AFX_ASUPAPHASER_H__75AAFEE4_CF6A_11D3_9312_8E696182DB38__INCLUDED_)
