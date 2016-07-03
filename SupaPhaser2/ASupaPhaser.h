@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include <sstream>
+#include <math.h>
+
 #include "public.sdk/source/vst2.x/audioeffectx.h"
 #include "WavetableFPOsc.h"
-#include "math.h"
 
 #define DIST_FIX 0.8f
 
@@ -21,6 +23,13 @@ inline int Float2Int(double f, double min, double max)
 inline float ScaleFreq(float in, float param, float max)
 {
 	return (float)((exp(in*param)-1)/(exp(param)-1)*max);
+}
+
+inline void vstint2string(const VstInt32 number, char* str)
+{
+    std::stringstream ss;
+    ss << number;
+    strcpy(str, ss.str().c_str());
 }
 
 const int MaxnStages = 23;

@@ -2,8 +2,7 @@
 #include "CustomSplashScreen.h"
 
 #if WIN32
-    #include <Winuser.h>    
-    #include <Shellapi.h>
+    #include <Windows.h>
     #pragma comment(lib, "Shell32.lib")
 #endif
 
@@ -165,6 +164,8 @@ CMouseEventResult CCustomSplashScreen::onMouseDown(CPoint& where, const CButtonS
 			listener->valueChanged(this);
 	}
 	setDirty ();
+
+    return CMouseEventResult::kMouseEventHandled;
 }
 
 //------------------------------------------------------------------------

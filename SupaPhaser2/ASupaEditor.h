@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "vstgui.h"
 #include "plugin-bindings/aeffguieditor.h"
 
 #include "TextDisplay.h"

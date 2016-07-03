@@ -6,15 +6,6 @@
 #include "ASupaPhaser.h"
 #include <stdio.h>
 #include "math.h"
-#include "resource.h"
-
-//TODO move this to common file. Used in ASupaPhaser.cpp too.
-void long2string(const long number, char* str)
-{
-    std::stringstream ss;
-    ss << number;
-    strcpy(str, ss.str().c_str());
-}
 
 ASupaEditor::ASupaEditor(AudioEffect *effect):AEffGUIEditor (effect)
 {
@@ -208,13 +199,13 @@ bool ASupaEditor::open(void *ptr)
 
 	long mix = (long) (100 * effect->getParameter(ASupaPhaser::kMixture) );
 
-	effect->long2string(mix,temp);
+    vstint2string(mix,temp);
 	effect->getParameterLabel(ASupaPhaser::kMixture,&temp[strlen(temp)]);
 	mixtureDisplay1 = new CTextDisplay(CRect(30,68,55,74),whiteText,white);
 	mixtureDisplay1->setText(temp);
 	frame->addView(mixtureDisplay1);
 
-	effect->long2string(100 - mix,temp);
+    vstint2string(100 - mix,temp);
 	effect->getParameterLabel(ASupaPhaser::kMixture,&temp[strlen(temp)]);
 	mixtureDisplay2 = new CTextDisplay(CRect(30,139,55,145),whiteText,white);
 	mixtureDisplay2->setText(temp);
@@ -317,13 +308,14 @@ void ASupaEditor::close ()
 	headButton = 0;
 	splashScreen = 0;
 
-	if(frame != 0)
-		delete frame;
-
-	frame = 0;
+    if (frame != 0) {
+        CFrame *oldFrame = frame;
+        frame = 0;
+        oldFrame->forget();
+    }
 }
 
-void ASupaEditor::setParameter (long index, float value)
+void ASupaEditor::setParameter(VstInt32 index, float value)
 {
 	if (frame == 0)
 		return;
@@ -368,11 +360,11 @@ void ASupaEditor::setParameter (long index, float value)
 					long mix = (long) (100 * value );
 					//long mix = (long) (100 * ((ASupaPhaser *)effect)->getParameter(tag) );
 
-					effect->long2string(mix,temp);
+                    vstint2string(mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay1) mixtureDisplay1->setText(temp);
 		
-					effect->long2string(100 - mix,temp);
+                    vstint2string(100 - mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay2) mixtureDisplay2->setText(temp);
 
@@ -383,11 +375,9 @@ void ASupaEditor::setParameter (long index, float value)
 			case ASupaPhaser::kGain		: if(gainDisplay) gainDisplay->setText(temp); break;
 		}
 	}
-
-	postUpdate();
 }
 
-void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
+void ASupaEditor::valueChanged(CControl* control)
 {
 	long tag = control->getTag();
 
@@ -411,11 +401,11 @@ void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
 					//long mix = (long) (100 * value );
 					long mix = (long) (100 * ((ASupaPhaser *)effect)->getParameter(tag) );
 
-					effect->long2string(mix,temp);
+                    vstint2string(mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay1) mixtureDisplay1->setText(temp);
 		
-					effect->long2string(100 - mix,temp);
+					(100 - mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay2) mixtureDisplay2->setText(temp);
 
@@ -429,9 +419,6 @@ void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
 		//update control...
 		effect->setParameterAutomated(tag, control->getValue ());
 	}
-
-	if(context != 0)
-		control->update(context);
 }
 
 

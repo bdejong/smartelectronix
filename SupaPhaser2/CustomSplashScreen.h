@@ -19,6 +19,8 @@ public:
 	virtual void draw(CDrawContext*) override;
     virtual CMouseEventResult onMouseDown(CPoint& where, const CButtonState& buttons);
 	void unSplash();
+    virtual CBaseObject* newCopy() const { return 0; }
+
 
 protected:
 	CRect    toDisplay;

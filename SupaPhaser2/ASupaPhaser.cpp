@@ -4,10 +4,6 @@
 
 #include "ASupaPhaser.h"
 #include "ASupaEditor.h"
-#include "public.sdk/source/vst2.x/audioeffectx.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include "math.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -18,13 +14,6 @@ void InitNoise(float *Noise, int bufSize)
 	for (int i = 0; i < bufSize; i++)
 		Noise[i] = (float)(((double)rand())/(RAND_MAX*1048576.0));
 }
-
-//void long2string(const long number, char* str)
-//{
-    //std::stringstream ss;
-    //ss << number;
-    //strcpy(str, ss.str().c_str());
-//}
 
 ASupaPhaser::ASupaPhaser(audioMasterCallback audioMaster)
 				:AudioEffectX(audioMaster, kNumPrograms, kNumParams)
@@ -147,29 +136,29 @@ void ASupaPhaser::getParameterDisplay(VstInt32 index, char *text)
 {
 	switch(index)
 	{
-		case kDistort:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
-		case kMinEnv:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
-		case kMaxEnv:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kDistort:	vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
+		case kMinEnv:	vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
+		case kMaxEnv:	vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
 		case kRelease:
 			{
 				if(SAVE[index] < 0.0001f)
-                    int2string((VstInt32)(0.0001f*1000.f),text, kVstMaxParamStrLen);
+                    vstint2string((VstInt32)(0.0001f*1000.f),text);
 				else
-                    int2string((VstInt32)(SAVE[index]*1000.f),text, kVstMaxParamStrLen);
+                    vstint2string((VstInt32)(SAVE[index]*1000.f),text);
 					
 				break;
 			}
 		case kAttack:
 			{
 				if(SAVE[index] < 0.0001f)
-                    int2string((VstInt32)(0.0001f*1000.f),text, kVstMaxParamStrLen);
+                    vstint2string((VstInt32)(0.0001f*1000.f),text);
 				else
-                    int2string((VstInt32)(SAVE[index]*0.4f*1000.f),text, kVstMaxParamStrLen);
+                    vstint2string((VstInt32)(SAVE[index]*0.4f*1000.f),text);
 					
 				break;
 			}
-		case kMixture:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
-		case kFeed:		int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kMixture:	vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
+		case kFeed:		vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
 		case kFreq:		
 			{
 				if(SAVE[kExtend] > 0.5f)
@@ -181,16 +170,16 @@ void ASupaPhaser::getParameterDisplay(VstInt32 index, char *text)
 				
 				break;
 			}
-		case kStereo:	int2string((VstInt32)(SAVE[index]*360.f),text, kVstMaxParamStrLen);break;
-		case kMinFreq:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
-		case kMaxFreq:	int2string((VstInt32)(SAVE[index]*100.f),text, kVstMaxParamStrLen);break;
+		case kStereo:	vstint2string((VstInt32)(SAVE[index]*360.f),text);break;
+		case kMinFreq:	vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
+		case kMaxFreq:	vstint2string((VstInt32)(SAVE[index]*100.f),text);break;
 		case kGain:		
 			{
 				dB2string(gainMap(SAVE[index]),text, kVstMaxProductStrLen);
 				text[4] = 0;
 				break;
 			}
-		case kDryWet:	int2string(100 - (VstInt32)(SAVE[index]*100),text, kVstMaxParamStrLen);break;
+		case kDryWet:	vstint2string(100 - (VstInt32)(SAVE[index]*100),text);break;
 		case kExtend:
 			{
 				if(SAVE[kExtend] > 0.5f)
@@ -205,7 +194,7 @@ void ASupaPhaser::getParameterDisplay(VstInt32 index, char *text)
 				if(n < 3) n = 3;
 				if(n > MaxnStages) n = MaxnStages;
 				
-                int2string(n,text, kVstMaxParamStrLen);
+                vstint2string(n,text);
 				
 				break;
 			}

@@ -7,7 +7,6 @@ project(SupaPhaser)
 set(PROJECT_SOURCE 
   ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaser.def
   ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaserMain.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CustomSplashScreen.cpp
