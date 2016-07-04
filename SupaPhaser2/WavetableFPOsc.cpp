@@ -56,7 +56,7 @@ void CWavetableFPOsc::CreateFracTable()
 		buffer[i] = (float) ((1.0 + sin((double)i/4096.0*2.0*3.1415926535))*0.5);
 	}
 
-	for(i=0;i<4096-1;i++)
+	for(int i=0;i<4096-1;i++)
 		dbuffer[i] = buffer[i+1] - buffer[i];
 
 	dbuffer[4095] = buffer[0] - buffer[4095];

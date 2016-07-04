@@ -8,7 +8,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CMultiStateButton::CMultiStateButton (const CRect &size, CControlListener *listener, long tag,
+CMultiStateButton::CMultiStateButton (const CRect &size, IControlListener *listener, long tag,
                             CBitmap *background, long nStates, long heightOfOneState)
 :	CControl (size, listener, tag, background), nStates(nStates), heightOfOneState(heightOfOneState)
 {
@@ -24,17 +24,17 @@ void CMultiStateButton::draw (CDrawContext *pContext)
 {
 	long off;
 
-	if (pBackground)
+	if (getBackground())
 		off = (long)(nStates * heightOfOneState * value);
 	else
 		off = 0;
 
-	if (pBackground)
+	if (getBackground())
 	{
-		if (bTransparencyEnabled)
-			pBackground->drawTransparent (pContext, size, CPoint (0, off));
+		if (getTransparency())
+			getBackground()->draw(pContext, size, CPoint (0, off), 0.f);
 		else
-			pBackground->draw (pContext, size, CPoint (0, off));
+			getBackground()->draw(pContext, size, CPoint (0, off));
 	}
 	else
 	{
@@ -43,7 +43,7 @@ void CMultiStateButton::draw (CDrawContext *pContext)
 		else
 			pContext->setFillColor(kGreenCColor);
 		
-		pContext->fillRect(size);
+		pContext->drawRect(size);
 
 		pContext->setFrameColor(kWhiteCColor);
 
@@ -56,20 +56,20 @@ void CMultiStateButton::draw (CDrawContext *pContext)
 }
 
 //------------------------------------------------------------------------
-void CMultiStateButton::mouse (CDrawContext *pContext, CPoint &where)
+CMouseEventResult CMultiStateButton::onMouseDown(CPoint& where, const CButtonState& buttons)
 {
-	if (!bMouseEnabled)
-		return;
+    if (!getMouseEnabled())
+        return CMouseEventResult::kMouseEventNotHandled;
 
- 	long button = pContext->getMouseButtons ();
-	if (!(button & kLButton))
-		return;
+    if (!(buttons.isLeftButton()))
+        return CMouseEventResult::kMouseEventNotHandled;
 
-	value = (float)(value + 1.0 / (double)(nStates));
-	if(value >= 1.0) value = 0.0;
+    value = (float)(value + 1.0 / (double)(nStates));
+    if (value >= 1.0)
+        value = 0.0;
 
-	//draw (pContext);
-	doIdleStuff ();
-	if (listener)
-		listener->valueChanged (pContext, this);
+    if (listener)
+        listener->valueChanged(this);
+
+    return CMouseEventResult::kMouseEventHandled;
 }

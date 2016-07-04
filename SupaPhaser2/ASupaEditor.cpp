@@ -6,7 +6,6 @@
 #include "ASupaPhaser.h"
 #include <stdio.h>
 #include "math.h"
-#include "resource.h"
 
 ASupaEditor::ASupaEditor(AudioEffect *effect):AEffGUIEditor (effect)
 {
@@ -53,25 +52,24 @@ ASupaEditor::~ASupaEditor()
 {
 }
 
-long ASupaEditor::open (void *ptr)
+bool ASupaEditor::open(void *ptr)
 {
-	AEffGUIEditor::open(ptr);
-
-	CBitmap *hBackground = new CBitmap(BITMAP_BASE);
-	CBitmap *heads = new CBitmap(BITMAP_HEADS);
-	CBitmap *blueknob = new CBitmap(BITMAP_BLUEKNOB);
-	CBitmap *distknob = new CBitmap(BITMAP_BIGKNOB);
-	CBitmap *smallknob = new CBitmap(BITMAP_SMALLKNOB);
-	CBitmap *greyText = new CBitmap(BITMAP_TYPE_GREY);
-	CBitmap *whiteText = new CBitmap(BITMAP_TYPE_WHITE);
-	CBitmap *orangeText = new CBitmap(BITMAP_TYPE_ORANGE);
-	CBitmap *onOff = new CBitmap(BITMAP_EXTEND);
-	CBitmap *myFaderHandlePixmap = new CBitmap (BITMAP_SLIDER);
-	CBitmap *splash = new CBitmap (BITMAP_SPLASH);
+	CBitmap *hBackground = new CBitmap("base.png");
+	CBitmap *heads = new CBitmap("heads.png");
+	CBitmap *blueknob = new CBitmap("blue_knob1_4.png");
+	CBitmap *distknob = new CBitmap("bigknob01rotated_cropped2.png");
+	CBitmap *smallknob = new CBitmap("small_knob02.png");
+	CBitmap *greyText = new CBitmap("type_grey-back_white.png");
+	CBitmap *whiteText = new CBitmap("type_white-back.png");
+	CBitmap *orangeText = new CBitmap("type_orange-back.png");
+	CBitmap *onOff = new CBitmap("extend_on_off.png");
+	CBitmap *myFaderHandlePixmap = new CBitmap("slider.png");
+	CBitmap *splash = new CBitmap("splash.png");
 	
 	//init frame
 	CRect size(0, 0, hBackground->getWidth (), hBackground->getHeight ());
-	frame = new CFrame(size, ptr, this);
+	frame = new CFrame(size, this);
+    frame->open(ptr);
 	frame->setBackground(hBackground);
 	setKnobMode(kLinearMode);
 
@@ -201,13 +199,13 @@ long ASupaEditor::open (void *ptr)
 
 	long mix = (long) (100 * effect->getParameter(ASupaPhaser::kMixture) );
 
-	effect->long2string(mix,temp);
+    vstint2string(mix,temp);
 	effect->getParameterLabel(ASupaPhaser::kMixture,&temp[strlen(temp)]);
 	mixtureDisplay1 = new CTextDisplay(CRect(30,68,55,74),whiteText,white);
 	mixtureDisplay1->setText(temp);
 	frame->addView(mixtureDisplay1);
 
-	effect->long2string(100 - mix,temp);
+    vstint2string(100 - mix,temp);
 	effect->getParameterLabel(ASupaPhaser::kMixture,&temp[strlen(temp)]);
 	mixtureDisplay2 = new CTextDisplay(CRect(30,139,55,145),whiteText,white);
 	mixtureDisplay2->setText(temp);
@@ -310,13 +308,14 @@ void ASupaEditor::close ()
 	headButton = 0;
 	splashScreen = 0;
 
-	if(frame != 0)
-		delete frame;
-
-	frame = 0;
+    if (frame != 0) {
+        CFrame *oldFrame = frame;
+        frame = 0;
+        oldFrame->forget();
+    }
 }
 
-void ASupaEditor::setParameter (long index, float value)
+void ASupaEditor::setParameter(VstInt32 index, float value)
 {
 	if (frame == 0)
 		return;
@@ -361,11 +360,11 @@ void ASupaEditor::setParameter (long index, float value)
 					long mix = (long) (100 * value );
 					//long mix = (long) (100 * ((ASupaPhaser *)effect)->getParameter(tag) );
 
-					effect->long2string(mix,temp);
+                    vstint2string(mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay1) mixtureDisplay1->setText(temp);
 		
-					effect->long2string(100 - mix,temp);
+                    vstint2string(100 - mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay2) mixtureDisplay2->setText(temp);
 
@@ -376,11 +375,9 @@ void ASupaEditor::setParameter (long index, float value)
 			case ASupaPhaser::kGain		: if(gainDisplay) gainDisplay->setText(temp); break;
 		}
 	}
-
-	postUpdate();
 }
 
-void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
+void ASupaEditor::valueChanged(CControl* control)
 {
 	long tag = control->getTag();
 
@@ -404,11 +401,11 @@ void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
 					//long mix = (long) (100 * value );
 					long mix = (long) (100 * ((ASupaPhaser *)effect)->getParameter(tag) );
 
-					effect->long2string(mix,temp);
+                    vstint2string(mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay1) mixtureDisplay1->setText(temp);
 		
-					effect->long2string(100 - mix,temp);
+					(100 - mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay2) mixtureDisplay2->setText(temp);
 
@@ -422,9 +419,6 @@ void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
 		//update control...
 		effect->setParameterAutomated(tag, control->getValue ());
 	}
-
-	if(context != 0)
-		control->update(context);
 }
 
 

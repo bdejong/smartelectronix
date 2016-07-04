@@ -2,12 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_TEXTDISPLAY_H__05B21240_4B75_11D4_B567_002018B8E8B7__INCLUDED_)
-#define AFX_TEXTDISPLAY_H__05B21240_4B75_11D4_B567_002018B8E8B7__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "vstgui.h"
 
@@ -30,5 +25,3 @@ private:
 	CColor _rectColor;
 	bool middle;
 };
-
-#endif // !defined(AFX_TEXTDISPLAY_H__05B21240_4B75_11D4_B567_002018B8E8B7__INCLUDED_)
