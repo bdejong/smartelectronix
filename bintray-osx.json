@@ -6,12 +6,13 @@
         "desc": "Latest automated build of plugins",
         "issue_tracker_url": "https://github.com/bdejong/smartelectronix/issues",
         "vcs_url": "https://github.com/bdejong/smartelectronix.git",
-        "licenses": ["GPL-3.0"],
+        "licenses": ["GPL-3.0"]
     },
 
     "files":
         [
-            {"includePattern": "OSX-Plugins.zip"},
+            {"includePattern": "OSX-Plugins.zip"}
         ],
+
     "publish": true
 }
