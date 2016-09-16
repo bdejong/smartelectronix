@@ -16,7 +16,7 @@ class ProgressReporter:
             self.progress = progress
 
 
-url = "http://www.steinberg.net/sdk_downloads/vstsdk365_12_11_2015_build_67.zip"  # noqa
+url = "http://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip"  # noqa
 urllib.urlretrieve(url, "Steinberg.zip", ProgressReporter())
 
 zip = ZipFile('Steinberg.zip')
