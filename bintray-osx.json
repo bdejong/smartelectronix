@@ -5,9 +5,15 @@
         "subject": "bdejong"
     },
 
+    "version": {
+            "name": "1.0",
+            "desc": "Latest builds",
+            "gpgSign": false
+        },
+
     "files":
         [
-            {"includePattern": "OSX-Plugins.zip"}
+            {"includePattern": "OSX-Plugins.zip", "uploadPattern": "OSX-Plugins.zip"}
         ],
 
     "publish": true
