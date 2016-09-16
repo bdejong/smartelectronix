@@ -3,25 +3,24 @@ os: osx
 language: cpp
 
 compiler:
-  - clang
+- clang
 
 before_script:
-  - brew update
-  - brew upgrade cmake
-  - git submodule update --init --recursive
-  - python get_steinberg_sdk.py
-  - cmake .
+- brew update
+- brew upgrade cmake
+- git submodule update --init --recursive
+- python get_steinberg_sdk.py
+- cmake .
 
-script: make
+script:
+- make
 
-# before_deploy:
-#   - zip -r OSX-Plugins.zip Smexoscope/Smexoscope.vst Bouncy/Bouncy.vst
+before_deploy:
+- zip -r OSX-Plugins.zip */*.vst
 
-# deploy:
-#   provider: releases
-#   skip_cleanup: true
-#   api_key:
-#     secure: ru62+r7ZENuAML1dhC4+URlf8/aX2WoYFCV+03Hlu2uYuuloWzWaHy+9txpL/zMXOmsCMgCrcGDQvXxIwDFt1Pw+Jc82NuzeYMbGjNkvDcVYlJgucLn7wx08ZFHYnGnLXhf2SyJ+03PzaSz9j1eHek12NujZTWQf4T3sM8vk9XbM8QM+EZEuTSkq4q1E+Ys1BFFcIHttDKHuRgvanucgPpkD07cZtswLsTkyFgWVlQfgLO6WEMdUP2zp20s86wEKjZZXI4aIUOwl/7UE3Hv3WZ5FYtrfmbK9jdhPW2QvrYtAw2YztUuP8+W4oIkVrjBKiJhKhSrO98mVUMb4z1UUF0p2gOMIZ1PxGJmvzWh55n7Ae2tBZWnFRz9p1hi5bRtwj1DzVuTKqHRrCn5Q2qKXsUvR4yshlMa506RhQgHlP86D26i76syhj0B606EF2t4fBcV/0nkdEoRn4nsrFUqTWOc7u9RxPy+kB6jxiaaP9bdbDgMAp9vYtr0WVbNgYWbgz/xbDUsSF7jCyceB19+Z6p15q2+u3sqzMIRVFx2TXQBu5TtUxBsoldGKjBPBlGyBzFmchIUGmscFyV5jFKALQKC/lIZw7+U47FbfdDpBxTgEUYYx1JtrviGdWCxt7Hmkv8Aj/bb3NrFFYcmuUAX7g1kVG0IO8c7u6dzKJ5Stb9g=
-#   file: OSX-Plugins.zip
-#   on:
-#     tags: true
+deploy:
+  provider: bintray
+  user: "bdejong"
+  file: bintray-osx.json
+  key:
+    secure: ldQdMCtae8IyKUf7OLKFLqyJZVzYWWJeEHEygLCDzp2dRVi/gnN0XQ05dyks7mtJTGgzOyFFvYHWavvlc6zoJYPVY9DVEPLFaCdgL+e8sa3lA6okUcbYtjobdiZuCSG7nD2zYosBr8GuscY6BOWLdQw+2C3YRRvLZywHR4Tm9La7AoYrSEHlNAmFBK1GjXXJwY7i1h1oFLk84MagxkVcySs5Z1lmoI2X7UbE/RejNiuHpQO3DhhrSZzozYDGpn7ErlMyJAbafvGjAVwcN+JGCsI28+yrdiA4eiotmZdg/bN+d1bO/2ToyKYv8zsemhunOFBe4kkpS9fIcaQcW8aYE5CEgnljmovFo1dehI3BxO6s2uQFXDOHjqSsQ+z+ghpDD5Peyo4eoGiEGMtmBg2Sej/osh4hzisSE+uN+tMsNsuQF0/peT9ZgRsuTDdISOnOmPGLLJa0h7wnvwjUN6sW3r0FihIynliPo+r+SohfcBhDCDKM4YIgOxA/62j71SGI3BvqFs3ORa2XJQg50WyGcUkGfiQQK9geNhdfNkP/XH/F6Xcz8/GrjfntsdjcxbiGsTGqnvkRYxvbMR39fsJW3riLL9NETUl/F0vpuVSzpdrYcEUlSmN++yxdjprj3I0Lg2E4HljvYU6+LE/7u0zs9qoSwyC7+jmNex6/Voof9iE=
