@@ -17,16 +17,21 @@ before_build:
 build_script:
   - ps: .\build.ps1 $env:PLATFORM $env:CONFIGURATION
 
-# artifacts:
-#   - path: build$(PLATFORM)\Smexoscope\Release\Smexoscope.dll
-#     name: Smexoscope-$(PLATFORM)
+after_build:
+  - 7z a plugins-$(PLATFORM).zip build$(PLATFORM)\*\Release\*.dll
 
-# deploy:
-#   provider: GitHub
-#   description: "Smexoscope Windows"
-#   auth_token:
-#     secure: xe9XPoDfnyZLB7uIULqAWtTN4kwZBnsHVv9is3AlF3q+PJn05Smyl7RRptUSZk8r
-#   draft: false
-#   prerelease: false
-#   on:
-#     appveyor_repo_tag: true
+artifacts:
+  - path: plugins-$(PLATFORM).zip
+    name: plugins-$(PLATFORM)
+
+deploy:
+- provider: BinTray
+  username: bdejong
+  api_key:
+    secure: aJrQELByJLr1WnPto6BeemIs6HjtTs3g/ewSFeYF1FZbsFfxAAgbpYTA0SSWMaX0
+  subject: bdejong
+  repo: Plugins
+  package: Windows
+  version: 1.0
+  publish: true
+  override: true
