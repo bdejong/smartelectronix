@@ -18,11 +18,11 @@ build_script:
   - ps: .\build.ps1 $env:PLATFORM $env:CONFIGURATION
 
 after_build:
-  - ps: 7z a plugins-$env:PLATFORM.zip build$env:PLATFORM\*\Release\*.dll
+  - ps: 7z a Win-Plugins-$env:PLATFORM.zip .\build$env:PLATFORM\*\Release\*.dll
 
 artifacts:
-  - path: plugins-$(PLATFORM).zip
-    name: plugins-$(PLATFORM)
+  - path: Win-Plugins-$(PLATFORM).zip
+    name: Win-Plugins-$(PLATFORM)
 
 deploy:
 - provider: BinTray
