@@ -122,7 +122,7 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
 
   ELSEIF(APPLE)
-
+    set(DCMAKE_OSX_DEPLOYMENT_TARGET "10.9")
     set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64")
     set(PKG_INFO ${COMMON_DIR}/PkgInfo)
     set_source_files_properties(${COMMON_DIR}/PkgInfo PROPERTIES
