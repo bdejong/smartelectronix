@@ -7,11 +7,11 @@
   <key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>${CMAKE_PROJECT_NAME}</string>
+	<string>${PROJECT_NAME}</string>
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string>com.smartelectronix.bram.${CMAKE_PROJECT_NAME}</string>
+	<string>com.smartelectronix.bram.${PROJECT_NAME}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
