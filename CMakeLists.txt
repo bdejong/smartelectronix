@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Smartelectronix)
 
+enable_testing()
+
 #add_subdirectory(AnechoicRoomSimulator)
 #add_subdirectory(Bitmurderer)
 add_subdirectory(Bouncy)

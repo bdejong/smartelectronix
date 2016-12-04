@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../common/common.cmake)
 
-project(SupaTrigger)
+project(SupaTrigga)
 
 set(PROJECT_SOURCE
   SupaTriggerMain.cpp
@@ -10,4 +10,4 @@ set(PROJECT_SOURCE
   SupaTrigger.hpp
 )
 
-build_vst_nogui(SupaTrigger "${PROJECT_SOURCE}")
+build_vst_nogui(SupaTrigga "${PROJECT_SOURCE}")

@@ -53,12 +53,15 @@ Makefile
 CMakeCache.txt
 CMakeFiles
 CMakeLists.txt.user
+CTestTestfile.cmake
 cmake_install.cmake
 Debug/
 Release/
 x64/
 Win32/
 install_manifest.txt
+out.wav
+Testing/
 
 # Build Tree
 /buildx86

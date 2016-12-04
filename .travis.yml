@@ -15,6 +15,9 @@ before_script:
 script:
 - make
 
+after_success:
+- make test
+
 before_deploy:
 - zip -r OSX-Plugins.zip */*.vst
 

@@ -122,8 +122,9 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
 
   ELSEIF(APPLE)
-    set(DCMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
     set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64")
+    set(CMAKE_OSX_UNIVERSAL "ON")
     set(PKG_INFO ${COMMON_DIR}/PkgInfo)
     set_source_files_properties(${COMMON_DIR}/PkgInfo PROPERTIES
       MACOSX_PACKAGE_LOCATION .
@@ -137,6 +138,12 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     set_property(TARGET ${VST_TARGET} PROPERTY CXX_STANDARD 11)
 
     install(TARGETS ${VST_TARGET} DESTINATION ~/Library/Audio/Plug-Ins/VST)
+
+    add_test(
+      NAME MrsWatson-${VST_TARGET}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+      COMMAND bin/osx/mrswatson64 -p ${VST_TARGET}/${VST_TARGET}.vst -i media/input.wav -o out.wav
+    )
 
   ENDIF(WIN32)
 
