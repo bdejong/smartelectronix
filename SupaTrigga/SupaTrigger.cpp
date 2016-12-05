@@ -403,11 +403,7 @@ void SupaTrigger::convertVstTimeInfo(FFXTimeInfo *ffxtime)
     if (ffxtime == NULL) // bogus
         return;
 
-    if (this == NULL) // totally bogus
-    {
-        ffxtime->isValid = false;
-        return;
-    }
+    ffxtime->isValid = false;
 
     // get some VstTimeInfo with flags requesting all of the info that we want
     VstTimeInfo *vstTimeInfo = this->getTimeInfo(kVstTempoValid
@@ -420,10 +416,7 @@ void SupaTrigger::convertVstTimeInfo(FFXTimeInfo *ffxtime)
                                                     | kVstTransportCycleActive);
 
     if (vstTimeInfo == NULL)
-    {
-        ffxtime->isValid = false;
         return;
-    }
 
     ffxtime->isValid = true;
 

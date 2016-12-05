@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.5)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../common/common.cmake)
 
+pre_build()
+
 project(Smexoscope)
 
-set(PROJECT_SOURCE 
+set(PROJECT_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/WaveDisplay.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Label.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Label.h
