@@ -6,20 +6,18 @@
 
 #include "vstgui.h"
 
-long launch_url(const char *urlstring);
-
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 class CCustomSplashScreen : public CControl
 {
 public:
-	CCustomSplashScreen (const CRect &size, IControlListener *listener, long tag, CBitmap *background, CRect &toDisplay, CPoint &offset);
+	CCustomSplashScreen (const CRect &size, IControlListener *listener, const long tag, CBitmap *background, const CRect &toDisplay, const CPoint &offset);
 	virtual ~CCustomSplashScreen ();	
   
 	virtual void draw(CDrawContext*) override;
-    virtual CMouseEventResult onMouseDown(CPoint& where, const CButtonState& buttons);
+    virtual CMouseEventResult onMouseDown(CPoint& where, const CButtonState& buttons) override;
 	void unSplash();
-    virtual CBaseObject* newCopy() const { return 0; }
+    virtual CBaseObject* newCopy() const override { return 0; }
 
 
 protected:

@@ -241,7 +241,7 @@ void ASupaPhaser::getParameterLabel(VstInt32 index, char *label)
 		case kDistort:	strcpy (label, "");break;
 		case kFeed:		strcpy (label, "%");break;
 		case kFreq:		strcpy (label, "");break;
-		case kStereo:	strcpy (label, "°");break;
+		case kStereo:	strcpy (label, "");break;
 		case kMinFreq:	strcpy (label, "%");break;
 		case kMaxFreq:	strcpy (label, "%");break;
 		case kGain:		strcpy (label, "");break;
@@ -575,6 +575,14 @@ void trim(char *text)
 	}
 	text[j] = 0;
 }
+
+#ifdef __APPLE__
+void strupr(char *str)
+{
+  for(char *s = str; *s; s++)
+    *s = toupper((unsigned char)*s);
+}
+#endif
 
 // generate nice readable output!
 void ASupaPhaser::getDisplay(long index, char *text)

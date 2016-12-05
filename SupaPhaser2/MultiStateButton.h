@@ -14,9 +14,9 @@ public:
 	virtual ~CMultiStateButton();
 
 	virtual void draw(CDrawContext*) override;
-    virtual CMouseEventResult onMouseDown(CPoint& where, const CButtonState& buttons);
+    virtual CMouseEventResult onMouseDown(CPoint& where, const CButtonState& buttons) override;
 
-    virtual CBaseObject* newCopy() const { return 0; }
+    virtual CBaseObject* newCopy() const override { return 0; }
 
 private:
 	long nStates, state, heightOfOneState;

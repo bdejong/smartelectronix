@@ -9,7 +9,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTextDisplay::CTextDisplay(CRect &size, CBitmap *ascii, CColor rectColor)
+CTextDisplay::CTextDisplay(const CRect &size, CBitmap *ascii, CColor rectColor)
 	: CParamDisplay (size)
 {
 	_ascii = ascii;
