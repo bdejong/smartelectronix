@@ -118,6 +118,7 @@ endfunction(add_vstgui)
 #*******************************************************************************
 function(add_tests VST_TARGET)
   if(WIN32)
+    message("CMAKE_CFG_INTDIR: ${CMAKE_CFG_INTDIR}")
     if(PLUGIN_ARCH STREQUAL "x86")
       # message("Adding tests for x86")
       add_test(
