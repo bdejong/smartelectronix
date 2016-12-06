@@ -134,18 +134,20 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     target_sources(${VST_TARGET} PUBLIC ${COMMON_DIR}/exports.def)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
 
-    if(${PLUGIN_ARCH} STREQUAL "x86")
-      add_test(
-        NAME MrsWatson-${VST_TARGET}-32
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin/win/mrswatson -p ${VST_TARGET} -i media/input.wav -o out.wav
-      )
-    elseif(${PLUGIN_ARCH} STREQUAL "x64")
-      add_test(
-        NAME MrsWatson-${VST_TARGET}-64
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin/win/mrswatson64 -p ${VST_TARGET} -i media/input.wav -o out.wav
-      )
+    if(PLUGIN_ARCH)
+      if(PLUGIN_ARCH STREQUAL "x86")
+        add_test(
+          NAME MrsWatson-${VST_TARGET}-32
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+          COMMAND bin/win/mrswatson -p ${VST_TARGET} -i media/input.wav -o out.wav
+        )
+      elseif(PLUGIN_ARCH STREQUAL "x64")
+        add_test(
+          NAME MrsWatson-${VST_TARGET}-64
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+          COMMAND bin/win/mrswatson64 -p ${VST_TARGET} -i media/input.wav -o out.wav
+        )
+      endif()
     endif()
 
   elseif(APPLE)

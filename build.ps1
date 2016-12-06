@@ -14,12 +14,12 @@
 
 .EXAMPLE
   Build an x86 debug binary
-  
+
   .\build x86 Debug
 
-.EXAMPLE 
+.EXAMPLE
   Build release binaries for all platforms
-  
+
   .\build All
 #>
 Param
@@ -59,11 +59,10 @@ $targets | ForEach-Object {
     new-item $treeDirectory -ItemType Directory | Out-Null
   }
 
-  cmake -E chdir $treeDirectory cmake -G $generator ../
+  cmake -E chdir $treeDirectory cmake -DPLUGIN_ARCH=$_ -G $generator ../
   if ($LASTEXITCODE -ne 0) { throw "cmake failed" }
 
   # Build
   cmake --build $treeDirectory --config $Configuration
   if ($LASTEXITCODE -ne 0) { throw "build failed" }
 }
-
