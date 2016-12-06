@@ -134,30 +134,19 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     target_sources(${VST_TARGET} PUBLIC ${COMMON_DIR}/exports.def)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
 
-    message(" 1 ${CMAKE_CURRENT_SOURCE_DIR}")
-    message(" 2 ${EXECUTABLE_OUTPUT_PATH}")
-    message(" 3 ${LIBRARY_OUTPUT_PATH}")
-    message(" 4 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    message(" 5 ${CMAKE_BUILD_FILES_DIRECTORY}")
-    message(" 6 ${CMAKE_BUILD_DIRECTORY}")
-    message(" 7 ${CMAKE_BINARY_DIR}")
-    message(" 8 ${EXECUTABLE_OUTPUT_PATH}")
-    message(" 9 ${LIBRARY_OUTPUT_PATH}")
-    message("10 ${CMAKE_CACHEFILE_DIR}")
-
     if(PLUGIN_ARCH STREQUAL "x86")
       # message("Adding tests for x86")
       add_test(
         NAME MrsWatson-${VST_TARGET}-32
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin/win/mrswatson -p buildx86/${PROJECT_NAME}/${CMAKE_BUILD_TYPE}/${VST_TARGET}.dll -i media/input.wav -o out.wav
+        COMMAND bin\\win\\mrswatson -p buildx86\\${PROJECT_NAME}\\Release\\${VST_TARGET}.dll -i media\\input.wav -o out.wav
       )
     elseif(PLUGIN_ARCH STREQUAL "x64")
       # message("Adding tests for x64")
       add_test(
         NAME MrsWatson-${VST_TARGET}-64
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin/win/mrswatson64 -p buildx64/${PROJECT_NAME}/${CMAKE_BUILD_TYPE}/${VST_TARGET}.dll -i media/input.wav -o out.wav
+        COMMAND bin\\win\\mrswatson64 -p buildx64\\${PROJECT_NAME}\\Release\\${VST_TARGET}.dll -i media\\input.wav -o out.wav
       )
     else()
       message("Warning: PLUGIN_ARCH didn't seem to be set to anything ${PLUGIN_ARCH}")
