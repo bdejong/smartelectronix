@@ -67,6 +67,6 @@ $targets | ForEach-Object {
   cmake --build "$treeDirectory" --config "$Configuration"
   if ($LASTEXITCODE -ne 0) { throw "build failed" }
 
-  cmake -E chdir $treeDirectory ctest
+  cmake -E chdir $treeDirectory ctest --verbose --build-config "$Configuration"
   if ($LASTEXITCODE -ne 0) { throw "build failed" }
 }
