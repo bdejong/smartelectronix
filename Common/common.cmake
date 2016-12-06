@@ -112,6 +112,46 @@ function(add_vstgui VST_TARGET VST_TARGET_IMAGES)
 endfunction(add_vstgui)
 
 #*******************************************************************************
+# Add tests to the project to be run with ctest or make test
+#
+# @param VST_TARGET        The name of the target to generate
+#*******************************************************************************
+function(add_tests VST_TARGET)
+  if(WIN32)
+    if(PLUGIN_ARCH STREQUAL "x86")
+      # message("Adding tests for x86")
+      add_test(
+        NAME MrsWatson-${VST_TARGET}-32
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+        COMMAND bin\\win\\mrswatson -p buildx86\\${PROJECT_NAME}\\Release\\${VST_TARGET}.dll -i media\\input.wav -o out.wav
+      )
+    elseif(PLUGIN_ARCH STREQUAL "x64")
+      # message("Adding tests for x64")
+      add_test(
+        NAME MrsWatson-${VST_TARGET}-64
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+        COMMAND bin\\win\\mrswatson64 -p buildx64\\${PROJECT_NAME}\\Release\\${VST_TARGET}.dll -i media\\input.wav -o out.wav
+      )
+    else()
+      message("Warning: PLUGIN_ARCH didn't seem to be set to anything ${PLUGIN_ARCH}")
+    endif()
+  elseif(APPLE)
+    add_test(
+      NAME MrsWatson-${VST_TARGET}-64
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+      COMMAND bin/osx/mrswatson64 -p ${VST_TARGET}/${VST_TARGET}.vst -i media/input.wav -o out.wav
+    )
+
+    add_test(
+      NAME MrsWatson-${VST_TARGET}-32
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+      COMMAND bin/osx/mrswatson -p ${VST_TARGET}/${VST_TARGET}.vst -i media/input.wav -o out.wav
+    )
+  endif(WIN32)
+endfunction(add_tests)
+
+
+#*******************************************************************************
 # Generates a VST cmake target
 #
 # @param VST_TARGET        The name of the target to generate
@@ -130,28 +170,8 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
   endif(VST_TARGET_IMAGES)
 
   if(WIN32)
-
     target_sources(${VST_TARGET} PUBLIC ${COMMON_DIR}/exports.def)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
-
-    if(PLUGIN_ARCH STREQUAL "x86")
-      # message("Adding tests for x86")
-      add_test(
-        NAME MrsWatson-${VST_TARGET}-32
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson -p buildx86\\${PROJECT_NAME}\\Release\\${VST_TARGET}.dll -i media\\input.wav -o out.wav
-      )
-    elseif(PLUGIN_ARCH STREQUAL "x64")
-      # message("Adding tests for x64")
-      add_test(
-        NAME MrsWatson-${VST_TARGET}-64
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson64 -p buildx64\\${PROJECT_NAME}\\Release\\${VST_TARGET}.dll -i media\\input.wav -o out.wav
-      )
-    else()
-      message("Warning: PLUGIN_ARCH didn't seem to be set to anything ${PLUGIN_ARCH}")
-    endif()
-
   elseif(APPLE)
     set(PKG_INFO ${COMMON_DIR}/PkgInfo)
     set_source_files_properties(${COMMON_DIR}/PkgInfo PROPERTIES
@@ -166,21 +186,7 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     set_property(TARGET ${VST_TARGET} PROPERTY CXX_STANDARD 11)
 
     install(TARGETS ${VST_TARGET} DESTINATION ~/Library/Audio/Plug-Ins/VST)
-
-    add_test(
-      NAME MrsWatson-${VST_TARGET}-64
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-      COMMAND bin/osx/mrswatson64 -p ${VST_TARGET}/${VST_TARGET}.vst -i media/input.wav -o out.wav
-    )
-
-    add_test(
-      NAME MrsWatson-${VST_TARGET}-32
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-      COMMAND bin/osx/mrswatson -p ${VST_TARGET}/${VST_TARGET}.vst -i media/input.wav -o out.wav
-    )
-
   endif(WIN32)
-
 endfunction(build_vst)
 
 #*******************************************************************************
@@ -193,6 +199,7 @@ endfunction(build_vst)
 function(build_vst_gui VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
 
   build_vst("${VST_TARGET}" "${VST_TARGET_SOURCES}" "${VST_TARGET_IMAGES}")
+  add_tests("${VST_TARGET}")
 
 endfunction(build_vst_gui)
 
@@ -205,5 +212,6 @@ endfunction(build_vst_gui)
 function(build_vst_nogui VST_TARGET VST_TARGET_SOURCES)
 
   build_vst("${VST_TARGET}" "${VST_TARGET_SOURCES}" FALSE)
+  add_tests("${VST_TARGET}")
 
 endfunction(build_vst_nogui)
