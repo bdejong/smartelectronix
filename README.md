@@ -40,7 +40,9 @@ After the checkout, run these commands in powershell:
 ```posh
 git submodule update --init --recursive
 python get_steinberg_sdk.py
-.\build.ps1 -Verbose $env:PLATFORM $env:CONFIGURATION
+.\build.ps1 -Verbose x86 Release
+ctest
+.\build.ps1 -Verbose x64 Release
 ctest
 ```
 

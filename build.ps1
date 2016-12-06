@@ -59,12 +59,14 @@ $targets | ForEach-Object {
     new-item $treeDirectory -ItemType Directory | Out-Null
   }
 
-  Write-Verbose -Message "cmake -E chdir $treeDirectory cmake -DPLUGIN_ARCH=`"$_`" -G `"$generator`" ../"
+  # Generate visual studio project files
   cmake -E chdir $treeDirectory cmake -DPLUGIN_ARCH="$_" -G "$generator" ../
   if ($LASTEXITCODE -ne 0) { throw "cmake failed" }
 
   # Build
-  Write-Verbose -Message "cmake --build `"$treeDirectory`" --config `"$Configuration`""
   cmake --build "$treeDirectory" --config "$Configuration"
+  if ($LASTEXITCODE -ne 0) { throw "build failed" }
+
+  cmake -E chdir $treeDirectory ctest
   if ($LASTEXITCODE -ne 0) { throw "build failed" }
 }
