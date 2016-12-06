@@ -135,17 +135,21 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
 
     if(PLUGIN_ARCH STREQUAL "x86")
+      message("Adding tests for x86")
       add_test(
         NAME MrsWatson-${VST_TARGET}-32
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
         COMMAND bin/win/mrswatson -p ${VST_TARGET} -i media/input.wav -o out.wav
       )
     elseif(PLUGIN_ARCH STREQUAL "x64")
+      message("Adding tests for x64")
       add_test(
         NAME MrsWatson-${VST_TARGET}-64
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
         COMMAND bin/win/mrswatson64 -p ${VST_TARGET} -i media/input.wav -o out.wav
       )
+    else()
+      message("Warning: PLUGIN_ARCH didn't seem to be set to anything ${PLUGIN_ARCH}")
     endif()
 
   elseif(APPLE)
