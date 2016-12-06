@@ -405,7 +405,7 @@ void ASupaEditor::valueChanged(CControl* control)
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay1) mixtureDisplay1->setText(temp);
 		
-					(100 - mix,temp);
+					//(100 - mix,temp);
 					effect->getParameterLabel(ASupaPhaser::kMaxFreq,&temp[strlen(temp)]);
 					if(mixtureDisplay2) mixtureDisplay2->setText(temp);
 
