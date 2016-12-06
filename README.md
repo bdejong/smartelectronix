@@ -3,9 +3,6 @@ Open source versions of all bram @ smartelectronix plugins. 20 Years after wokin
 
 You can find the original smartelectronix pages here: http://bram.smartelectronix.com
 
-All UIs were created with VstGUI around version 2.x, same for the plugins, they use VST 2.x.
-You will need the VST SDK an VST GUI SDK: http://www.steinberg.net/en/company/developers.html
-
 - Download the latest builds [here](https://dl.bintray.com/bdejong/Plugins/), hosted by [BinTray](http://bintray.com)
 - OS X Build: [![Build Status](https://travis-ci.org/bdejong/smartelectronix.svg?branch=master)](https://travis-ci.org/bdejong/smartelectronix)
 - Windows Build: [![Build Status](https://ci.appveyor.com/api/projects/status/github/bdejong/smartelectronix)](https://ci.appveyor.com/project/bdejong/smartelectronix)
@@ -16,6 +13,36 @@ All these plugins are available for licensing under a dual-license scheme. GPL f
 
 ## Donations
 All of these plugins were always "non-explicit donation-ware": http://paypal.me/BramdeJong
+
+## Building
+### macOS
+Prerequisites:
+- Install XCode
+- Install brew
+
+After the checkout, run these commands:
+```bash
+brew update
+brew upgrade cmake
+git submodule update --init --recursive
+python get_steinberg_sdk.py
+cmake .
+make
+make test
+```
+
+### Windows
+Prerequisites:
+- Install Visual Studio 14 2015
+- Install python
+
+After the checkout, run these commands in powershell:
+```posh
+git submodule update --init --recursive
+python get_steinberg_sdk.py
+.\build.ps1 -Verbose $env:PLATFORM $env:CONFIGURATION
+ctest
+```
 
 # Plugin list
 
