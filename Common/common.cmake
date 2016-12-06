@@ -134,6 +134,17 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     target_sources(${VST_TARGET} PUBLIC ${COMMON_DIR}/exports.def)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
 
+    message(${CMAKE_CURRENT_SOURCE_DIR})
+    message(${EXECUTABLE_OUTPUT_PATH})
+    message(${LIBRARY_OUTPUT_PATH})
+    message(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    message(${CMAKE_BUILD_FILES_DIRECTORY})
+    message(${CMAKE_BUILD_DIRECTORY})
+    message(${CMAKE_BINARY_DIR})
+    message(${EXECUTABLE_OUTPUT_PATH})
+    message(${LIBRARY_OUTPUT_PATH})
+    message(${CMAKE_CACHEFILE_DIR})
+
     if(PLUGIN_ARCH STREQUAL "x86")
       # message("Adding tests for x86")
       add_test(
