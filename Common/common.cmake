@@ -123,14 +123,14 @@ function(add_tests VST_TARGET)
       add_test(
         NAME MrsWatson-${VST_TARGET}-32
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson -p $<TARGET_FILE:${VST_TARGET}> -i media\\input.wav -o out.wav
+        COMMAND bin\\win\\mrswatson --plugin-root $<TARGET_FILE_DIR:${VST_TARGET}> -p ${VST_TARGET}.dll -i media\\input.wav -o out.wav
       )
     elseif(PLUGIN_ARCH STREQUAL "x64")
       # message("Adding tests for x64")
       add_test(
         NAME MrsWatson-${VST_TARGET}-64
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson64 -p $<TARGET_FILE:${VST_TARGET}> -i media\\input.wav -o out.wav
+        COMMAND bin\\win\\mrswatson64 --plugin-root $<TARGET_FILE_DIR:${VST_TARGET}> -p ${VST_TARGET}.dll -i media\\input.wav -o out.wav
       )
     else()
       message(SEND_ERROR "PLUGIN_ARCH needs to be set to x64 or x86")
