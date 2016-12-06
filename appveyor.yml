@@ -14,6 +14,7 @@ before_build:
   - git submodule update --init --recursive
   - python get_steinberg_sdk.py
   - choco upgrade cmake
+  - set path=C:\Program Files\CMake\bin;%path%
 
 build_script:
   - ps: .\build.ps1 -Verbose $env:PLATFORM $env:CONFIGURATION
