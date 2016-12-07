@@ -9,6 +9,10 @@ function(pre_build)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" PARENT_SCOPE)
     set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64" PARENT_SCOPE)
   endif()
+
+  set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
+  set(CMAKE_USER_MAKE_RULES_OVERRIDE ${COMMON_DIR}/c_flag_overrides.cmake)
+  set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${COMMON_DIR}/cxx_flag_overrides.cmake)
 endfunction(pre_build)
 
 #*******************************************************************************
