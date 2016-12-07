@@ -18,7 +18,6 @@ before_build:
 
 build_script:
   - ps: .\build.ps1 -Verbose $env:PLATFORM $env:CONFIGURATION
-  - ps: ctest
 
 after_build:
   - ps: 7z a Win-Plugins-$env:PLATFORM.zip .\build$env:PLATFORM\*\Release\*.dll
