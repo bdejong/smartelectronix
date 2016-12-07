@@ -8,11 +8,17 @@ function(pre_build)
   if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" PARENT_SCOPE)
     set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64" PARENT_SCOPE)
+  elseif(MSVC)
+    # static linking
+    foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+      if(${flag_var} MATCHES "/MD")
+        string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+      endif()
+      if(${flag_var} MATCHES "/MDd")
+        string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
+      endif()
+    endforeach()
   endif()
-
-  set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
-  set(CMAKE_USER_MAKE_RULES_OVERRIDE ${COMMON_DIR}/c_flag_overrides.cmake)
-  set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${COMMON_DIR}/cxx_flag_overrides.cmake)
 endfunction(pre_build)
 
 #*******************************************************************************
