@@ -8,6 +8,16 @@ function(pre_build)
   if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" PARENT_SCOPE)
     set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64" PARENT_SCOPE)
+  elseif(MSVC)
+    # static linking
+    foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+      if(${flag_var} MATCHES "/MD")
+        string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+      endif()
+      if(${flag_var} MATCHES "/MDd")
+        string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
+      endif()
+    endforeach()
   endif()
 endfunction(pre_build)
 
@@ -123,14 +133,14 @@ function(add_tests VST_TARGET)
       add_test(
         NAME MrsWatson-${VST_TARGET}-32
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson --plugin-root $<TARGET_FILE_DIR:${VST_TARGET}> -p ${VST_TARGET}.dll -i media\\input.wav -o out.wav
+        COMMAND bin\\win\\mrswatson -p $<SHELL_PATH:$<TARGET_FILE:${VST_TARGET}>> -i media\\input.wav -o out.wav
       )
     elseif(PLUGIN_ARCH STREQUAL "x64")
       # message("Adding tests for x64")
       add_test(
         NAME MrsWatson-${VST_TARGET}-64
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson64 --plugin-root $<TARGET_FILE_DIR:${VST_TARGET}> -p ${VST_TARGET}.dll -i media\\input.wav -o out.wav
+        COMMAND bin\\win\\mrswatson64 -p $<SHELL_PATH:$<TARGET_FILE:${VST_TARGET}>> -i media\\input.wav -o out.wav
       )
     else()
       message(SEND_ERROR "PLUGIN_ARCH needs to be set to x64 or x86")

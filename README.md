@@ -6,13 +6,11 @@ You can find the original smartelectronix pages here: http://bram.smartelectroni
 - Download the latest builds [here](https://dl.bintray.com/bdejong/Plugins/), hosted by [BinTray](http://bintray.com)
 - OS X Build: [![Build Status](https://travis-ci.org/bdejong/smartelectronix.svg?branch=master)](https://travis-ci.org/bdejong/smartelectronix)
 - Windows Build: [![Build Status](https://ci.appveyor.com/api/projects/status/github/bdejong/smartelectronix)](https://ci.appveyor.com/project/bdejong/smartelectronix)
+- Donations: http://paypal.me/BramdeJong
 
 ## Commerial non-GPL licensing
 
 All these plugins are available for licensing under a dual-license scheme. GPL for open source and non-GPL for commercial usage. For those people who want to collaborate on the project there is a [CLA](https://github.com/bdejong/smartelectronix/wiki/CLA).
-
-## Donations
-All of these plugins were always "non-explicit donation-ware": http://paypal.me/BramdeJong
 
 # Building
 ## macOS
