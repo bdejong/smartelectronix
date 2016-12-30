@@ -6,11 +6,7 @@ enable_testing()
 
 #add_subdirectory(AnechoicRoomSimulator)
 #add_subdirectory(Bitmurderer)
-
-if(APPLE)
-  add_subdirectory(Bouncy)
-endif()
-
+add_subdirectory(Bouncy)
 add_subdirectory(CrazyIvan)
 #add_subdirectory(Cyanide2)
 add_subdirectory(H2O)

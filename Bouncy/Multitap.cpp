@@ -38,8 +38,8 @@ Multitap::Multitap(unsigned long initialSize)
 Multitap::~Multitap()
 {
 	if(buffer)
-		delete buffer;
-
+        _aligned_free(buffer);
+    
 	_aligned_free(amp);
 	_aligned_free(delay);
 	_aligned_free(delayfpu);
