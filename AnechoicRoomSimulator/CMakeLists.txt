@@ -8,14 +8,14 @@ project(AnechoicRoomSimulator)
 
 set(PROJECT_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/DelayExample.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/DelayExample.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/DelayExampleMain.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/AnechoicRoomSim.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/AnechoicRoomSim.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/AnechoicRoomSimMain.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.hpp
 )
 
 set(PROJECT_IMAGES
