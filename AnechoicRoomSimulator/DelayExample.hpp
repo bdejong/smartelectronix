@@ -1,7 +1,6 @@
-#ifndef __DELAYEXAMPLE_H
-#define __DELAYEXAMPLE_H
+#pragma once
 
-#include "audioeffectx.h"
+#include "public.sdk/source/vst2.x/audioeffectx.h"
 
 //maximum delay in seconds
 #define delayMaxSeconds 1
@@ -23,27 +22,26 @@ public:
 	CDelayExample(audioMasterCallback audioMaster);
 	~CDelayExample();
 
-	virtual void	process(float **inputs, float **outputs, long sampleFrames);
-	virtual void	processReplacing(float **inputs, float **outputs, long sampleFrames);
+	virtual void processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames) override;
 	
-	virtual void	setProgramName(char *name);
-	virtual void	setProgram(long index);
-	virtual void	getProgramName(char *name);
-	virtual void	setParameter(long index, float value);
-	virtual float	getParameter(long index);
-	virtual void	getParameterLabel(long index, char *label);
-	virtual void	getParameterDisplay(long index, char *text);
-	virtual void	getParameterName(long index, char *text);
+	virtual void setProgramName(char *name) override;
+	virtual void setProgram(VstInt32 index) override;
+	virtual void getProgramName(char *name) override;
+	virtual void setParameter(VstInt32 index, float value) override;
+	virtual float getParameter(VstInt32 index) override;
+	virtual void getParameterLabel(VstInt32 index, char *label) override;
+	virtual void getParameterDisplay(VstInt32 index, char *text) override;
+	virtual void getParameterName(VstInt32 index, char *text) override;
 
-	virtual long	canDo(char* text);
-	virtual bool	getEffectName (char* name);
-	virtual bool	getVendorString (char* text);
-	virtual bool	getProductString (char* text);
+	virtual VstInt32 canDo(char* text) override;
+	virtual bool getEffectName(char* name) override;
+	virtual bool getVendorString(char* text) override;
+	virtual bool getProductString(char* text) override;
 
-	virtual void	suspend();
-	virtual void	resume();
-	virtual void	setSampleRate(float sampleRate);
-	virtual void	setBlockSize (long blockSize);
+	virtual void suspend() override;
+	virtual void resume() override;
+	virtual void setSampleRate(float sampleRate) override;
+	virtual void setBlockSize(VstInt32 blockSize) override;
 
 	void trim(char *text)
 	{
@@ -71,5 +69,3 @@ protected:
 	float			savedParameters[kNumParams];
 
 };
-
-#endif

@@ -6,9 +6,8 @@
 #include "DelayExample.hpp"
 #include <stdio.h>
 #include "math.h"
-#include "resource.h"
 
-ASupaEditor::ASupaEditor(AudioEffect *effect):AEffGUIEditor (effect)
+ASupaEditor::ASupaEditor(AudioEffect *effect) : AEffGUIEditor(effect)
 {
 	sizeKnob = 0;
 	sizeDisplay = 0;
@@ -25,18 +24,19 @@ ASupaEditor::~ASupaEditor()
 {
 }
 
-long ASupaEditor::open (void *ptr)
+bool ASupaEditor::open(void *ptr)
 {
 	AEffGUIEditor::open(ptr);
 
-	CBitmap *hBackground = new CBitmap(IDB_BACK);
-	CBitmap *distknob = new CBitmap(IDB_KNOB);
-	CBitmap *greyText = new CBitmap(IDB_TYPE);
-	CBitmap *splashBitmap = new CBitmap(IDB_SPLASH);
+	CBitmap *hBackground = new CBitmap("back.png");
+	CBitmap *distknob = new CBitmap("knob.png");
+	CBitmap *greyText = new CBitmap("type.png");
+	CBitmap *splashBitmap = new CBitmap("splash.png");
 	
 	//init frame
 	CRect size(0, 0, hBackground->getWidth (), hBackground->getHeight ());
-	frame = new CFrame(size, ptr, this);
+	frame = new CFrame(size, this);
+    frame->open(ptr);
 	frame->setBackground(hBackground);
 	setKnobMode(kLinearMode);
 
@@ -72,19 +72,20 @@ long ASupaEditor::open (void *ptr)
 	return true;
 }
 
-void ASupaEditor::close ()
+void ASupaEditor::close()
 {
 	sizeKnob = 0;
 	sizeDisplay = 0;
 	splash = 0;
 
-	if(frame != 0)
-		delete frame;
-
-	frame = 0;
+    if (frame != 0) {
+        CFrame *oldFrame = frame;
+        frame = 0;
+        oldFrame->forget();
+    }
 }
 
-void ASupaEditor::setParameter (long index, float value)
+void ASupaEditor::setParameter(VstInt32 index, float value)
 {
 	if (frame == 0)
 		return;
@@ -104,11 +105,9 @@ void ASupaEditor::setParameter (long index, float value)
 			case CDelayExample::kSize	: if(sizeDisplay) sizeDisplay->setText(temp); break;
 		}
 	}
-
-	postUpdate();
 }
 
-void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
+void ASupaEditor::valueChanged(CControl* control)
 {
 	long tag = control->getTag();
 
@@ -125,9 +124,6 @@ void ASupaEditor::valueChanged (CDrawContext* context, CControl* control)
 		//update control...
 		effect->setParameterAutomated(tag, control->getValue ());
 	}
-
-	if(context != 0)
-		control->update(context);
 }
 
 

@@ -2,6 +2,12 @@
 #include "ASupaEditor.h"
 #include "math.h"
 
+void vstint2string(const VstInt32 number, char* str)
+{
+    std::stringstream ss;
+    ss << number;
+    strcpy(str, ss.str().c_str());
+}
 
 //-----------------------------------------------------------------------------
 CDelayExample::CDelayExample(audioMasterCallback audioMaster) : AudioEffectX(audioMaster, kNumPrograms, kNumParams)
@@ -9,7 +15,6 @@ CDelayExample::CDelayExample(audioMasterCallback audioMaster) : AudioEffectX(aud
 	setNumInputs(kNumInputChannels);		// stereo in
 	setNumOutputs(kNumOutputChannels);		// stereo out
 	setUniqueID('AneC');					// TODO: Change for plugin identification
-	canMono();								// makes sense to feed both inputs with the same signal
 	canProcessReplacing();					// supports both accumulating and replacing output
 
 	//clear buffers!
@@ -37,7 +42,7 @@ CDelayExample::~CDelayExample()
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------------------
-void CDelayExample::setParameter(long index, float value)
+void CDelayExample::setParameter(VstInt32 index, float value)
 {
 	// save the parameter for the host...
 	savedParameters[index] = value;
@@ -57,7 +62,7 @@ void CDelayExample::setParameter(long index, float value)
 }
 
 //-----------------------------------------------------------------------------------------
-float CDelayExample::getParameter(long index)
+float CDelayExample::getParameter(VstInt32 index)
 {
 	// you should only really change this in special occasions
 	// for example, when you use programs!!
@@ -68,7 +73,7 @@ float CDelayExample::getParameter(long index)
 }
 
 //-----------------------------------------------------------------------------------------
-void CDelayExample::getParameterName(long index, char *label)
+void CDelayExample::getParameterName(VstInt32 index, char *label)
 {
 	// TODO: give the parameters names, make sure you don't use more than 24 characters!
 	switch(index)
@@ -79,19 +84,19 @@ void CDelayExample::getParameterName(long index, char *label)
 }
 
 //-----------------------------------------------------------------------------------------
-void CDelayExample::getParameterDisplay(long index, char *text)
+void CDelayExample::getParameterDisplay(VstInt32 index, char *text)
 {
 	// TODO: give the parameters displays
 	// you could use float2string(), dB2string(), long2string() or roll your own
 	switch(index)
 	{
-		case kSize		: long2string((long)(savedParameters[index]*10000.f), text);	break;
+		case kSize		: vstint2string((VstInt32)(savedParameters[index]*10000.f), text);	break;
 		default			: strcpy(text, "");	break;
 	}
 }
 
 //-----------------------------------------------------------------------------------------
-void CDelayExample::getParameterLabel(long index, char *label)
+void CDelayExample::getParameterLabel(VstInt32 index, char *label)
 {
 	// TODO: give the parameters labels
 	switch(index)
@@ -121,7 +126,7 @@ void CDelayExample::getProgramName(char *name)
 }
 
 //-----------------------------------------------------------------------------------------
-void CDelayExample::setProgram(long index)
+void CDelayExample::setProgram(VstInt32 index)
 {
 		// this template does not use programs yet
 };
@@ -132,29 +137,72 @@ void CDelayExample::setProgram(long index)
 // the actual processing
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-//-----------------------------------------------------------------------------------------
-void CDelayExample::process(float **inputs, float **outputs, long sampleFrames)
-{
-	// reminder : VST allows for sampleFrames to be different every block
 
-	// this will only work if you have two in's and two out's!!
-	float *in1  =  inputs[0];
-	float *in2  =  inputs[1];
-	float *out1 = outputs[0];
-	float *out2 = outputs[1];
-
-	// accumilate into output
-	// watch out: in and out might actualy be the SAME array!!!
-	for(long i=0;i<sampleFrames;i++)
-	{
-		out1[i] += in1[i];
-		out2[i] += in2[i];
-	}
-}
 
 //-----------------------------------------------------------------------------------------
-void CDelayExample::processReplacing(float **inputs, float **outputs, long sampleFrames)
-{
+void CDelayExample::processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames)
+{                                                                                           
+    //                            .. .  ....,,....   . ..                                                 
+    //                     MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMN+                                   
+    //                  .MMM,            ...$MMMMMMMMDI..  . . ....IMMMMMMMMMMM=                          
+    //                 MMM .         ..$M,.               ..  .+ODMMMM8~ . .:MNMMM7                       
+    //               .MMN         ..M?.    8MMD+.. .=DMM:.               . ..: ..MMMN.                    
+    //               MM:..      .N:...8M:. ...          .   .. ......    .  .  .. . MMM.                  
+    //              MM+      . 7. .8D..NMM=         ..          .....:+?~.  .        .MMM .               
+    //            .MM$     .I.  .M. .M              ,.          .D..        :N~..      IMM.               
+    //            MMM      .   M:.MO                 Z            M.         . M.       MM.               
+    //           .MM.        .$..M       .. ...      O            ..          . .       MM.               
+    //          .MM..             . .MMMMMMMMMMMMM=.              .         .           MMM.              
+    //        .MMM.               :MMMMMMMMMMM  ~MMMM.            .. .NMMMMMMM.         .MMM.             
+    //       8MMMMMMMD~    .. D8.NMM.ZMMMMMMM ..   ~MMM.          OMMMMMM  ,MMMM ...     .~MMD..          
+    //     .MMMMZ.......   .+M8. MMMMMMMMMMMMMMMMI. =MM=     IMM.MMMMMMMMMMMMMM.. ... ..$8. NMM,          
+    //    IMM.N.  ..NMMMMMM~....        .OM.    8MMMMMO       8MMMMM?..                I..=7..MM.         
+    //   NMM M.. ~MMM~   ,MMMMN       .MMMM        :~           .M=              ........=M. ,.M,         
+    //  +MM +   MMM .   M  .,MMMMMMMMMMM8.                       M=        .  ..MMMMMMMNM I  M,M:         
+    //  MM  ? .7MM.    MM7   . ....,:,...                        MN       ZMMMMMM? .. .7M.,  O MI         
+    // .MM. I .MM.    ,MMMMM ..                ,...:? ..         =MMM, .  ..=DMMM .M:.     . N.M8         
+    // .MM  ?. MM. IMMMM?.,MMMMI..     ....... M8MMMMM~.            MMM$          ,M+     N. MIM$         
+    //  MM  ...7MM:MMI$MM   ..MMMMM...  ..... ..MM.. ...  .         :MMMM.        ?MMM. 8?. .NMM          
+    //  MMM  ,..MM     MMM     ..MMMMMM~.       ZMM..MMMMMM~       ,MMMM~ .M.     MMMM.   $N MMM          
+    //  .MMD.D...M     MMMM~.    MM..+MMMMMM7 .. NMM ,    .  .8 . MMM       ....DMMMMM, ,.. NMM.          
+    //    MMN..8M..    .~MMMMMD..MMD.    ..MMMMMMM~. .        MMMMM,         .MMMMMMMMN    ZMM            
+    //     7MMM. ..     . MM.MMMMMMMO.      . ?MMMMMMMMMN=    .....      .:MMMMMM= MMMM    MM             
+    //      .MMM..        ,MM...+MMMMMM~.     MM    ..+MMMMMMMMMMMMMMMMMMMMM .  MM NMMM. .=M,             
+    //       .OMM..        .MN.  DMMMMMMMMMM+.MM          MO.  ...MM...   MM7  .MM.MMMM.  MM.             
+    //        ..MM.         .MM...MM..:MMMMMMMMM~...      MO.     MM      .MM. OMMMMMMM.  MM.             
+    //          +MM           MMMMN..  .  7MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM. .MM.             
+    //           MMM.          ,MMM        . MNNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMD   MM.             
+    //           .MM8            8MM8.     .,MM    .7MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM   .MM.             
+    //            .MMN.            IMMN .  .MM          MM.NMMMMMMMMMMMMMMMMMMMMMMM.MM.  .DM.             
+    //             .~MM              =MMN=.MM           MM      .MM?...IMM..:MM MM MMD.   +M=             
+    //                MMM  ,:         ..MMMMM.         .MM      .MI.   MM.  MM. OMMMM.   ..M8             
+    //                 =MMO..?N..  MM.    .NMMMMMI . .  MM     .DM..  .MM..MMDMMMMM,       MM             
+    //                   MMMM. .$M....N?..    .=MMMMMMMMMMMM8MMMMMM8MMMMMMMMMMM$           MM             
+    //                    .=MMMM.. :M:.  =M: .   ..  .. ,?ZDNMMMMMMMD$+..... .             MM.            
+    //                      ..,MMM7.  .DM.. .OM:         .                       ~8   ..   MM.            
+    //                           MMMMM  .. IM..  DM~.... .                     =~      .   MM.            
+    //                              DMMMMM.   ..=M?........,:?IZNMMMMNNDDNMM+..    . MZ    MM.            
+    //                                . ?MMMM,.     ...~MM+  .                    .M..     NM             
+    //                                   ..=MMMM         . . .... .:I8DMMMMMMMMMM..        MM             
+    //                                      ..+MMMM                                      .MM7             
+    //                                          .,MMMMMMMN...                          ..MM..             
+    //                                             .. .IMMMMMMM?                      MMMM                
+    //                                                    ...OMMMMMMM7 .         =MMMMM$...               
+    //                                                            .ZMMMMMMMMMMMMMMM?.                     
+    //                                                                                                    
+    //                                                                                                    
+    //                                                                                                    
+    //                                      MMM:       MMM.                             MMMMM8.           
+    //                                      MMM:       MMM.                           ,MMMMMMMM           
+    //          MMMDMMM+  MMM:MMM..MMMMMM   MMM:MMMM.  MMM.  ?MMMMMO.  MMM8MMM8 MMMM .,?N:.7MMM.          
+    //          MMMMNMMMZ MMMMMM IMMMINMMM..MMMMMMMMN  MMM..MMMI ,MMM  MMMMMMMMMMMMMM     MMMM            
+    //          MMM  .MMM MMMM   MMM.  MMMM.MMM:  MMM  MMM. MMMMMMMMM .MMM  MMM:  MMM   .MMM              
+    //          MMM .IMMM.MMMM   MMM:  MMMO.MMM8..MMM. MMM. MMM.  ..  .MMM  MMM   MMM   .....             
+    //          MMMMMMMM. MMMM   .MMMMMMMM. MMMMMMMMM. MMM..+MMMMMMMM  MMM  MMM   MMM   .MMM.             
+    //          MMM.$M?   ?==?.   ..$MN~..  ===,:MN    ===   .,NMM:    ===  ===   ===   .===.             
+    //          MMM                                                                                       
+    //         .III                                                                                       
+
 	// reminder : VST allows for sampleFrames to be different every block
 
 	// this will only work if you have two in's and two out's!!
@@ -172,14 +220,12 @@ void CDelayExample::processReplacing(float **inputs, float **outputs, long sampl
 	}
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 // some more advanced VST features you should really use!
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------------------
-bool CDelayExample::getEffectName (char* name)
+bool CDelayExample::getEffectName(char* name)
 {
 	// TODO: return the real name of your plugin
 	strcpy (name, "Anechoic Room Simulator");
@@ -187,7 +233,7 @@ bool CDelayExample::getEffectName (char* name)
 }
 
 //-----------------------------------------------------------------------------------------
-bool CDelayExample::getVendorString (char* text)
+bool CDelayExample::getVendorString(char* text)
 {
 	// TODO: return the real name of your company
 	strcpy (text, "Bram @ Smartelectronix");
@@ -195,7 +241,7 @@ bool CDelayExample::getVendorString (char* text)
 }
 
 //-----------------------------------------------------------------------------------------
-bool CDelayExample::getProductString (char* text)
+bool CDelayExample::getProductString(char* text)
 {
 	// TODO: return the real name of your product
 	strcpy (text, "Anechoic Room Simulator");
@@ -203,7 +249,7 @@ bool CDelayExample::getProductString (char* text)
 }
 
 //-----------------------------------------------------------------------------------------
-long CDelayExample::canDo(char* text)
+VstInt32 CDelayExample::canDo(char* text)
 {
 	// set the capabilities of your plugin
 	if (!strcmp (text, "receiveVstEvents"))    return 0;
@@ -246,7 +292,7 @@ void CDelayExample::setSampleRate(float sampleRate)
 
 }
 
-void CDelayExample::setBlockSize (long blockSize)
+void CDelayExample::setBlockSize(VstInt32 blockSize)
 {
 	// allways call this
 	AudioEffect::setBlockSize(blockSize);

@@ -2,36 +2,26 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_ASUPAEDITOR_H__B92F8BC1_D048_11D3_9312_C56A22663A38__INCLUDED_)
-#define AFX_ASUPAEDITOR_H__B92F8BC1_D048_11D3_9312_C56A22663A38__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "vstgui.h"
+#include "plugin-bindings/aeffguieditor.h"
 
 #include "TextDisplay.h"
 
-class ASupaEditor:public AEffGUIEditor, public CControlListener  
+class ASupaEditor:public AEffGUIEditor, public IControlListener  
 {
 public:
 	ASupaEditor(AudioEffect *effect);
 	virtual ~ASupaEditor();
 
-	virtual long open (void *ptr);
-	virtual void close ();
+	virtual bool open(void *ptr) override;
+	virtual void close () override;
 
-	virtual void setParameter (long index, float value);
-	virtual void valueChanged (CDrawContext* context, CControl* control);
+	virtual void setParameter(VstInt32 index, float value) override;
+	virtual void valueChanged(CControl* control) override;
 
 protected:
-
 	CAnimKnob *sizeKnob;
-
 	CTextDisplay *sizeDisplay;
-
 	CSplashScreen *splash;
 };
-
-#endif // !defined(AFX_ASUPAEDITOR_H__B92F8BC1_D048_11D3_9312_C56A22663A38__INCLUDED_)

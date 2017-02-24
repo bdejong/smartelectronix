@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "TextDisplay.h"
-#include "resource.h"
 #include "asciitable.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -46,7 +45,7 @@ void CTextDisplay::draw (CDrawContext* pContext)
 	pContext->setFrameColor(_rectColor);
 	
 	pContext->drawRect(size);
-	pContext->fillRect(size);
+	//pContext->fillRect(size);
 	
 	CRect sourcerect;
 	CPoint bitmapoffset;
@@ -80,11 +79,11 @@ void CTextDisplay::draw (CDrawContext* pContext)
 	}
 
 	if(middle)
-		left += (size.width() - totalWidth) / 2;
+		left += (size.getWidth() - totalWidth) / 2;
 	else
-		left += size.width() - totalWidth;
+		left += size.getWidth() - totalWidth;
 
-	for(i=0;i<256;i++)
+	for(int i=0;i<256;i++)
 	{
 		if(_todisplay[i] == 0)
 			break;
