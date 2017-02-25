@@ -96,20 +96,10 @@ void AnechoicRoomSim::getParameterLabel(VstInt32 index, char* label)
 // programs (i.e. presets)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-//void AnechoicRoomSim::setProgramName(char* name)
-//{
-//    // nothing to do here
-//}
-
 void AnechoicRoomSim::getProgramName(char* name)
 {
     strcpy(name, "");
 }
-
-//void AnechoicRoomSim::setProgram(VstInt32 index)
-//{
-//    // nothing to do here
-//};
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // the actual processing
@@ -225,29 +215,3 @@ VstInt32 AnechoicRoomSim::canDo(char* text)
 
     return -1;	// explicitly can't do; 0 => don't know
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////
-// some features you might find usefull
-///////////////////////////////////////////////////////////////////////////////////////////
-
-//void AnechoicRoomSim::suspend()
-//{
-//    // nothing
-//}
-
-//void AnechoicRoomSim::resume()
-//{
-//    // nothing
-//}
-
-//void AnechoicRoomSim::setSampleRate(float sampleRate)
-//{
-//    // allways call this
-//    AudioEffect::setSampleRate(sampleRate);
-//}
-
-//void AnechoicRoomSim::setBlockSize(VstInt32 blockSize)
-//{
-//    // allways call this
-//    AudioEffect::setBlockSize(blockSize);
-//}

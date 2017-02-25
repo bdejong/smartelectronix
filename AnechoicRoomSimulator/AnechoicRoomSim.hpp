@@ -20,8 +20,6 @@ public:
 
     virtual void processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames) override;
 
-    //virtual void setProgramName(char* name) override;
-    //virtual void setProgram(VstInt32 index) override;
     virtual void getProgramName(char* name) override;
     virtual void setParameter(VstInt32 index, float value) override;
     virtual float getParameter(VstInt32 index) override;
@@ -33,11 +31,6 @@ public:
     virtual bool getEffectName(char* name) override;
     virtual bool getVendorString(char* text) override;
     virtual bool getProductString(char* text) override;
-
-    //virtual void suspend() override;
-    //virtual void resume() override;
-    //virtual void setSampleRate(float sampleRate) override;
-    //virtual void setBlockSize(VstInt32 blockSize) override;
 
     void trim(char* text)
     {
