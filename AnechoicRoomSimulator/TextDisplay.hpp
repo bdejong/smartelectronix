@@ -5,7 +5,7 @@
 class CTextDisplay : public CParamDisplay
 {
 public:
-    CTextDisplay(CRect& size, CBitmap* ascii, CColor rectColor);
+    CTextDisplay(const CRect& size, CBitmap* ascii, CColor rectColor);
     virtual ~CTextDisplay();
 
     void setAlignMiddle() { middle = true; };

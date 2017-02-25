@@ -55,7 +55,7 @@ public:
         getParameterDisplay(index, text);
         trim(text);
         getParameterLabel(index, &text[strlen(text)]);
-        while (*text = std::toupper(*text)) { ++text; }
+        while ((*text = std::toupper(*text))) { ++text; }
     }
 
 protected:

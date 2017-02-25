@@ -1,7 +1,7 @@
 #include "TextDisplay.hpp"
 #include "asciitable.hpp"
 
-CTextDisplay::CTextDisplay(CRect& size, CBitmap* ascii, CColor rectColor)
+CTextDisplay::CTextDisplay(const CRect& size, CBitmap* ascii, CColor rectColor)
     : CParamDisplay(size)
 {
     ascii_ = ascii;
