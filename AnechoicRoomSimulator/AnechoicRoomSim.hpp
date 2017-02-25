@@ -1,6 +1,7 @@
 #pragma once
 
 #include "public.sdk/source/vst2.x/audioeffectx.h"
+#include <cctype>
 
 class AnechoicRoomSim : public AudioEffectX
 {
@@ -54,7 +55,7 @@ public:
         getParameterDisplay(index, text);
         trim(text);
         getParameterLabel(index, &text[strlen(text)]);
-        strupr(text);
+        while (*text = std::toupper(*text)) { ++text; }
     }
 
 protected:
