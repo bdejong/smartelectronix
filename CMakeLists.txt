@@ -4,7 +4,7 @@ project(Smartelectronix)
 
 enable_testing()
 
-#add_subdirectory(AnechoicRoomSimulator)
+add_subdirectory(AnechoicRoomSimulator)
 #add_subdirectory(Bitmurderer)
 add_subdirectory(Bouncy)
 add_subdirectory(CrazyIvan)

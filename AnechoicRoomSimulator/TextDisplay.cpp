@@ -1,119 +1,106 @@
-// TextDisplay.cpp: implementation of the CTextDisplay class.
-//
-//////////////////////////////////////////////////////////////////////
+#include "TextDisplay.hpp"
+#include "asciitable.hpp"
 
-#include "TextDisplay.h"
-#include "resource.h"
-#include "asciitable.h"
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-CTextDisplay::CTextDisplay(CRect &size, CBitmap *ascii, CColor rectColor)
-	: CParamDisplay (size)
+CTextDisplay::CTextDisplay(const CRect& size, CBitmap* ascii, CColor rectColor)
+    : CParamDisplay(size)
 {
-	_ascii = ascii;
-
-	_ascii->remember();
-
-	_rectColor = rectColor;
-
-	fillasciitable();
-
-	middle = false;
+    ascii_ = ascii;
+    ascii_->remember();
+    rectColor_ = rectColor;
+    fillasciitable();
+    middle = false;
 }
 
 CTextDisplay::~CTextDisplay()
 {
-	_ascii->forget();
+    ascii_->forget();
 }
 
-void CTextDisplay::draw (CDrawContext* pContext)
+void CTextDisplay::draw(CDrawContext* pContext)
 {
-	//this should be done off-screen, but I didn't feel like it.
-	//I'll fix it in the next version (+ Mat's aplha-strip...)
-	
-	CRect tmprect = size;
-	tmprect.offset(3,-1);
+    //this should be done off-screen, but I didn't feel like it.
+    //I'll fix it in the next version (+ Mat's aplha-strip...)
+
+    CRect tmprect = size;
+    tmprect.offset(3, -1);
 
 #ifdef _DEBUG
-	pContext->setFillColor(kRedCColor);
+    pContext->setFillColor(kRedCColor);
 #else
-	pContext->setFillColor(_rectColor);
+    pContext->setFillColor(rectColor_);
 #endif
 
-	pContext->setFrameColor(_rectColor);
-	
-	pContext->drawRect(size);
-	pContext->fillRect(size);
-	
-	CRect sourcerect;
-	CPoint bitmapoffset;
+    pContext->setFrameColor(rectColor_);
 
-	int left = size.left; //our staring point!
-	int top = size.top; //our staring point!
-	int bottom = size.top + _ascii->getHeight(); //our staring point!
-	int place;
-	int width;
+    pContext->drawRect(size);
+    //pContext->fillRect(size);
 
-	long totalWidth = 0;
+    CRect sourcerect;
+    CPoint bitmapoffset;
 
-	long spaceSize = 3;
+    int left = size.left; //our staring point!
+    int top = size.top; //our staring point!
+    int bottom = size.top + ascii_->getHeight(); //our staring point!
+    int place;
+    int width;
 
-	for(int i=0;i<256;i++)
-	{
-		if(_todisplay[i] == 0)
-			break;
-			
-		PlaceAndWidth(_todisplay[i],place,width);
+    long totalWidth = 0;
 
-		if(_todisplay[i] == ' ')
-		{
-			totalWidth += spaceSize;
-		}
+    long spaceSize = 3;
 
-		if(place != -1)
-		{
-			totalWidth += width;
-		}
-	}
+    for (int i = 0; i < 256; ++i)
+    {
+        if (todisplay_[i] == 0)
+            break;
 
-	if(middle)
-		left += (size.width() - totalWidth) / 2;
-	else
-		left += size.width() - totalWidth;
+        PlaceAndWidth(todisplay_[i], place, width);
 
-	for(i=0;i<256;i++)
-	{
-		if(_todisplay[i] == 0)
-			break;
-			
-		PlaceAndWidth(_todisplay[i],place,width);
+        if (todisplay_[i] == ' ')
+        {
+            totalWidth += spaceSize;
+        }
 
-		if(_todisplay[i] == ' ')
-		{
-			left += spaceSize;
-		}
+        if (place != -1)
+        {
+            totalWidth += width;
+        }
+    }
+
+    if (middle)
+        left += (size.getWidth() - totalWidth) / 2;
+    else
+        left += size.getWidth() - totalWidth;
+
+    for (int i = 0; i < 256; ++i)
+    {
+        if (todisplay_[i] == 0)
+            break;
+
+        PlaceAndWidth(todisplay_[i], place, width);
+
+        if (todisplay_[i] == ' ')
+        {
+            left += spaceSize;
+        }
 
 
-		if(place != -1)
-		{
-			sourcerect(left,top,left+width,bottom);
+        if (place != -1)
+        {
+            sourcerect(left, top, left + width, bottom);
 
-			//draw
-			bitmapoffset(place,0);
-			_ascii->draw(pContext,sourcerect,bitmapoffset);
+            //draw
+            bitmapoffset(place, 0);
+            ascii_->draw(pContext, sourcerect, bitmapoffset);
 
-			left += width;
-		}
-	}
-	
-	setDirty(false);
+            left += width;
+        }
+    }
+
+    setDirty(false);
 }
 
-void CTextDisplay::setText(char *text)
+void CTextDisplay::setText(char* text)
 {
-	strcpy(_todisplay,text);
-	setDirty(true);
+    strcpy(todisplay_, text);
+    setDirty(true);
 }
