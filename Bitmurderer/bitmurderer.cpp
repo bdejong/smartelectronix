@@ -25,7 +25,7 @@ float clip(float x)
     return x;
 }
 
-float process1(float in, short mask, bool xor, bool and, bool power)
+float process1(float in, short mask, bool orFlag, bool andFlag, bool power)
 {
     bool sign = in < 0.f;
 
@@ -36,10 +36,10 @@ float process1(float in, short mask, bool xor, bool and, bool power)
 
     short x = (short)(in * 32767.f);
 
-    if (xor)
+    if (orFlag)
         x = x ^ mask;
 
-    if (and)
+    if (andFlag)
         x = x & mask;
 
     x &= 0x7fff; //reset the sign bit
@@ -79,14 +79,14 @@ void BitMurderer::processReplacing(float** inputs, float** outputs, VstInt32 sam
     float *in2 = inputs[1];
 
     short mask = createmask(SAVE);
-    bool or = SAVE[kOr] > 0.5f;
-    bool and = SAVE[kAnd] > 0.5f;
+    bool orFlag = SAVE[kOr] > 0.5f;
+    bool andFlag = SAVE[kAnd] > 0.5f;
     bool sig = SAVE[kSig] > 0.5f;
 
     for (long i = 0; i < sampleFrames; i++)
     {
-        out1[i] = process1(in1[i], mask, or , and, sig);
-        out2[i] = process1(in2[i], mask, or , and, sig);
+        out1[i] = process1(in1[i], mask, orFlag, andFlag, sig);
+        out2[i] = process1(in2[i], mask, orFlag, andFlag, sig);
     }
 }
 
