@@ -2,34 +2,26 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_MURDEREDITOR_H__7E854C92_4DCB_459B_9308_C16BECDBB9EE__INCLUDED_)
-#define AFX_MURDEREDITOR_H__7E854C92_4DCB_459B_9308_C16BECDBB9EE__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "vstgui.h"
+#include "plugin-bindings/aeffguieditor.h"
 
-class MurderEditor : public AEffGUIEditor, public CControlListener
+class MurderEditor : public AEffGUIEditor, public IControlListener
 {
 public:
-	MurderEditor(AudioEffect *effect);
-	virtual ~MurderEditor();
+    MurderEditor(AudioEffect* effect);
+    virtual ~MurderEditor();
 
 protected:
-    virtual long open (void *ptr);
-    virtual void close ();
+    virtual bool open(void* ptr) override;
+    virtual void close() override;
 
-    void setParameter (long index, float value);
-    
+    virtual void setParameter(VstInt32 index, float value) override;
+
 private:
-    void valueChanged (CDrawContext* context, CControl* control);
+    virtual void valueChanged(CControl* control) override;
 
-	CPoint *points;
-	COnOffButton **buttons;
-	CSplashScreen *splash;
+    CPoint *points;
+    COnOffButton **buttons;
+    CSplashScreen *splash;
 };
-
-
-#endif // !defined(AFX_MURDEREDITOR_H__7E854C92_4DCB_459B_9308_C16BECDBB9EE__INCLUDED_)
