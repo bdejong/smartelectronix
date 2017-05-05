@@ -33,6 +33,7 @@
 .vs/
 *.sln
 *.vcxproj*
+CMakeSettings.json
 
 # VST specific
 *.vst
@@ -62,9 +63,6 @@ Win32/
 install_manifest.txt
 out.wav
 Testing/
-
-# Build Tree
-/buildx86
-/buildx64
+CMakeBuild
 
 Steinberg

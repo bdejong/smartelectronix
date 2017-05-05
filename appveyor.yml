@@ -20,7 +20,7 @@ build_script:
   - ps: .\build.ps1 -Verbose $env:PLATFORM $env:CONFIGURATION
 
 after_build:
-  - ps: 7z a Win-Plugins-$env:PLATFORM.zip .\build$env:PLATFORM\*\Release\*.dll
+  - ps: 7z a Win-Plugins-$env:PLATFORM.zip .\CMakeBuild\$env:PLATFORM\*\Release\*.dll
 
 artifacts:
   - path: Win-Plugins-$(PLATFORM).zip
