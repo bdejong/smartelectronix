@@ -128,22 +128,22 @@ endfunction(add_vstgui)
 #*******************************************************************************
 function(add_tests VST_TARGET)
   if(WIN32)
-    if(PLUGIN_ARCH STREQUAL "x86")
-      # message("Adding tests for x86")
-      add_test(
-        NAME MrsWatson-${VST_TARGET}-32
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson -p $<SHELL_PATH:$<TARGET_FILE:${VST_TARGET}>> -i media\\input.wav -o out.wav
-      )
-    elseif(PLUGIN_ARCH STREQUAL "x64")
-      # message("Adding tests for x64")
-      add_test(
-        NAME MrsWatson-${VST_TARGET}-64
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-        COMMAND bin\\win\\mrswatson64 -p $<SHELL_PATH:$<TARGET_FILE:${VST_TARGET}>> -i media\\input.wav -o out.wav
-      )
+    if(MSVC)
+      if (CMAKE_GENERATOR MATCHES ".*Win64$")
+        add_test(
+          NAME MrsWatson-${VST_TARGET}-64
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+          COMMAND bin\\win\\mrswatson64 -p $<SHELL_PATH:$<TARGET_FILE:${VST_TARGET}>> -i media\\input.wav -o out.wav
+        )
+      else()
+        add_test(
+          NAME MrsWatson-${VST_TARGET}-32
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+          COMMAND bin\\win\\mrswatson -p $<SHELL_PATH:$<TARGET_FILE:${VST_TARGET}>> -i media\\input.wav -o out.wav
+        )
+      endif()
     else()
-      message(SEND_ERROR "PLUGIN_ARCH needs to be set to x64 or x86")
+      message(WARNING "Tests currently not supported for ${CMAKE_GENERATOR}")
     endif()
   elseif(APPLE)
     add_test(
