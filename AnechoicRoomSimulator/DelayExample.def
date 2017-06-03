@@ -1,3 +1,0 @@
-LIBRARY			AnechoicRoomSimulator
-DESCRIPTION		'Anechoic Room Simulator'
-EXPORTS			main
