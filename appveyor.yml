@@ -24,7 +24,7 @@ after_build:
 
 artifacts:
   - path: Win-Plugins-$(PLATFORM)-$env:APPVEYOR_BUILD_VERSION.zip
-    name: Win-Plugins-$(PLATFORM)
+    name: Win-Plugins-$(PLATFORM)-$env:APPVEYOR_BUILD_VERSION
 
 deploy:
 - provider: BinTray
@@ -34,6 +34,6 @@ deploy:
   subject: bdejong
   repo: Plugins
   package: Windows
-  version: $env:APPVEYOR_BUILD_VERSION
+  version: $(APPVEYOR_BUILD_VERSION)
   publish: true
   override: true
