@@ -183,6 +183,8 @@ function(build_vst VST_TARGET VST_TARGET_SOURCES VST_TARGET_IMAGES)
     target_sources(${VST_TARGET} PUBLIC ${COMMON_DIR}/exports.def)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE=1)
   elseif(APPLE)
+    configure_file(${COMMON_DIR}/bintray-osx.json.in ${CMAKE_CURRENT_SOURCE_DIR}/../bintray-osx.json)
+
     set(PKG_INFO ${COMMON_DIR}/PkgInfo)
     set_source_files_properties(${COMMON_DIR}/PkgInfo PROPERTIES
       MACOSX_PACKAGE_LOCATION .
