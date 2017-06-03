@@ -20,10 +20,3 @@ after_success:
 
 before_deploy:
 - zip -r OSX-Plugins.zip */*.vst
-
-deploy:
-  provider: bintray
-  user: "bdejong"
-  file: bintray-osx.json
-  key:
-    secure: ldQdMCtae8IyKUf7OLKFLqyJZVzYWWJeEHEygLCDzp2dRVi/gnN0XQ05dyks7mtJTGgzOyFFvYHWavvlc6zoJYPVY9DVEPLFaCdgL+e8sa3lA6okUcbYtjobdiZuCSG7nD2zYosBr8GuscY6BOWLdQw+2C3YRRvLZywHR4Tm9La7AoYrSEHlNAmFBK1GjXXJwY7i1h1oFLk84MagxkVcySs5Z1lmoI2X7UbE/RejNiuHpQO3DhhrSZzozYDGpn7ErlMyJAbafvGjAVwcN+JGCsI28+yrdiA4eiotmZdg/bN+d1bO/2ToyKYv8zsemhunOFBe4kkpS9fIcaQcW8aYE5CEgnljmovFo1dehI3BxO6s2uQFXDOHjqSsQ+z+ghpDD5Peyo4eoGiEGMtmBg2Sej/osh4hzisSE+uN+tMsNsuQF0/peT9ZgRsuTDdISOnOmPGLLJa0h7wnvwjUN6sW3r0FihIynliPo+r+SohfcBhDCDKM4YIgOxA/62j71SGI3BvqFs3ORa2XJQg50WyGcUkGfiQQK9geNhdfNkP/XH/F6Xcz8/GrjfntsdjcxbiGsTGqnvkRYxvbMR39fsJW3riLL9NETUl/F0vpuVSzpdrYcEUlSmN++yxdjprj3I0Lg2E4HljvYU6+LE/7u0zs9qoSwyC7+jmNex6/Voof9iE=
