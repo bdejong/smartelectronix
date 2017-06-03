@@ -6,14 +6,14 @@
     },
 
     "version": {
-            "name": "$ENV{TRAVIS_BUILD_NUMBER}",
+            "name": "1.0.$ENV{TRAVIS_BUILD_NUMBER}",
             "desc": "Latest builds",
             "gpgSign": false
         },
 
     "files":
         [
-            {"includePattern": "OSX-Plugins-$ENV{TRAVIS_BUILD_NUMBER}.zip", "uploadPattern": "OSX-Plugin-$ENV{TRAVIS_BUILD_NUMBER}.zip"}
+            {"includePattern": "OSX-Plugins-1.0.$ENV{TRAVIS_BUILD_NUMBER}.zip", "uploadPattern": "1.0.OSX-Plugin-$ENV{TRAVIS_BUILD_NUMBER}.zip"}
         ],
 
     "publish": true

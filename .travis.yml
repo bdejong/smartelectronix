@@ -19,7 +19,7 @@ after_success:
 - make test
 
 before_deploy:
-- zip -r OSX-Plugins-${TRAVIS_BUILD_NUMBER}.zip */*.vst
+- zip -r OSX-Plugins-1.0.${TRAVIS_BUILD_NUMBER}.zip */*.vst
 
 deploy:
   provider: bintray
