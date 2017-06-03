@@ -3,10 +3,13 @@ Open source versions of all bram @ smartelectronix plugins. 20 Years after wokin
 
 You can find the original smartelectronix pages here: http://bram.smartelectronix.com
 
+## Donations
+
+http://paypal.me/BramdeJong
+
+## Downloads
+
 - Download the latest builds [here](https://dl.bintray.com/bdejong/Plugins/), hosted by [BinTray](http://bintray.com)
-- OS X Build: [![Build Status](https://travis-ci.org/bdejong/smartelectronix.svg?branch=master)](https://travis-ci.org/bdejong/smartelectronix)
-- Windows Build: [![Build Status](https://ci.appveyor.com/api/projects/status/github/bdejong/smartelectronix)](https://ci.appveyor.com/project/bdejong/smartelectronix)
-- Donations: http://paypal.me/BramdeJong
 
 ## Commerial non-GPL licensing
 
