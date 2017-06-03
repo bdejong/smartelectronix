@@ -27,13 +27,21 @@ artifacts:
     name: Win-Plugins-$(PLATFORM)
 
 deploy:
-- provider: BinTray
-  username: bdejong
-  api_key:
-    secure: aJrQELByJLr1WnPto6BeemIs6HjtTs3g/ewSFeYF1FZbsFfxAAgbpYTA0SSWMaX0
-  subject: bdejong
-  repo: Plugins
-  package: Windows
-  version: 1.0
-  publish: true
-  override: true
+  release: windows-$(PLATFORM)-v$(appveyor_build_version)
+  description: 'Windows build $(PLATFORM) v$(appveyor_build_version)'
+  artifact: Win-Plugins-$(PLATFORM)
+  provider: GitHub
+  auth_token:
+    secure: 4AyZTBr33V+aaEpFFYAUErnmB5az9PfaOQkpCieDHIvgeJULAbE+4aszn5PTLQ+D
+
+#deploy:
+#- provider: BinTray
+#  username: bdejong
+#  api_key:
+#    secure: aJrQELByJLr1WnPto6BeemIs6HjtTs3g/ewSFeYF1FZbsFfxAAgbpYTA0SSWMaX0
+#  subject: bdejong
+#  repo: Plugins
+#  package: Windows
+#  version: 1.0
+#  publish: true
+#  override: true
