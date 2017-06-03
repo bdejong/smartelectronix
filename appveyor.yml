@@ -23,8 +23,8 @@ after_build:
   - ps: 7z a Win-Plugins-$env:PLATFORM-$env:APPVEYOR_BUILD_VERSION.zip .\CMakeBuild\$env:PLATFORM\*\Release\*.dll
 
 artifacts:
-  - path: Win-Plugins-$(PLATFORM)-$env:APPVEYOR_BUILD_VERSION.zip
-    name: Win-Plugins-$(PLATFORM)-$env:APPVEYOR_BUILD_VERSION
+  - path: Win-Plugins-$(PLATFORM)-$(APPVEYOR_BUILD_VERSION).zip
+    name: Win-Plugins-$(PLATFORM)-$(APPVEYOR_BUILD_VERSION)
 
 deploy:
 - provider: BinTray
@@ -34,6 +34,5 @@ deploy:
   subject: bdejong
   repo: Plugins
   package: Windows
-  version: '{version}'
   publish: true
   override: true
