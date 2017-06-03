@@ -20,8 +20,20 @@ build_script:
   - ps: .\build.ps1 -Verbose $env:PLATFORM $env:CONFIGURATION
 
 after_build:
-  - ps: 7z a Win-Plugins-$env:PLATFORM.zip .\CMakeBuild\$env:PLATFORM\*\Release\*.dll
+  - ps: 7z a Win-Plugins-$env:PLATFORM-$env:APPVEYOR_BUILD_VERSION.zip .\CMakeBuild\$env:PLATFORM\*\Release\*.dll
 
 artifacts:
-  - path: Win-Plugins-$(PLATFORM).zip
+  - path: Win-Plugins-$(PLATFORM)-$env:APPVEYOR_BUILD_VERSION.zip
     name: Win-Plugins-$(PLATFORM)
+
+deploy:
+- provider: BinTray
+  username: bdejong
+  api_key:
+    secure: aJrQELByJLr1WnPto6BeemIs6HjtTs3g/ewSFeYF1FZbsFfxAAgbpYTA0SSWMaX0
+  subject: bdejong
+  repo: Plugins
+  package: Windows
+  version: $env:APPVEYOR_BUILD_VERSION
+  publish: true
+  override: true
