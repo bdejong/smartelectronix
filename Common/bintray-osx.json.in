@@ -13,7 +13,7 @@
 
     "files":
         [
-            {"includePattern": "OSX-Plugins-1.0.$ENV{TRAVIS_BUILD_NUMBER}.zip", "uploadPattern": "OSX-Plugin-1.0.$ENV{TRAVIS_BUILD_NUMBER}.zip"}
+            {"includePattern": "OSX-Plugins-1.0.$ENV{TRAVIS_BUILD_NUMBER}.zip", "uploadPattern": "OSX-Plugins-1.0.$ENV{TRAVIS_BUILD_NUMBER}.zip"}
         ],
 
     "publish": true
