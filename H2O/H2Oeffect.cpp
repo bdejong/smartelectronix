@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "asciitable.h"
-#include "compressor.h"
+#include "Compressor.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

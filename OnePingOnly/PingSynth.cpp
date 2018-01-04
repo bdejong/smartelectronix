@@ -6,7 +6,7 @@
 #include <cmath>
 #include <limits>
 
-#include "delay.h"
+#include "Delay.h"
 
 inline bool IS_DENORMAL(const float flt)
 {
