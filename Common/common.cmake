@@ -92,7 +92,36 @@ function(add_vstgui VST_TARGET VST_TARGET_IMAGES)
     target_sources(${VST_TARGET} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/resource.rc)
 
   elseif(APPLE)
-    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui_mac.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/vstgui.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cgdrawcontext.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/macglobals.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cgbitmap.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/quartzgraphicspath.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/macfileselector.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/macstring.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/mactimer.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cfontmac.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/caviewlayer.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/macclipboard.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/carbon/hiviewframe.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/carbon/hiviewoptionmenu.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/carbon/hiviewtextedit.cpp)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cocoa/autoreleasepool.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cocoa/cocoahelpers.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cocoa/cocoaopenglview.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cocoa/cocoatextedit.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cocoa/nsviewframe.mm)
+    list(APPEND VSTGUI_SOURCE ${VSTGUI_DIR}/lib/platform/mac/cocoa/nsviewoptionmenu.mm)
+
+    set_source_files_properties(
+      ${VSTGUI_DIR}/lib/platform/mac/cocoa/nsviewframe.mm
+      ${VSTGUI_DIR}/lib/platform/mac/carbon/hiviewoptionmenu.cpp
+      ${VSTGUI_DIR}/plugin-bindings/aeffguieditor.cpp
+      PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
+
+    set_source_files_properties(
+      /lib/platform/mac/carbon/hiviewtextedit.cpp
+      PROPERTIES COMPILE_FLAGS "-Wno-\\#warnings")
 
     find_library(CARBON Carbon)
     find_library(COCOA Cocoa)
