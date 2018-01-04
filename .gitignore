@@ -64,6 +64,7 @@ install_manifest.txt
 out.wav
 Testing/
 CMakeBuild
+.vscode
 
 Steinberg
 bintray-osx.json

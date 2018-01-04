@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
+include(CMakeToolsHelpers OPTIONAL)
+
 project(Smartelectronix)
 
 enable_testing()
