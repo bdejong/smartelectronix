@@ -120,8 +120,8 @@ function(add_vstgui VST_TARGET VST_TARGET_IMAGES)
       PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
 
     set_source_files_properties(
-      /lib/platform/mac/carbon/hiviewtextedit.cpp
-      PROPERTIES COMPILE_FLAGS "-Wno-\\#warnings")
+      ${VSTGUI_DIR}/lib/platform/mac/carbon/hiviewtextedit.cpp
+      PROPERTIES COMPILE_FLAGS "-Wno-#warnings")
 
     find_library(CARBON Carbon)
     find_library(COCOA Cocoa)

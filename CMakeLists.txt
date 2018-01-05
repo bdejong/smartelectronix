@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 include(CMakeToolsHelpers OPTIONAL)
 
+# set(CMAKE_VERBOSE_MAKEFILE ON) # switch on for verbose building
+
 project(Smartelectronix)
 
 enable_testing()
