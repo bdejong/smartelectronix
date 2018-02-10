@@ -30,21 +30,21 @@ void CTextDisplay::draw(CDrawContext* pContext)
     pContext->setFontColor(fontColor);
     pContext->setFont(kSystemFont, 10);
 
-    CRect tmprect = size;
+    CRect tmprect = getViewSize();
     tmprect.offset(3, -1);
     pContext->setFillColor(rectColor);
     pContext->setFrameColor(frameColor);
 
-    pContext->drawRect(size);
+    pContext->drawRect(getViewSize());
     // pContext->fillRect(size);
     // pContext->drawString(todisplay,tmprect,false,kLeftText);
 
     CRect sourcerect;
     CPoint bitmapoffset;
 
-    int left = size.left + 3; //our staring point!
-    int top = size.top; //our staring point!
-    int bottom = size.top + ascii->getHeight(); //our staring point!
+    int left = getViewSize().left + 3; //our staring point!
+    int top = getViewSize().top; //our staring point!
+    int bottom = getViewSize().top + ascii->getHeight(); //our staring point!
     int place;
     int width;
 

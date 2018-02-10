@@ -11,7 +11,7 @@ public:
 
     CBaseObject* newCopy () const override
     {
-        return new CTextDisplay(size, listener, tag);
+        return new CTextDisplay(getViewSize(), listener, tag);
     }
 
 private:

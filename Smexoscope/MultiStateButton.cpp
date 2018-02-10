@@ -34,23 +34,23 @@ void CMultiStateButton::draw(CDrawContext* pContext)
 
     if (getBackground()) {
         if (getTransparency())
-            getBackground()->draw(pContext, size, CPoint(0, off), 0.f);
+            getBackground()->draw(pContext, getViewSize(), CPoint(0, off), 0.f);
         else
-            getBackground()->draw(pContext, size, CPoint(0, off));
+            getBackground()->draw(pContext, getViewSize(), CPoint(0, off));
     } else {
         if (value)
             pContext->setFillColor(kRedCColor);
         else
             pContext->setFillColor(kGreenCColor);
 
-        pContext->drawRect(size);
+        pContext->drawRect(getViewSize());
 
         pContext->setFrameColor(kWhiteCColor);
 
         if (value)
-            pContext->drawString("on", size);
+            pContext->drawString("on", getViewSize());
         else
-            pContext->drawString("off", size);
+            pContext->drawString("off", getViewSize());
     }
     setDirty(false);
 }

@@ -99,10 +99,10 @@ void CWaveDisplay::draw(CDrawContext* pContext)
 {
     CPoint offset(38, 16);
 
-    CRect R(0, 0, size.getWidth(), size.getHeight());
+    CRect R(0, 0, getViewSize().getWidth(), getViewSize().getHeight());
     back->draw(pContext, R.offset(offset), offset);
 
-    R(615 - size.left, 240 - size.top, 615 + heads->getWidth() - size.left, 240 + heads->getHeight() / 4 - size.top);
+    R(615 - getViewSize().left, 240 - getViewSize().top, 615 + heads->getWidth() - getViewSize().left, 240 + heads->getHeight() / 4 - getViewSize().top);
     heads->draw(pContext, R.offset(offset), CPoint(0, (display * heads->getHeight()) / 4));
 
     pContext->setDrawMode(CDrawMode(kAntiAliasing));
@@ -111,17 +111,17 @@ void CWaveDisplay::draw(CDrawContext* pContext)
     long triggerType = (long)(effect->getParameter(CSmartelectronixDisplay::kTriggerType) * CSmartelectronixDisplay::kNumTriggerTypes + 0.0001);
 
     if (triggerType == CSmartelectronixDisplay::kTriggerRising || triggerType == CSmartelectronixDisplay::kTriggerFalling) {
-        long y = 1 + (long)((1.f - effect->getParameter(CSmartelectronixDisplay::kTriggerLevel)) * (size.getHeight() - 2));
+        long y = 1 + (long)((1.f - effect->getParameter(CSmartelectronixDisplay::kTriggerLevel)) * (getViewSize().getHeight() - 2));
 
         CColor grey(229, 229, 229);
         pContext->setFrameColor(grey);
-        pContext->drawLine(CPoint(0, y).offset(offset), CPoint(size.getWidth() - 1, y).offset(offset));
+        pContext->drawLine(CPoint(0, y).offset(offset), CPoint(getViewSize().getWidth() - 1, y).offset(offset));
     }
 
     // zero-line
     CColor orange(179, 111, 56);
     pContext->setFrameColor(orange);
-    pContext->drawLine(CPoint(0, size.getHeight() * 0.5 - 1).offset(offset), CPoint(size.getWidth() - 1, size.getHeight() * 0.5 - 1).offset(offset));
+    pContext->drawLine(CPoint(0, getViewSize().getHeight() * 0.5 - 1).offset(offset), CPoint(getViewSize().getWidth() - 1, getViewSize().getHeight() * 0.5 - 1).offset(offset));
 
     // waveform
     const std::vector<CPoint>& points = (effect->getParameter(CSmartelectronixDisplay::kSyncDraw) > 0.5f) ? effect->getCopy() : effect->getPeaks();
@@ -138,7 +138,7 @@ void CWaveDisplay::draw(CDrawContext* pContext)
         double prevxi = points[0].x;
         double prevyi = points[0].y;
 
-        for (long i = 1; i < size.getWidth() - 1; i++) {
+        for (long i = 1; i < getViewSize().getWidth() - 1; i++) {
             long index = (long)phase;
             double alpha = phase - (double)index;
 
@@ -169,8 +169,8 @@ void CWaveDisplay::draw(CDrawContext* pContext)
         CPoint whereOffset = where;
         whereOffset.offsetInverse(offset);
 
-        pContext->drawLine(CPoint(0, whereOffset.y).offset(offset), CPoint(size.getWidth() - 1, whereOffset.y).offset(offset));
-        pContext->drawLine(CPoint(whereOffset.x, 0).offset(offset), CPoint(whereOffset.x, size.getHeight() - 1).offset(offset));
+        pContext->drawLine(CPoint(0, whereOffset.y).offset(offset), CPoint(getViewSize().getWidth() - 1, whereOffset.y).offset(offset));
+        pContext->drawLine(CPoint(whereOffset.x, 0).offset(offset), CPoint(whereOffset.x, getViewSize().getHeight() - 1).offset(offset));
 
         float gain = powf(10.f, effect->getParameter(CSmartelectronixDisplay::kAmpWindow) * 6.f - 3.f);
         float y = (-2.f * ((float)whereOffset.y + 1.f) / (float)OSC_HEIGHT + 1.f) / gain;

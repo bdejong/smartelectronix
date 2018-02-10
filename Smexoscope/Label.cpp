@@ -14,12 +14,12 @@ void CLabel::draw(CDrawContext* pContext)
 {
     pContext->setFrameColor(backColor);
     pContext->setFillColor(backColor);
-    pContext->drawRect(size);
+    pContext->drawRect(getViewSize());
 
     pContext->setFrameColor(fontColor);
     pContext->setFont(fontID);
     pContext->setFontColor(fontColor);
-    pContext->drawString(_label.c_str(), size, kCenterText, true);
+    pContext->drawString(_label.c_str(), getViewSize(), kCenterText, true);
 
     setDirty(false);
 }

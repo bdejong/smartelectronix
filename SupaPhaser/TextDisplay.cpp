@@ -33,7 +33,7 @@ void CTextDisplay::draw (CDrawContext* pContext)
 	//this should be done off-screen, but I didn't feel like it.
 	//I'll fix it in the next version (+ Mat's aplha-strip...)
 	
-	CRect tmprect = size;
+	CRect tmprect = getViewSize();
 	tmprect.offset(3,-1);
 
 #ifdef _DEBUG
@@ -44,15 +44,15 @@ void CTextDisplay::draw (CDrawContext* pContext)
 
 	pContext->setFrameColor(_rectColor);
 	
-	pContext->drawRect(size);
+	pContext->drawRect(getViewSize());
 	//pContext->fillRect(size);
 	
 	CRect sourcerect;
 	CPoint bitmapoffset;
 
-	int left = size.left; //our staring point!
-	int top = size.top; //our staring point!
-	int bottom = size.top + _ascii->getHeight(); //our staring point!
+	int left = getViewSize().left; //our staring point!
+	int top = getViewSize().top; //our staring point!
+	int bottom = getViewSize().top + _ascii->getHeight(); //our staring point!
 	int place;
 	int width;
 
@@ -72,9 +72,9 @@ void CTextDisplay::draw (CDrawContext* pContext)
 	}
 
 	if(middle)
-		left += (size.getWidth() - totalWidth) / 2;
+		left += (getViewSize().getWidth() - totalWidth) / 2;
 	else
-		left += size.getWidth() - totalWidth;
+		left += getViewSize().getWidth() - totalWidth;
 
 	for(int i=0;i<256;i++)
 	{

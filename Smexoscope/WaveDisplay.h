@@ -21,7 +21,7 @@ public:
 
     virtual CBaseObject* newCopy () const override
     {
-        return new CWaveDisplay(size, effect, back, heads, readout);
+        return new CWaveDisplay(getViewSize(), effect, back, heads, readout);
     };
 
     CMessageResult notify (CBaseObject* sender, IdStringPtr message) override;

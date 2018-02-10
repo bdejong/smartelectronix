@@ -107,8 +107,8 @@ CMouseEventResult CCustomSplashScreen::onMouseDown(CPoint& where, const CButtonS
 		//ON
 		if(getParentView() && getParentView()->getFrame()->setModalView(this))
 		{
-			keepSize = size;
-			size = toDisplay;
+			keepSize = getViewSize();
+			setViewSize(toDisplay);
             setDirty(true);
 			if (listener)
 				listener->valueChanged(this);
@@ -117,7 +117,7 @@ CMouseEventResult CCustomSplashScreen::onMouseDown(CPoint& where, const CButtonS
 	else
 	{
 		//OFF
-		size = keepSize;
+		setViewSize(keepSize);
 		if(getParentView())
 		{
             getParentView()->getFrame()->setModalView(NULL);
@@ -137,7 +137,7 @@ void CCustomSplashScreen::unSplash ()
 	setDirty ();
 	value = offValue;
 
-	size = keepSize;
+	setViewSize(keepSize);
 	if (getParentView())
 	{
 		if (getParentView()->getFrame()->getModalView() == this)
