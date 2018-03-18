@@ -57,8 +57,8 @@ SupaTrigger::SupaTrigger(audioMasterCallback audioMaster) : AudioEffectX(audioMa
 //-----------------------------------------------------------------------------------------
 SupaTrigger::~SupaTrigger()
 {
-    delete leftBuffer;
-    delete rightBuffer;
+    delete[] leftBuffer;
+    delete[] rightBuffer;
 }
 
 //-----------------------------------------------------------------------------------------
