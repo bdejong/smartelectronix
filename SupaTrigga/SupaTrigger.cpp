@@ -57,8 +57,8 @@ SupaTrigger::SupaTrigger(audioMasterCallback audioMaster) : AudioEffectX(audioMa
 //-----------------------------------------------------------------------------------------
 SupaTrigger::~SupaTrigger()
 {
-    delete leftBuffer;
-    delete rightBuffer;
+    delete[] leftBuffer;
+    delete[] rightBuffer;
 }
 
 //-----------------------------------------------------------------------------------------
@@ -325,8 +325,8 @@ void SupaTrigger::processReplacing(float **inputs, float **outputs, VstInt32 sam
             {
                 if(first)
                 {
-                    unsigned long sliceSize = samplesInMeasure >> granularity;
-                    unsigned long sliceStart = (positionInMeasure / sliceSize) * sliceSize;
+                    //unsigned long sliceSize = samplesInMeasure >> granularity;
+                    //unsigned long sliceStart = (positionInMeasure / sliceSize) * sliceSize;
 
                     position = (float) ((positionInMeasure) - (displacement * samplesInMeasure)/MAXSLIDES);
                     speed = 1.f/speedDiff;
