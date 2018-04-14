@@ -1,5 +1,5 @@
 # Bram @ Smartelectronix
-Open source versions of all bram @ smartelectronix plugins. 20 Years after woking on my first plugin I've decided to open source all these plugins. Consider a lot of this source code was written by a very inexperienced version of myself: it's kind of a mess!
+Open source versions of all bram @ smartelectronix plugins. 20 Years after working on my first plugin I've decided to open source all these plugins. Consider a lot of this source code was written by a very inexperienced version of myself: it's kind of a mess!
 
 You can find the original smartelectronix pages here: http://bram.smartelectronix.com
 
@@ -19,10 +19,11 @@ All these plugins are available for licensing under a dual-license scheme. GPL f
 ## macOS
 Prerequisites:
 - Install XCode
-- Install brew
+- Install brew ( available at http://brew.sh )
 
 After the checkout, run these commands:
-```bash
+```
+bash
 brew update
 brew upgrade cmake
 git submodule update --init --recursive
@@ -38,7 +39,8 @@ Prerequisites:
 - Install python
 
 After the checkout, run these commands in powershell:
-```posh
+```
+posh
 git submodule update --init --recursive
 python get_steinberg_sdk.py
 .\build.ps1 -Verbose x86 Release
