@@ -58,6 +58,107 @@ CSmartelectronixDisplay::CSmartelectronixDisplay(
 //-----------------------------------------------------------------------------------------
 CSmartelectronixDisplay::~CSmartelectronixDisplay() {}
 
+double CSmartelectronixDisplay::timeKnobToBeats(double x)
+{
+    return (x + 0.005) * 4.0 + 0.5;
+}
+
+void CSmartelectronixDisplay::convertVstTimeInfo(FFXTimeInfo *ffxtime)
+{
+    ffxtime->isValid = false;
+
+    // get some VstTimeInfo with flags requesting all of the info that we want
+    VstTimeInfo *vstTimeInfo = this->getTimeInfo(kVstTempoValid
+        | kVstTransportChanged
+        | kVstBarsValid
+        | kVstPpqPosValid
+        | kVstTimeSigValid
+        | kVstCyclePosValid
+        | kVstTransportPlaying
+        | kVstTransportCycleActive);
+
+    if (vstTimeInfo == NULL)
+        return;
+
+    ffxtime->isValid = true;
+
+    // set all validity bools according to the flags returned by our VstTimeInfo request
+    ffxtime->tempoIsValid = (vstTimeInfo->flags & kVstTempoValid) != 0;
+    ffxtime->ppqPosIsValid = (vstTimeInfo->flags & kVstPpqPosValid) != 0;
+    ffxtime->barsIsValid = (vstTimeInfo->flags & kVstBarsValid) != 0;
+    ffxtime->timeSigIsValid = (vstTimeInfo->flags & kVstTimeSigValid) != 0;
+    ffxtime->samplesToNextBarIsValid = (ffxtime->tempoIsValid && ffxtime->ppqPosIsValid) && (ffxtime->barsIsValid && ffxtime->timeSigIsValid);
+    ffxtime->cyclePosIsValid = (vstTimeInfo->flags & kVstCyclePosValid) != 0;
+    ffxtime->playbackChanged = (vstTimeInfo->flags & kVstTransportChanged) != 0;
+    ffxtime->playbackIsOccuring = (vstTimeInfo->flags & kVstTransportPlaying) != 0;
+    ffxtime->cycleIsActive = (vstTimeInfo->flags & kVstTransportCycleActive) != 0;
+
+    // these can always be counted on, unless the VstTimeInfo pointer was null
+    ffxtime->samplePos = vstTimeInfo->samplePos;
+    ffxtime->sampleRate = vstTimeInfo->sampleRate;
+
+    if (ffxtime->tempoIsValid)
+    {
+        ffxtime->tempo = vstTimeInfo->tempo;
+        ffxtime->tempoBPS = vstTimeInfo->tempo / 60.0;
+        ffxtime->numSamplesInBeat = vstTimeInfo->sampleRate / ffxtime->tempoBPS;
+    }
+
+    // get the song beat position of our precise current location
+    if (ffxtime->ppqPosIsValid)
+        ffxtime->ppqPos = vstTimeInfo->ppqPos;
+
+    // get the song beat position of the beginning of the previous measure
+    if (ffxtime->barsIsValid)
+    {
+        ffxtime->barStartPos = vstTimeInfo->barStartPos;
+    } else
+    {
+        ffxtime->barStartPos = vstTimeInfo->ppqPos; //????????????
+    }
+
+    // get the numerator of the time signature - this is the number of beats per measure
+    if (ffxtime->timeSigIsValid)
+    {
+        ffxtime->timeSigNumerator = vstTimeInfo->timeSigNumerator;
+        ffxtime->timeSigDenominator = vstTimeInfo->timeSigDenominator;
+        // it will screw up the while loop below bigtime if timeSigNumerator isn't a positive number
+        if (ffxtime->timeSigNumerator <= 0)
+            ffxtime->timeSigNumerator = 4;
+    }
+
+    // do some calculations for this one
+    if (ffxtime->samplesToNextBarIsValid)
+    {
+        double distanceToNextBarPPQ;
+        // calculate the distance in beats to the upcoming measure beginning point
+        if (ffxtime->barStartPos == ffxtime->ppqPos)
+            distanceToNextBarPPQ = 0.0;
+        else
+            distanceToNextBarPPQ = ffxtime->barStartPos + (double)(ffxtime->timeSigNumerator) - ffxtime->ppqPos;
+
+        // do this stuff because some hosts (Cubase) give kind of wacky barStartPos sometimes
+        while (distanceToNextBarPPQ < 0.0)
+            distanceToNextBarPPQ += (double)(ffxtime->timeSigNumerator);
+        while (distanceToNextBarPPQ >= (double)(ffxtime->timeSigNumerator)) //THIS WAS > and now >=
+            distanceToNextBarPPQ -= (double)(ffxtime->timeSigNumerator);
+
+        //convert the value for the distance to the next measure from beats to samples
+        //ffxtime->numSamplesToNextBar = (long) (distanceToNextBarPPQ * ffxtime->numSamplesInBeat);
+
+        ffxtime->numSamplesToNextBar = (distanceToNextBarPPQ * vstTimeInfo->sampleRate * 60.0) / vstTimeInfo->tempo;
+
+        if (ffxtime->numSamplesToNextBar < 0) // just protecting again against wacky values
+            ffxtime->numSamplesToNextBar = 0;
+    }
+
+    if (ffxtime->cyclePosIsValid)
+    {
+        ffxtime->cycleStartPos = vstTimeInfo->cycleStartPos;
+        ffxtime->cycleEndPos = vstTimeInfo->cycleEndPos;
+    }
+}
+
 //-----------------------------------------------------------------------------------------
 void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
 {
@@ -78,7 +179,19 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
     double R = 1.0 - 250.0 / getSampleRate();
     bool dcOn = SAVE[kDCKill] > 0.5f;
 
+    FFXTimeInfo info;
+    convertVstTimeInfo(&info);
+
+    double beatSamples = info.sampleRate / info.tempoBPS;
+    double loopBeats = timeKnobToBeats(SAVE[kTimeWindow]);
+    if (loopBeats < 1.0) loopBeats = 1.0;
+    double loopLength = floor(loopBeats) * beatSamples;
+    if (triggerType == kTriggerTempo) {
+        counterSpeed = OSC_WIDTH / (loopBeats * beatSamples);
+    }
+
     for (long i = 0; i < sampleFrames; i++) {
+        double t = info.samplePos + i;
         // DC filter...
         dcKill = samples[i] - dcFilterTemp + R * dcKill;
 
@@ -105,6 +218,17 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
             }
             break;
         }
+        case kTriggerTempo: {
+            double diff = t - this->lastTriggerSamples;
+            if (diff > loopLength || diff < 0) {
+                trigger = true;
+            }
+            // retrigger when restarting playback
+            if (i == 0 && info.playbackChanged && info.playbackIsOccuring) {
+                trigger = true;
+            }
+            break;
+        }
         case kTriggerRising: {
             // trigger on a rising edge
             if (sample >= triggerLevel && previousSample < triggerLevel)
@@ -127,7 +251,7 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
 
         // if there's a retrigger, but too fast, kill it
         triggerLimitPhase++;
-        if (trigger && triggerLimitPhase < triggerLimit && triggerType != kTriggerFree && triggerType != kTriggerInternal)
+        if (trigger && triggerLimitPhase < triggerLimit && triggerType != kTriggerFree && triggerType != kTriggerInternal && triggerType != kTriggerTempo)
             trigger = false;
 
         // @ trigger
@@ -148,6 +272,7 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
             max = -MAX_FLOAT;
             min = MAX_FLOAT;
             triggerLimitPhase = 0;
+            lastTriggerSamples = t;
         }
 
         // @ sample
@@ -181,7 +306,6 @@ void CSmartelectronixDisplay::processSub(float** inputs, long sampleFrames)
             max = -MAX_FLOAT;
             min = MAX_FLOAT;
 
-            // counter = counter - (long)counter;
             counter -= 1.0;
         }
 
@@ -244,6 +368,7 @@ void CSmartelectronixDisplay::suspend()
 {
     index = 0;
     counter = 1.0;
+    lastTriggerSamples = 0.0;
     max = -MAX_FLOAT;
     min = MAX_FLOAT;
     previousSample = 0.f;
@@ -257,6 +382,7 @@ void CSmartelectronixDisplay::resume()
 {
     index = 0;
     counter = 1.0;
+    lastTriggerSamples = 0.0;
     max = -MAX_FLOAT;
     min = MAX_FLOAT;
     previousSample = 0.f;
@@ -355,9 +481,10 @@ void CSmartelectronixDisplay::getParameterName(VstInt32 index, char* label)
 //-----------------------------------------------------------------------------------------
 void CSmartelectronixDisplay::getParameterDisplay(VstInt32 index, char* text)
 {
+    long triggerType = (long)(SAVE[kTriggerType] * kNumTriggerTypes + 0.0001);
+
     switch (index) {
     case kTriggerType: {
-        long triggerType = (long)(SAVE[kTriggerType] * kNumTriggerTypes + 0.0001);
         std::string s = to_string(triggerType);
         std::strcpy(text, s.c_str());
         break;
@@ -374,8 +501,17 @@ void CSmartelectronixDisplay::getParameterDisplay(VstInt32 index, char* text)
         break;
     }
     case kTimeWindow: {
-        double counterSpeed = pow(10.f, -SAVE[kTimeWindow] * 5.f + 1.5); // [0=>10 1=>0.001
-        float2string((float)counterSpeed, text, 25);
+        if (triggerType == kTriggerTempo) {
+            int value = int(timeKnobToBeats(SAVE[kTimeWindow]));
+            if (value < 1) value = 1;
+            int2string(int(value), text, 25);
+            text[1] = '/';
+            text[2] = '4';
+            text[3] = '\0';
+        } else {
+            double counterSpeed = pow(10.f, -SAVE[kTimeWindow] * 5.f + 1.5); // [0=>10 1=>0.001
+            float2string((float)counterSpeed, text, 25);
+        }
         break;
     }
     case kTriggerSpeed: {

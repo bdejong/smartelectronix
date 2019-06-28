@@ -79,7 +79,7 @@ bool CSmartelectronixDisplayEditor::open(void* ptr)
 
     // trigger type
     CBitmap* triggerBitmap = new CBitmap("free_etc.png");
-    trigger = new CMultiStateButton(CRect(718, 94, 718 + triggerBitmap->getWidth(), 94 + triggerBitmap->getHeight() / 5), this, CSmartelectronixDisplay::kTriggerType, triggerBitmap, 4, static_cast<long>(triggerBitmap->getHeight() / 5));
+    trigger = new CMultiStateButton(CRect(718, 94, 718 + triggerBitmap->getWidth(), 94 + triggerBitmap->getHeight() / 6), this, CSmartelectronixDisplay::kTriggerType, triggerBitmap, 5, static_cast<long>(triggerBitmap->getHeight() / 6));
     newFrame->addView(trigger);
     triggerBitmap->forget();
 
@@ -211,9 +211,16 @@ void CSmartelectronixDisplayEditor::valueChanged(CControl* control)
     long tag = control->getTag();
 
     if (tag >= 0 && tag < CSmartelectronixDisplay::kNumParams) {
+        //update control...
+        effect->setParameterAutomated(tag, control->getValue());
+
         //get display...
 
         switch (tag) {
+        case CSmartelectronixDisplay::kTriggerType:
+            ((CSmartelectronixDisplay*)effect)->getDisplay(CSmartelectronixDisplay::kTimeWindow, temp);
+            timeLabel->setLabel(temp);
+            break;
         case CSmartelectronixDisplay::kTriggerLimit:
             ((CSmartelectronixDisplay*)effect)->getDisplay(tag, temp);
             threshLabel->setLabel(temp);
@@ -231,8 +238,5 @@ void CSmartelectronixDisplayEditor::valueChanged(CControl* control)
             ampLabel->setLabel(temp);
             break;
         }
-
-        //update control...
-        effect->setParameterAutomated(tag, control->getValue());
     }
 }

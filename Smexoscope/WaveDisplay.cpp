@@ -125,7 +125,7 @@ void CWaveDisplay::draw(CDrawContext* pContext)
 
     // waveform
     const std::vector<CPoint>& points = (effect->getParameter(CSmartelectronixDisplay::kSyncDraw) > 0.5f) ? effect->getCopy() : effect->getPeaks();
-    double counterSpeedInverse = pow(10.f, effect->getParameter(CSmartelectronixDisplay::kTimeWindow) * 5.f - 1.5);
+    double counterSpeedInverse = effect->timeKnobToBeats(4 * effect->getParameter(CSmartelectronixDisplay::kTimeWindow)) / 4.0;
 
     if (counterSpeedInverse < 1.0) //draw interpolated lines!
     {
