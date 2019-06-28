@@ -5,6 +5,47 @@
 #include "Defines.h"
 #include "vstgui.h"
 
+class FFXTimeInfo
+{
+public:
+    FFXTimeInfo() {};
+    ~FFXTimeInfo() {};
+
+    // false if the VstTimeInfo pointer returned is null
+    // i.e. the host doesn't support VstTimeInfo
+    bool isValid;
+
+    // always valid
+    double samplePos;        // current location in samples
+    double sampleRate;
+
+    bool tempoIsValid;       // kVstTempoValid
+    double tempo;            // in beats/minute
+    double tempoBPS;         // in beats/second
+    double numSamplesInBeat; // number of samples in 1 beat
+
+    bool ppqPosIsValid;      // kVstPpqPosValid
+    double ppqPos;           // 1 ppq = 1 MIDI beat (primary note division value)
+
+    bool barsIsValid;        // kVstBarsValid
+    double barStartPos;      // last bar start position, in ppq, relative to ppqPos
+
+    bool timeSigIsValid;     // kVstTimeSigValid
+    long timeSigNumerator;   // time signature
+    long timeSigDenominator;
+
+    bool samplesToNextBarIsValid;
+    double numSamplesToNextBar;
+
+    bool cyclePosIsValid;    // kVstCyclePosValid
+    double cycleStartPos;    // in terms of ppq
+    double cycleEndPos;      // in terms of ppq
+
+    bool playbackChanged;    // kVstTransportChanged
+    bool playbackIsOccuring; // kVstTransportPlaying
+    bool cycleIsActive;      // kVstTransportCycleActive
+};
+
 class CSmartelectronixDisplay : public AudioEffectX {
 public:
     /*
@@ -38,6 +79,7 @@ all else : on / off
     // trigger types
     enum {
         kTriggerFree = 0,
+        kTriggerTempo,
         kTriggerRising,
         kTriggerFalling,
         kTriggerInternal,
@@ -67,12 +109,18 @@ all else : on / off
     virtual void suspend();
     virtual void resume();
 
+    // maps time knob to beats for tempo matching
+    static double timeKnobToBeats(double x);
+
     const std::vector<CPoint>& getPeaks() const { return peaks; }
     const std::vector<CPoint>& getCopy() const { return copy; }
 
 protected:
     std::vector<CPoint> peaks;
     std::vector<CPoint> copy;
+
+    // a convenience wrapper for getTimeInfo()
+    void convertVstTimeInfo(FFXTimeInfo *ffxtime);
 
     // the actual algo :-)
     void processSub(float** inputs, long sampleFrames);
@@ -82,6 +130,9 @@ protected:
 
     // counter which is used to set the amount of samples / pixel
     double counter;
+
+    // used to calculate the time interval from last trigger
+    double lastTriggerSamples;
 
     // max/min peak in this block
     float max, min, maxR, minR;
