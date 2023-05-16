@@ -46,7 +46,7 @@ Multitap::~Multitap()
 }
 
 //hosts that have power-of-2 blocksizes
-//ann aligned memory will allways end up doing
+//and aligned memory will always end up doing
 //sse processing...
 void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bool replace)
 {
@@ -59,7 +59,7 @@ void Multitap::process(float *inputs, float *outputs, unsigned long nSamples, bo
 	}
 
 	//let's see if the current index is a multiple of 4
-	//if it isn't, we need to process untill it *IS*
+	//if it isn't, we need to process until it *IS*
 	unsigned long startSize = (4 - (indexfpu & 3)) & 3;
 	unsigned long blockSize = 0;
 
