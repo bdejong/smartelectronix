@@ -33,7 +33,7 @@ enum
         krelease,
     kamp,
     kdrywet,
-    krandomise, //allways keep this 1 last
+    krandomise, //always keep this 1 last
     kNumParams
 };
 
