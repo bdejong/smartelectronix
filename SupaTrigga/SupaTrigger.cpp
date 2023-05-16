@@ -179,7 +179,7 @@ void SupaTrigger::processReplacing(float **inputs, float **outputs, VstInt32 sam
         return;
     }
 
-    //rediculous tempo :-)
+    //ridiculous tempo :-)
     if(timeInfo.tempo < 20) return;
 
     double samplesInMeasureDouble = ceil(timeInfo.numSamplesInBeat * timeInfo.timeSigNumerator / ( timeInfo.timeSigDenominator / 4.0));
@@ -377,12 +377,12 @@ VstInt32 SupaTrigger::canDo (char* text)
 
     "man im fucked!"
 
-    ok, lets look at the current time sig (current as in i hope for fuck sake it didnt change
+    ok, lets look at the current time sig (current as in i hope for fucks sake it didn't change
     since ppqPOs started accumulating bars!!)
 
     current timesig is 7/8.. OMG!
     Ok, lets transform this to  3.5/4 for ease of this example and weve proven that
-    its "technically the same, as far as actual lentgh in seconds is concerned)
+    it's "technically the same, as far as actual length in seconds is concerned)
 
     48.356 / 3.5 =  13.816 bars  (13 full bars and .816 rem)
 
@@ -390,7 +390,7 @@ VstInt32 SupaTrigger::canDo (char* text)
 
     to get that in samples, use the current bpm
     Plogue - Viande: use the "%" thing
-    Plogue - Viande: but thats just and example
+    Plogue - Viande: but that's just and example
     Plogue - Viande: as you can immagine this result will be different if 48.356 is in fact not an 'accumulation of 13 x 7/8 bars"
     Plogue - Viande: + remainder
     Plogue - Viande: like if you got a 4/4 bar, a 3/4, 7/4 and 7/8 7/8
