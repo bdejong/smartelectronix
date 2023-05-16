@@ -129,7 +129,7 @@ void PingSynth::process(float **inputs, float **outputs, VstInt32 sampleFrames)
 			oL = oR = o = 0;
 
 			//the main loop
-			//I tried doing an "optimised" '*' loop but it actualy slowed down the thing!
+			//I tried doing an "optimised" '*' loop but it actually slowed down the thing!
 
 			for(int i=0;i<nPing;i++)
 			{
@@ -347,7 +347,7 @@ void PingSynth::processReplacing(float **inputs, float **outputs, VstInt32 sampl
 			oL = oR = o = 0;
 
 			//the main loop
-			//I tried doing an "optimised" '*' loop but it actualy slowed down the thing!
+			//I tried doing an "optimised" '*' loop but it actually slowed down the thing!
 
 			for(int i=0;i<nPing;i++)
 			{
