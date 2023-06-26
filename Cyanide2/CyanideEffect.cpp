@@ -88,9 +88,9 @@ void CyanideEffect::getProgramName(char *name)
 
 bool CyanideEffect::getProgramNameIndexed(long category, long index, char* text)
 {
-	//the borg seemed to have fucked up the way of callin' this in wavelab!
+	//the borg seem to have fucked up the way of callin' this in Wavelab!
 	//category and index seem to be swapped in Wavelab ?!?
-	//as category get's called 0..15 and index stays zero
+	//as category gets called 0..15 and index stays zero
 	
 	if(index >= 0 && index < kNumPrograms)
 	{

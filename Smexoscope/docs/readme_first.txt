@@ -11,7 +11,7 @@ sophia @ smartelectronix.com	:: Mac port
 Smexoscope is not an effect, nor is it a synthesiser, don't
 expect it to generate noise: it's a visualisation only plugin!
 
-Usefull for looking at waveforms and very usefull for developers.
+Useful for looking at waveforms and very useful for developers.
 
 For more info, see the splendid documentation by Kerrydan.
 

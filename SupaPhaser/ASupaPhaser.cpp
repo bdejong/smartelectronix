@@ -299,7 +299,7 @@ void ASupaPhaser::processReplacing(float **inputs, float **outputs, VstInt32 sam
 	float *out1 = outputs[0];
 	float *out2 = outputs[1];
 
-	//some usefull pointers
+	//some useful pointers
 	float *pNoise = Noise;
 
 	//input to phaser

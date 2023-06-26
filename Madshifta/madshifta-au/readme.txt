@@ -53,7 +53,7 @@ Click on the bear to the left to randomize all parameters
 Click on the note to the right to randomize only pitch
 
 3. Why is the source code in Delphi?
-Well, Delphi is still a very underestimated and underrated DSP langauge,
+Well, Delphi is still a very underestimated and underrated DSP language,
 but it is in my opinion equally powerful as C++.  Check out my other plugins
 at www.tobybear.de, they are all coded in Delphi too.
 So, first of all, to show people that it is also possible to compile

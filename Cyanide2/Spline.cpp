@@ -33,7 +33,7 @@ void bspline(long n, long t, SplinePoint *control, SplinePoint *output, long num
 Parameters:
 	n          - the number of control points minus 1
 	t          - the degree of the polynomial plus 1
-	control    - control SplinePoint array made up of SplinePoint stucture
+	control    - control SplinePoint array made up of SplinePoint structure
 	output     - array in which the calculate spline points are to be put
 	num_output - how many points on the spline are to be calculated
 
