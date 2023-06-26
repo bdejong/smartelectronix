@@ -20,12 +20,12 @@ class ProgressReporter:
             self.progress = progress
 
 
-url = "http://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip"  # noqa
+url = "https://www.steinberg.net/vst3sdk"  # noqa
 urlretrieve(url, "Steinberg.zip", ProgressReporter())
 
 zip = ZipFile('Steinberg.zip')
 zip.extractall()
 
 shutil.rmtree("Steinberg", ignore_errors=True)
-os.rename("VST3 SDK", "Steinberg")
+os.rename("VST_SDK", "Steinberg")
 shutil.rmtree("Steinberg.zip", ignore_errors=True)
