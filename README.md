@@ -27,7 +27,6 @@ bash
 brew update
 brew upgrade cmake
 git submodule update --init --recursive
-python get_steinberg_sdk.py
 cmake .
 make
 make test
@@ -42,7 +41,6 @@ After the checkout, run these commands in powershell:
 ```
 posh
 git submodule update --init --recursive
-python get_steinberg_sdk.py
 .\build.ps1 -Verbose x86 Release
 ctest
 .\build.ps1 -Verbose x64 Release
