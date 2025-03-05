@@ -1,0 +1,124 @@
+#pragma once
+
+#include "../JuceLibraryCode/JuceHeader.h"
+#include "Delay.h"
+
+#define NUM_VOICES 128
+#define NUM_PARAMS_PER_VOICE 6
+#define NUM_GLOBAL_PARAMS 3
+
+// Parameter indices per voice
+enum VoiceParams
+{
+    kFreq = 0,      // Frequency/pitch
+    kDuration,      // Duration of ping
+    kAmp,           // Amplitude
+    kBalance,       // Balance (panning)
+    kNoise,         // Noise amount
+    kDistortion     // Distortion amount
+};
+
+// Global parameter indices
+enum GlobalParams
+{
+    kFeedback = 0,  // Delay feedback
+    kDelayTime,     // Delay time
+    kMasterVolume   // Master volume
+};
+
+// Voice structure for holding voice-specific data
+struct PingVoice
+{
+    bool active = false;
+    int note = -1;
+    float amplitude = 0.0f;
+    float balance = 0.5f;
+    float noiseAmount = 0.0f;
+    float distortionAmount = 0.0f;
+    float alpha = 1.9701f;
+    float beta = 0.99f;
+    float gamma = -0.99f;
+    float d1 = 0.0f;
+    float d2 = 0.0f;
+    float in = 0.0f;
+    float in_1 = 0.0f;
+    float in_2 = 0.0f;
+    float out_1 = 0.0f;
+    float out_2 = 0.0f;
+};
+
+class OnePingOnlyProcessor : public juce::AudioProcessor,
+                             private juce::ValueTree::Listener
+{
+public:
+    OnePingOnlyProcessor();
+    ~OnePingOnlyProcessor() override;
+
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void releaseResources() override;
+
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+
+    juce::AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override;
+
+    const juce::String getName() const override;
+
+    bool acceptsMidi() const override;
+    bool producesMidi() const override;
+    bool isMidiEffect() const override;
+    double getTailLengthSeconds() const override;
+
+    int getNumPrograms() override;
+    int getCurrentProgram() override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
+
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
+
+    // Parameter management
+    juce::AudioProcessorValueTreeState& getValueTreeState() { return parameters; }
+
+private:
+    // Voice management
+    void handleMidiEvent(const juce::MidiMessage& midiMessage);
+    void noteOn(int midiNoteNumber, float velocity);
+    void noteOff(int midiNoteNumber, float velocity);
+    void updateVoiceFromParameters(int voiceIndex);
+    void updateAllVoicesFromParameters();
+    
+    // Process voice and generate ping sound
+    void processVoice(int voiceIndex, float& leftOut, float& rightOut);
+    
+    // Parameter handling
+    void valueTreePropertyChanged(juce::ValueTree& tree, const juce::Identifier& property) override;
+    
+    // Audio processor state
+    juce::AudioProcessorValueTreeState parameters;
+    std::array<PingVoice, NUM_VOICES> voices;
+    
+    // Lookup table for MIDI note frequencies
+    std::array<double, 128> midiNoteFrequencies;
+    
+    // Global parameters
+    float delayTime;
+    float feedback;
+    float masterVolume;
+    
+    // Delay effects
+    std::unique_ptr<Delay> delayLeft;
+    std::unique_ptr<Delay> delayRight;
+    
+    // Current sample rate
+    double currentSampleRate;
+    
+    // Program management
+    int currentProgram;
+    std::array<juce::String, 12> programNames;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnePingOnlyProcessor)
+};
