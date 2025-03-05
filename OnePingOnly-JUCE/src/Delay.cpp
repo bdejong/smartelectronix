@@ -2,6 +2,7 @@
 
 Delay::Delay(int maxDelay)
     : feedback(0.0f)
+    , feedbackTemp(1.0f)
     , bufferIndex(0)
     , readPosition(0)
     , delaySamples(0)
@@ -29,12 +30,12 @@ void Delay::setDelay(int delayInSamples)
         readPosition += maxDelaySamples;
 }
 
-float Delay::process(float input)
+float Delay::getVal(float input)
 {
     // Read from buffer
     float delayedSample = buffer[static_cast<size_t>(readPosition)];
     
-    // Calculate output with feedback
+    // Calculate output with feedback - matching original implementation exactly
     float output = input + feedback * delayedSample;
     
     // Write to buffer
@@ -75,4 +76,5 @@ void Delay::clearBuffer()
 void Delay::setFeedback(float feedbackAmount)
 {
     feedback = feedbackAmount;
+    feedbackTemp = 1.0f - feedback; // Match the original implementation
 }

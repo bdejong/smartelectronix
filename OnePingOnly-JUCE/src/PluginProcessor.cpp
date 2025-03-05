@@ -31,6 +31,11 @@ OnePingOnlyProcessor::OnePingOnlyProcessor()
                     std::make_unique<juce::AudioParameterFloat>(masterVolumeID, "Master Volume",
                                                                juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f)
                 }),
+      // Initialize class members in the order they're declared in the header file to avoid warnings
+      // Fields need to be initialized in the same order they're declared in the class definition
+      delayTime(0.25f),
+      feedback(0.6f),
+      masterVolume(1.0f),
       currentSampleRate(44100.0),
       currentProgram(0)
 {
@@ -107,11 +112,19 @@ OnePingOnlyProcessor::OnePingOnlyProcessor()
     // Add listener for parameter changes
     parameters.state.addListener(this);
     
+    // IMPORTANT: Mark this plugin as a synthesizer to ensure it receives MIDI
+    setPlayConfigDetails(0, 2, getSampleRate(), getBlockSize());
+    
+    // Already configured to accept MIDI in the AudioProcessor initialization
+    
     // Initialize voices
     for (auto& voice : voices)
     {
         voice.active = false;
         voice.note = -1;
+        
+        // Initialize gain values to ensure some sound even for default values
+        voice.gain = 0.4f;
     }
 }
 
@@ -169,45 +182,375 @@ void OnePingOnlyProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
     // Clear output buffer
     buffer.clear();
     
-    // Process MIDI events
+    // Also let's directly handle any MIDI messages first, as a backup
+    // This ensures that notes are triggered even if our MIDI buffering doesn't work
     for (const auto metadata : midiMessages)
     {
         handleMidiEvent(metadata.getMessage());
+    }
+    
+    // Extract MIDI events and store them like in the original
+    midiNotes.clear();
+    int midiNoteCount = 0;
+    
+    for (const auto metadata : midiMessages)
+    {
+        const auto& msg = metadata.getMessage();
+        
+        if (msg.isNoteOn())
+        {
+            int note = msg.getNoteNumber();
+            float velocity = msg.getFloatVelocity();
+            int deltaFrames = static_cast<int>(metadata.samplePosition);
+            
+            MidiNoteData noteData;
+            noteData.note = note;
+            noteData.velocity = velocity;
+            noteData.deltaFrames = deltaFrames;
+            
+            // Add to our notes list
+            if (midiNoteCount < MAX_MIDI_NOTES)
+            {
+                midiNotes.push_back(noteData);
+                midiNoteCount++;
+            }
+        }
     }
     
     const int numSamples = buffer.getNumSamples();
     float* leftChannel = buffer.getWritePointer(0);
     float* rightChannel = buffer.getWritePointer(1);
     
-    // Process each sample
-    for (int sample = 0; sample < numSamples; ++sample)
+    // -- EXACTLY MIRRORING THE ORIGINAL processReplacing FUNCTION --
+    
+    // Current note we're processing
+    int noteIndex = 0;
+    
+    // Current sample position
+    int samplePosition = 0;
+    
+    // Variables for processing
+    float out, o, oL, oR, noise;
+    bool moreNotes = (midiNoteCount > 0);
+    bool moreThanOne = false;
+    int voiceIndex;
+    
+    // If there are no MIDI notes to process, go straight to the no-notes section
+    if (!moreNotes)
+        goto NoMoreNotes;
+    
+    // Process samples with MIDI notes
+    while (samplePosition < numSamples)
     {
-        // Sum all active voices
-        float leftOutput = 0.0f;
-        float rightOutput = 0.0f;
+        // Generate noise (same as original)
+        noise = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
         
-        // Process each voice
-        for (int voiceIndex = 0; voiceIndex < NUM_VOICES; ++voiceIndex)
+        // Check if we hit a MIDI note on this sample
+        if (samplePosition == midiNotes[static_cast<size_t>(noteIndex)].deltaFrames)
         {
-            if (voices[static_cast<size_t>(voiceIndex)].active)
+            // Get the note and its voice
+            voiceIndex = midiNotes[static_cast<size_t>(noteIndex)].note;
+            
+            if (voiceIndex >= 0 && voiceIndex < NUM_VOICES)
             {
-                float leftVoice = 0.0f;
-                float rightVoice = 0.0f;
+                auto& voice = voices[static_cast<size_t>(voiceIndex)];
                 
-                processVoice(voiceIndex, leftVoice, rightVoice);
+                // This is crucial - directly mirroring the original implementation
+                // g[index] * pNotes++->Velocity
+                voice.in = voice.gain * midiNotes[static_cast<size_t>(noteIndex)].velocity;
+                voice.active = true;
                 
-                leftOutput += leftVoice;
-                rightOutput += rightVoice;
+                // Debug voice activation
+                DBG("Voice " + juce::String(voiceIndex) + " activated at sample " + juce::String(samplePosition) + 
+                    " with gain " + juce::String(voice.gain) + " and velocity " + juce::String(midiNotes[static_cast<size_t>(noteIndex)].velocity));
+            }
+            
+            noteIndex++;
+            
+            // Check for multiple notes at the same time
+            while (noteIndex < midiNoteCount && 
+                   midiNotes[static_cast<size_t>(noteIndex)].deltaFrames == samplePosition)
+            {
+                voiceIndex = midiNotes[static_cast<size_t>(noteIndex)].note;
+                
+                if (voiceIndex >= 0 && voiceIndex < NUM_VOICES)
+                {
+                    auto& voice = voices[static_cast<size_t>(voiceIndex)];
+                    voice.in = voice.gain * midiNotes[static_cast<size_t>(noteIndex)].velocity;
+                    voice.active = true;
+                    
+                    // Debug multiple voices
+                    DBG("Additional voice " + juce::String(voiceIndex) + " activated in same sample");
+                }
+                
+                noteIndex++;
+                moreThanOne = true;
+            }
+            
+            // Initialize outputs
+            oL = oR = o = 0.0f;
+            
+            // Process all voices - exactly as in original
+            for (int i = 0; i < NUM_VOICES; i++)
+            {
+                auto& voice = voices[static_cast<size_t>(i)];
+                
+                out = voice.beta * (voice.in - voice.out_2) + 
+                      voice.alpha * (voice.in_1 - voice.out_1) + voice.in_2;
+                
+                voice.out_2 = voice.out_1;
+                voice.out_1 = out;
+                voice.in_2 = voice.in_1;
+                voice.in_1 = voice.in;
+                
+                // Always get the latest parameter values for active voices
+                // Get current parameters for this voice to enable live tweaking
+                if (voice.active)
+                {
+                    // Re-read voice parameters from the APVTS
+                    juce::String freqID = createVoiceParamID(i, kFreq);
+                    juce::String durationID = createVoiceParamID(i, kDuration);
+                    juce::String ampID = createVoiceParamID(i, kAmp);
+                    juce::String balanceID = createVoiceParamID(i, kBalance);
+                    juce::String noiseID = createVoiceParamID(i, kNoise);
+                    juce::String distortionID = createVoiceParamID(i, kDistortion);
+                    
+                    // Update key parameters that affect the sound in real-time
+                    voice.noiseAmount = *parameters.getRawParameterValue(noiseID);
+                    voice.balance = *parameters.getRawParameterValue(balanceID);
+                    
+                    // Get distortion parameter
+                    float distVal = *parameters.getRawParameterValue(distortionID) * 10.0f;
+                    voice.d1 = distVal;
+                    if (distVal > 1.0f)
+                        voice.d2 = (1.0f + distVal) * (1.0f - 0.8f * (distVal - 1.0f) / 19.0f);
+                    else
+                        voice.d2 = 1.0f + distVal;
+                }
+                
+                // The same noise and distortion calculation from original
+                o = (out - voice.in) * (1.0f + voice.noiseAmount * noise);
+                o *= voice.d2 / (1.0f + voice.d1 * o * o);
+                
+                oL += voice.balance * o;
+                oR += (1.0f - voice.balance) * o;
+            }
+            
+            // Process through delay and write to output
+            leftChannel[samplePosition] = delayLeft->getVal(oL) * masterVolume;
+            rightChannel[samplePosition] = delayRight->getVal(oR) * masterVolume;
+            
+            // Reset input values
+            if (moreThanOne)
+            {
+                for (int i = 0; i < NUM_VOICES; i++)
+                {
+                    voices[static_cast<size_t>(i)].in = 0.0f;
+                }
+                moreThanOne = false;
+            }
+            else if (voiceIndex >= 0 && voiceIndex < NUM_VOICES)
+            {
+                voices[static_cast<size_t>(voiceIndex)].in = 0.0f;
+            }
+            
+            samplePosition++;
+            
+            // Check if we're out of notes
+            if (noteIndex >= midiNoteCount)
+                goto NoMoreNotes;
+        }
+        else
+        {
+            // No new notes at this sample, process normally
+            oL = oR = o = 0.0f;
+            
+            for (int i = 0; i < NUM_VOICES; i++)
+            {
+                auto& voice = voices[static_cast<size_t>(i)];
+                
+                // This is from the original when there are no new MIDI inputs
+                out = -voice.beta * voice.out_2 + 
+                      voice.alpha * (voice.in_1 - voice.out_1) + voice.in_2;
+                
+                voice.out_2 = voice.out_1;
+                voice.out_1 = out;
+                voice.in_2 = voice.in_1;
+                voice.in_1 = 0.0f;
+                
+                // Always get the latest parameter values for active voices
+                if (voice.active)
+                {
+                    // Re-read voice parameters from the APVTS
+                    juce::String freqID = createVoiceParamID(i, kFreq);
+                    juce::String durationID = createVoiceParamID(i, kDuration);
+                    juce::String ampID = createVoiceParamID(i, kAmp);
+                    juce::String balanceID = createVoiceParamID(i, kBalance);
+                    juce::String noiseID = createVoiceParamID(i, kNoise);
+                    juce::String distortionID = createVoiceParamID(i, kDistortion);
+                    
+                    // Update key parameters that affect the sound in real-time
+                    voice.noiseAmount = *parameters.getRawParameterValue(noiseID);
+                    voice.balance = *parameters.getRawParameterValue(balanceID);
+                    
+                    // Get distortion parameter
+                    float distVal = *parameters.getRawParameterValue(distortionID) * 10.0f;
+                    voice.d1 = distVal;
+                    if (distVal > 1.0f)
+                        voice.d2 = (1.0f + distVal) * (1.0f - 0.8f * (distVal - 1.0f) / 19.0f);
+                    else
+                        voice.d2 = 1.0f + distVal;
+                }
+                
+                o = out * (1.0f + voice.noiseAmount * noise);
+                o *= voice.d2 / (1.0f + voice.d1 * o * o);
+                
+                oL += voice.balance * o;
+                oR += (1.0f - voice.balance) * o;
+            }
+            
+            leftChannel[samplePosition] = delayLeft->getVal(oL) * masterVolume;
+            rightChannel[samplePosition] = delayRight->getVal(oR) * masterVolume;
+            
+            samplePosition++;
+        }
+    }
+    
+    goto end;
+    
+    // -- Handle the case when there are no more MIDI notes to process --
+NoMoreNotes:
+    {
+        int remainingSamples = numSamples - samplePosition;
+        
+        if (remainingSamples > 2)
+        {
+            // First sample processing
+            noise = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+            oL = oR = o = 0.0f;
+            
+            for (int i = 0; i < NUM_VOICES; i++)
+            {
+                auto& voice = voices[static_cast<size_t>(i)];
+                
+                out = -voice.beta * voice.out_2 + 
+                      voice.alpha * (voice.in_1 - voice.out_1) + voice.in_2;
+                
+                voice.out_2 = voice.out_1;
+                voice.out_1 = out;
+                voice.in_2 = voice.in_1;
+                voice.in_1 = 0.0f;
+                
+                o = out * (1.0f + voice.noiseAmount * noise);
+                o *= voice.d2 / (1.0f + voice.d1 * o * o);
+                
+                oL += voice.balance * o;
+                oR += (1.0f - voice.balance) * o;
+            }
+            
+            leftChannel[samplePosition] = delayLeft->getVal(oL) * masterVolume;
+            rightChannel[samplePosition] = delayRight->getVal(oR) * masterVolume;
+            samplePosition++;
+            
+            // Second sample processing
+            noise = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+            oL = oR = o = 0.0f;
+            
+            for (int i = 0; i < NUM_VOICES; i++)
+            {
+                auto& voice = voices[static_cast<size_t>(i)];
+                
+                out = -voice.beta * voice.out_2 - voice.alpha * voice.out_1 + voice.in_2;
+                
+                voice.out_2 = voice.out_1;
+                voice.out_1 = out;
+                voice.in_2 = 0.0f;
+                
+                o = out * (1.0f + voice.noiseAmount * noise);
+                o *= voice.d2 / (1.0f + voice.d1 * o * o);
+                
+                oL += voice.balance * o;
+                oR += (1.0f - voice.balance) * o;
+            }
+            
+            leftChannel[samplePosition] = delayLeft->getVal(oL) * masterVolume;
+            rightChannel[samplePosition] = delayRight->getVal(oR) * masterVolume;
+            samplePosition++;
+            
+            // Remaining samples - in=in_1=in_2=0
+            remainingSamples = numSamples - samplePosition;
+            
+            for (int s = 0; s < remainingSamples; s++)
+            {
+                noise = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+                oL = oR = o = 0.0f;
+                
+                for (int i = 0; i < NUM_VOICES; i++)
+                {
+                    auto& voice = voices[static_cast<size_t>(i)];
+                    
+                    out = -voice.beta * voice.out_2 - voice.alpha * voice.out_1;
+                    
+                    voice.out_2 = voice.out_1;
+                    voice.out_1 = out;
+                    
+                    o = out * (1.0f + voice.noiseAmount * noise);
+                    o *= voice.d2 / (1.0f + voice.d1 * o * o);
+                    
+                    oL += voice.balance * o;
+                    oR += (1.0f - voice.balance) * o;
+                }
+                
+                leftChannel[samplePosition] = delayLeft->getVal(oL) * masterVolume;
+                rightChannel[samplePosition] = delayRight->getVal(oR) * masterVolume;
+                samplePosition++;
             }
         }
+        else
+        {
+            // Just the remaining 1-2 samples
+            for (int s = 0; s < remainingSamples; s++)
+            {
+                noise = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+                oL = oR = o = 0.0f;
+                
+                for (int i = 0; i < NUM_VOICES; i++)
+                {
+                    auto& voice = voices[static_cast<size_t>(i)];
+                    
+                    out = -voice.beta * voice.out_2 + 
+                          voice.alpha * (voice.in_1 - voice.out_1) + voice.in_2;
+                    
+                    voice.out_2 = voice.out_1;
+                    voice.out_1 = out;
+                    voice.in_2 = voice.in_1;
+                    voice.in_1 = 0.0f;
+                    
+                    o = out * (1.0f + voice.noiseAmount * noise);
+                    o *= voice.d2 / (1.0f + voice.d1 * o * o);
+                    
+                    oL += voice.balance * o;
+                    oR += (1.0f - voice.balance) * o;
+                }
+                
+                leftChannel[samplePosition] = delayLeft->getVal(oL) * masterVolume;
+                rightChannel[samplePosition] = delayRight->getVal(oR) * masterVolume;
+                samplePosition++;
+            }
+        }
+    }
+end:
+    
+    // Check for denormals just like the original
+    for (int i = 0; i < NUM_VOICES; i++)
+    {
+        auto& voice = voices[static_cast<size_t>(i)];
         
-        // Process delay
-        leftOutput = delayLeft->process(leftOutput);
-        rightOutput = delayRight->process(rightOutput);
-        
-        // Apply master volume
-        leftChannel[sample] = leftOutput * masterVolume;
-        rightChannel[sample] = rightOutput * masterVolume;
+        if (std::fpclassify(voice.out_1) == FP_SUBNORMAL)
+            voice.out_1 = 0.0f;
+            
+        if (std::fpclassify(voice.out_2) == FP_SUBNORMAL)
+            voice.out_2 = 0.0f;
     }
 }
 
@@ -215,7 +558,15 @@ void OnePingOnlyProcessor::handleMidiEvent(const juce::MidiMessage& midiMessage)
 {
     if (midiMessage.isNoteOn())
     {
-        noteOn(midiMessage.getNoteNumber(), midiMessage.getFloatVelocity());
+        int note = midiMessage.getNoteNumber();
+        float velocity = midiMessage.getFloatVelocity();
+        
+        // Direct handling of MIDI notes - make sure valid notes have sound
+        if (note >= 0 && note < NUM_VOICES)
+        {
+            // Call noteOn to set up the voice properly
+            noteOn(note, velocity);
+        }
     }
     else if (midiMessage.isNoteOff())
     {
@@ -233,15 +584,26 @@ void OnePingOnlyProcessor::noteOn(int midiNoteNumber, float velocity)
     if (midiNoteNumber < 0 || midiNoteNumber >= NUM_VOICES)
         return;
     
+    // In OnePingOnly, voices are directly mapped to MIDI note numbers - no allocation needed
     int voiceIndex = midiNoteNumber;
+    auto& voice = voices[static_cast<size_t>(voiceIndex)];
     
     // Activate the voice
-    voices[static_cast<size_t>(voiceIndex)].active = true;
-    voices[static_cast<size_t>(voiceIndex)].note = midiNoteNumber;
-    voices[static_cast<size_t>(voiceIndex)].amplitude = velocity;
+    voice.active = true;
+    voice.note = midiNoteNumber;
     
     // Update parameters for the voice
     updateVoiceFromParameters(voiceIndex);
+    
+    // CRITICAL: Set the input value based on velocity and gain
+    // This is what actually creates the "ping" sound in the original implementation
+    voice.in = voice.gain * velocity;
+    
+    // Make sure voice is updated in processBlock
+    DBG("NoteOn: Voice " + juce::String(voiceIndex) + " set to ACTIVE state");
+    
+    // Debug output to check voice triggering
+    DBG("Note On: " + juce::String(midiNoteNumber) + " with velocity " + juce::String(velocity) + " and gain " + juce::String(voice.gain));
 }
 
 void OnePingOnlyProcessor::noteOff(int midiNoteNumber, float /*velocity*/)
@@ -249,9 +611,15 @@ void OnePingOnlyProcessor::noteOff(int midiNoteNumber, float /*velocity*/)
     if (midiNoteNumber < 0 || midiNoteNumber >= NUM_VOICES)
         return;
     
-    // Deactivate the voice
-    int voiceIndex = midiNoteNumber;
-    voices[static_cast<size_t>(voiceIndex)].active = false;
+    // DON'T deactivate the voice - the Ping effect needs to continue
+    // This is a critical change - in a typical ping synth, we want the note
+    // to continue resonating and allow parameter adjustments
+    
+    // int voiceIndex = midiNoteNumber;
+    // voices[static_cast<size_t>(voiceIndex)].active = false;
+    
+    // Just log for debugging
+    DBG("Note Off received for note " + juce::String(midiNoteNumber) + " - keeping voice active");
 }
 
 void OnePingOnlyProcessor::updateVoiceFromParameters(int voiceIndex)
@@ -268,42 +636,64 @@ void OnePingOnlyProcessor::updateVoiceFromParameters(int voiceIndex)
     juce::String noiseID = createVoiceParamID(voiceIndex, kNoise);
     juce::String distortionID = createVoiceParamID(voiceIndex, kDistortion);
     
-    // These parameters could be used in future enhancements
-    // float freq = *parameters.getRawParameterValue(freqID);
-    // float duration = *parameters.getRawParameterValue(durationID);
-    // float amp = *parameters.getRawParameterValue(ampID);
-    
+    // Load all the parameters
+    float freq = *parameters.getRawParameterValue(freqID);
+    float duration = *parameters.getRawParameterValue(durationID);
+    float amp = *parameters.getRawParameterValue(ampID);
     float balance = *parameters.getRawParameterValue(balanceID);
     float noise = *parameters.getRawParameterValue(noiseID);
     float distortion = *parameters.getRawParameterValue(distortionID);
     
-    // Configure the voice filter
-    double freq_hz = midiNoteFrequencies[static_cast<size_t>(voiceIndex)];
-    double omega = 2.0 * juce::MathConstants<double>::pi * freq_hz / currentSampleRate;
-    // double sin_omega = std::sin(omega); // Not used in current implementation
-    double cos_omega = std::cos(omega);
-    
     size_t voiceIdx = static_cast<size_t>(voiceIndex);
     
-    voices[voiceIdx].alpha = 2.0f * static_cast<float>(cos_omega);
-    voices[voiceIdx].beta = 0.99f;
-    voices[voiceIdx].gamma = -0.99f;
+    // SetFreq - exactly as in original implementation
+    if (freq < 0.001f)
+        freq = 0.001f;
     
-    // Set the other voice parameters
+    double f = 2000.0 * freq; // Original scales by 2000 Hz
+    double omega = 2.0 * juce::MathConstants<double>::pi * f / currentSampleRate;
+    double cos_omega = std::cos(omega);
+    
+    voices[voiceIdx].gamma = static_cast<float>(-cos_omega);
+    
+    // SetDuration - exactly as in original implementation
+    float durationScaled = duration * 3.0f * static_cast<float>(currentSampleRate / 44100.0);
+    voices[voiceIdx].beta = (durationScaled * 8000.0f - 1.0f) / (durationScaled * 8000.0f + 1.0f);
+    
+    // Constrain beta for stability
+    if (voices[voiceIdx].beta >= 1.0f)
+        voices[voiceIdx].beta = 0.999f;
+    
+    // Update alpha based on gamma and beta - exactly as in original
+    voices[voiceIdx].alpha = voices[voiceIdx].gamma * (1.0f + voices[voiceIdx].beta);
+    
+    // SetAmp - exactly as in original implementation
+    voices[voiceIdx].amplitude = amp;
+    // This is critical for sound production - sets the gain based on amplitude and beta
+    voices[voiceIdx].gain = amp * 0.4f / (1.0f - voices[voiceIdx].beta);
+    
+    // For debugging - ensure gain is not zero
+    if (voices[voiceIdx].gain < 0.001f)
+        voices[voiceIdx].gain = 0.001f;
+    
+    // SetBalance - exactly as in original implementation
     voices[voiceIdx].balance = balance;
+    
+    // SetNoise - exactly as in original implementation
     voices[voiceIdx].noiseAmount = noise;
-    voices[voiceIdx].distortionAmount = distortion;
     
-    // Reset filter state
-    voices[voiceIdx].in = 0.0f;
-    voices[voiceIdx].in_1 = 0.0f;
-    voices[voiceIdx].in_2 = 0.0f;
-    voices[voiceIdx].out_1 = 0.0f;
-    voices[voiceIdx].out_2 = 0.0f;
+    // SetDistortion - exactly as in original implementation
+    float dist = distortion * 10.0f;
+    voices[voiceIdx].d1 = dist;
     
-    // Reset envelope state
-    voices[voiceIdx].d1 = 0.0f;
-    voices[voiceIdx].d2 = 0.0f;
+    if (dist > 1.0f)
+        voices[voiceIdx].d2 = (1.0f + dist) * (1.0f - 0.8f * (dist - 1.0f) / 19.0f); // empirical hack from original
+    else
+        voices[voiceIdx].d2 = 1.0f + dist;
+    
+    // Don't reset filter state during parameter updates
+    // This would prevent sound from occurring
+    // Only reset when explicitly creating a new voice
 }
 
 void OnePingOnlyProcessor::updateAllVoicesFromParameters()
@@ -326,49 +716,7 @@ void OnePingOnlyProcessor::updateAllVoicesFromParameters()
     }
 }
 
-void OnePingOnlyProcessor::processVoice(int voiceIndex, float& leftOut, float& rightOut)
-{
-    auto& voice = voices[static_cast<size_t>(voiceIndex)];
-    
-    // Noise input (1.0 gives a ping, any less adds noise)
-    float input = 1.0f;
-    if (voice.noiseAmount > 0.0f)
-    {
-        input = voice.noiseAmount * (juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f) + (1.0f - voice.noiseAmount);
-    }
-    
-    // Decay envelope
-    voice.d2 = voice.d1;
-    voice.d1 = voice.amplitude * 0.001f + voice.d1 * 0.999f;
-    float envelope = voice.d1 - voice.d2;
-    
-    // Make sure the envelope doesn't go negative
-    if (envelope < 0.0f)
-        envelope = 0.0f;
-    
-    // Apply the envelope to the input
-    voice.in = input * envelope;
-    
-    // Resonant filter (simulates the ping sound)
-    float out = voice.alpha * voice.out_1 + voice.beta * voice.out_2 + voice.in - voice.in_1 * voice.alpha + voice.in_2 * voice.gamma;
-    
-    // Distortion effect
-    if (voice.distortionAmount > 0.0f)
-    {
-        out = std::tanh(out * (1.0f + voice.distortionAmount * 10.0f)) / (1.0f + voice.distortionAmount * 10.0f);
-    }
-    
-    // Update filter state
-    voice.in_2 = voice.in_1;
-    voice.in_1 = voice.in;
-    voice.out_2 = voice.out_1;
-    voice.out_1 = out;
-    
-    // Apply balance/panning
-    float pan = voice.balance * 2.0f - 1.0f; // Convert 0-1 to -1 to +1
-    leftOut = out * (1.0f - std::max(0.0f, pan));
-    rightOut = out * (1.0f + std::min(0.0f, pan));
-}
+// No longer needed - we directly implement the original processing algorithm in processBlock
 
 juce::AudioProcessorEditor* OnePingOnlyProcessor::createEditor()
 {
@@ -387,7 +735,7 @@ const juce::String OnePingOnlyProcessor::getName() const
 
 bool OnePingOnlyProcessor::acceptsMidi() const
 {
-    return true;
+    return true; // This plugin requires MIDI input
 }
 
 bool OnePingOnlyProcessor::producesMidi() const
@@ -397,7 +745,7 @@ bool OnePingOnlyProcessor::producesMidi() const
 
 bool OnePingOnlyProcessor::isMidiEffect() const
 {
-    return false;
+    return true; // Explicitly mark as MIDI effect to ensure we get MIDI
 }
 
 double OnePingOnlyProcessor::getTailLengthSeconds() const
@@ -522,9 +870,47 @@ void OnePingOnlyProcessor::setStateInformation(const void* data, int sizeInBytes
     }
 }
 
-void OnePingOnlyProcessor::valueTreePropertyChanged(juce::ValueTree& /*tree*/, const juce::Identifier& /*property*/)
+void OnePingOnlyProcessor::valueTreePropertyChanged(juce::ValueTree& /*tree*/, const juce::Identifier& property)
 {
-    // React to parameter changes
+    // Get the parameter ID as a string
+    juce::String paramId = property.toString();
+    
+    // Check if the parameter is a global parameter
+    if (paramId == delayTimeID || paramId == feedbackID || paramId == masterVolumeID)
+    {
+        // For global parameters, update all voices
+        updateAllVoicesFromParameters();
+        return;
+    }
+    
+    // If it's a voice parameter, determine which voice is affected
+    // Try to extract a voice index from the parameter ID
+    // Voice parameter IDs are formatted as "base" + voiceIndex (e.g., "freq42")
+    
+    // First, find which base name matches our parameter
+    static const juce::StringArray baseNames = {"freq", "duration", "amp", "balance", "noise", "distortion"};
+    
+    for (const auto& baseName : baseNames)
+    {
+        if (paramId.startsWith(baseName))
+        {
+            // Extract the numeric part (voice index) from the parameter ID
+            juce::String indexPart = paramId.substring(baseName.length());
+            int voiceIndex = indexPart.getIntValue();
+            
+            if (voiceIndex >= 0 && voiceIndex < NUM_VOICES)
+            {
+                // Update just this specific voice
+                updateVoiceFromParameters(voiceIndex);
+                
+                // For debugging
+                DBG("Updated parameters for voice " + juce::String(voiceIndex));
+                return;
+            }
+        }
+    }
+    
+    // If we couldn't determine a specific voice, update all voices to be safe
     updateAllVoicesFromParameters();
 }
 

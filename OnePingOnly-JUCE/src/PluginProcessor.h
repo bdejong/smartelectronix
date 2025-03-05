@@ -27,6 +27,16 @@ enum GlobalParams
 };
 
 // Voice structure for holding voice-specific data
+#define MAX_MIDI_NOTES 200
+
+// Holds MIDI note data for processing, mimicking NoteData from original
+struct MidiNoteData
+{
+    int note;       // MIDI note number
+    float velocity; // Note velocity (0-1)
+    int deltaFrames;// Sample offset in the buffer
+};
+
 struct PingVoice
 {
     bool active = false;
@@ -40,6 +50,7 @@ struct PingVoice
     float gamma = -0.99f;
     float d1 = 0.0f;
     float d2 = 0.0f;
+    float gain = 0.4f;  // Gain factor used in original (g[i])
     float in = 0.0f;
     float in_1 = 0.0f;
     float in_2 = 0.0f;
@@ -50,6 +61,10 @@ struct PingVoice
 class OnePingOnlyProcessor : public juce::AudioProcessor,
                              private juce::ValueTree::Listener
 {
+public:
+    // A public value to track the currently selected note in the UI
+    int currentUISelectedNote = 60;
+    
 public:
     OnePingOnlyProcessor();
     ~OnePingOnlyProcessor() override;
@@ -82,17 +97,26 @@ public:
 
     // Parameter management
     juce::AudioProcessorValueTreeState& getValueTreeState() { return parameters; }
+    
+    // Make these public so the editor can directly call them when UI controls change
+    void updateVoiceFromParameters(int voiceIndex);
+    void updateAllVoicesFromParameters();
+    
+    // Method to manually set a voice's active state (for UI-driven updates)
+    void setVoiceActiveState(int voiceIndex, bool active)
+    {
+        if (voiceIndex >= 0 && voiceIndex < NUM_VOICES)
+        {
+            voices[static_cast<size_t>(voiceIndex)].active = active;
+            DBG("Voice " + juce::String(voiceIndex) + " active state set to: " + juce::String(active));
+        }
+    }
 
 private:
     // Voice management
     void handleMidiEvent(const juce::MidiMessage& midiMessage);
     void noteOn(int midiNoteNumber, float velocity);
     void noteOff(int midiNoteNumber, float velocity);
-    void updateVoiceFromParameters(int voiceIndex);
-    void updateAllVoicesFromParameters();
-    
-    // Process voice and generate ping sound
-    void processVoice(int voiceIndex, float& leftOut, float& rightOut);
     
     // Parameter handling
     void valueTreePropertyChanged(juce::ValueTree& tree, const juce::Identifier& property) override;
@@ -115,6 +139,9 @@ private:
     
     // Current sample rate
     double currentSampleRate;
+    
+    // Store MIDI notes for processing
+    std::vector<MidiNoteData> midiNotes;
     
     // Program management
     int currentProgram;

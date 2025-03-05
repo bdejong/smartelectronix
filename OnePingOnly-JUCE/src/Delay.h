@@ -11,12 +11,13 @@ public:
     void setFeedback(float feedback);
     void clearBuffer();
     void setMaxDelay(int maxDelay);
-    float process(float input);
+    float getVal(float input); // Renamed to match original implementation
     void setDelay(int delayInSamples);
     
 private:
     std::unique_ptr<float[]> buffer;
     float feedback;
+    float feedbackTemp; // Added to match original implementation
     int bufferIndex;
     int readPosition;
     int delaySamples;
