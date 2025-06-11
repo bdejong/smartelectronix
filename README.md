@@ -3,7 +3,7 @@ Open source versions of all bram @ smartelectronix plugins. 20 Years after worki
 
 You can find the original smartelectronix pages here: http://bram.smartelectronix.com
 
-[![Build Plugins](https://github.com/bdejong/smartelectronix/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/bdejong/smartelectronix/actions/workflows/build.yml)
+[![Build Plugins](https://github.com/bdejong/smartelectronix/actions/workflows/build.yml/badge.svg?branch=feat/gh-build)](https://github.com/bdejong/smartelectronix/actions/workflows/build.yml)
 
 
 ## Donations

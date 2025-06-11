@@ -3,7 +3,7 @@ name: Build Plugins
 # Trigger builds on master branch pushes, version tags, and pull requests
 on:
   push:
-    branches: [ master ]
+    branches: [ master, feat/gh-build ]  # Temporarily add feature branch for testing
     tags: [ 'v*' ]        # Also trigger on version tags (v1.0.0, etc.)
   pull_request:
     branches: [ master ]
@@ -87,7 +87,7 @@ jobs:
   release:
     needs: [build-macos, build-windows]  # Wait for both platform builds to complete
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/feat/gh-build'  # Allow testing on feature branch
     
     steps:
     # Download all the zip files created by the build jobs above
