@@ -47,6 +47,13 @@ function(add_vstsdk VST_TARGET)
   source_group("vst2.x" FILES ${VST_SOURCE})
   source_group("Interfaces" FILES ${VST_INTERFACE})
 
+  # Fix for macOS C++11 narrowing error in VST SDK
+  if(APPLE)
+    set_source_files_properties(
+      ${STEINBERG_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
+      PROPERTIES COMPILE_FLAGS "-Wno-c++11-narrowing")
+  endif()
+
   target_sources(${VST_TARGET} PUBLIC ${VST_SOURCE} ${VST_INTERFACE})
   target_include_directories(${VST_TARGET} PUBLIC ${STEINBERG_DIR})
 
