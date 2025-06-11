@@ -65,7 +65,7 @@ jobs:
     
     - name: Build
       run: |
-        .\build.ps1 -Verbose ${{ matrix.platform }} ${{ matrix.config }} -Generator "Visual Studio 17 2022"
+        .\build.ps1 -Verbose ${{ matrix.platform }} ${{ matrix.config }}
     
     - name: Test
       run: ctest

@@ -46,9 +46,9 @@ Param
     $Configuration = 'Release',
     
     [Parameter(Mandatory=$false, Position=3)]
-    [ValidateSet('Visual Studio 14 2015','Visual Studio 15 2017')]
+    [ValidateSet('Visual Studio 14 2015','Visual Studio 15 2017','Visual Studio 17 2022')]
     [String]
-    $Generator = 'Visual Studio 14 2015',
+    $Generator = 'Visual Studio 17 2022',
     
     [Parameter(Mandatory=$false)]
     [Switch]
@@ -69,8 +69,23 @@ $targets | ForEach-Object {
   # Setup
   $treeDirectory = "CMakeBuild/$_"
 
-  if ($_ -eq "x64") {
-    $postfix = " Win64"
+  # Handle architecture for different VS versions
+  if ($Generator -eq "Visual Studio 17 2022") {
+    # VS 2022 uses -A flag for architecture
+    if ($_ -eq "x64") {
+      $archFlag = @("-A", "x64")
+    } else {
+      $archFlag = @("-A", "Win32")
+    }
+    $generatorName = $Generator
+  } else {
+    # VS 2015/2017 use old naming convention
+    if ($_ -eq "x64") {
+      $generatorName = "$Generator Win64"
+    } else {
+      $generatorName = $Generator
+    }
+    $archFlag = @()
   }
 
   # Generate project
@@ -79,7 +94,7 @@ $targets | ForEach-Object {
   }
 
   # Generate visual studio project files
-  cmake -E chdir $treeDirectory cmake -G "$Generator$postfix" ../../
+  cmake -E chdir $treeDirectory cmake -G $generatorName @archFlag ../../
   if ($LASTEXITCODE -ne 0) { throw "cmake failed" }
 
   # Build
