@@ -1,0 +1,122 @@
+name: Build Plugins
+
+# Trigger builds on master branch pushes, version tags, and pull requests
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ]        # Also trigger on version tags (v1.0.0, etc.)
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  # Build VST plugins for macOS using the native build process from README
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    # Get the source code including vstgui submodule (required for VST plugins)
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive    # Essential: pulls in vstgui dependency
+    
+    # Install build dependencies using Homebrew
+    - name: Install dependencies
+      run: |
+        brew update
+        brew upgrade cmake       # Ensure we have latest CMake for building
+    
+    # Build using the same commands from README: cmake . && make
+    - name: Configure and Build
+      run: |
+        cmake .
+        make
+    
+    # Run tests to ensure plugins work correctly
+    - name: Test
+      run: make test
+    
+    # Package all .vst files into a zip for distribution
+    - name: Package artifacts
+      run: |
+        zip -r macos-plugins-${{ github.sha }}.zip */*.vst
+    
+    # Store build artifacts for 30 days (and for release job to download)
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-plugins
+        path: macos-plugins-*.zip
+        retention-days: 30       # Auto-cleanup after 30 days to save storage
+
+  # Build VST plugins for Windows using the PowerShell build script
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [x86, x64]
+        config: [Release]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Build
+      run: |
+        .\build.ps1 -Verbose ${{ matrix.platform }} ${{ matrix.config }}
+    
+    - name: Test
+      run: ctest
+    
+    # Package Windows plugins from the CMakeBuild output directory
+    - name: Package artifacts
+      run: |
+        Compress-Archive -Path "CMakeBuild/${{ matrix.platform }}/${{ matrix.config }}/*" -DestinationPath "windows-plugins-${{ matrix.platform }}-${{ github.sha }}.zip"
+    
+    # Store artifacts separately for each platform (x86/x64)
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-plugins-${{ matrix.platform }}
+        path: windows-plugins-*.zip
+        retention-days: 30
+
+  # Create rolling releases on every master push with all platform builds
+  release:
+    needs: [build-macos, build-windows]  # Wait for both platform builds to complete
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+    # Download all the zip files created by the build jobs above
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    # Create a GitHub release with all platform builds attached
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: "build-${{ github.run_number }}"           # Auto-incrementing build numbers
+        name: "Rolling Release - Build ${{ github.run_number }}"
+        files: artifacts/**/*.zip                            # Attach all platform zip files
+        body: |
+          ## Smartelectronix Plugins - Rolling Release
+          
+          **Build #${{ github.run_number }}** - Built from commit ${{ github.sha }}
+          
+          **Commit**: ${{ github.event.head_commit.message }}
+          
+          ### Downloads:
+          - **macOS**: macos-plugins.zip
+          - **Windows x86**: windows-plugins-x86.zip  
+          - **Windows x64**: windows-plugins-x64.zip
+          
+          *This is a rolling release that gets updated on every push to master.*
+        draft: false
+        prerelease: true                                     # Mark as prerelease since it's a rolling build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}           # Built-in token for creating releases 
