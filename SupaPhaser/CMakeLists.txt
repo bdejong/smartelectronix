@@ -1,42 +1,72 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22)
+project(SupaPhaser VERSION 1.0.0)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../common/common.cmake)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-pre_build()
+# Fetch JUCE (skipped when building from root CMakeLists.txt)
+if(NOT TARGET juce::juce_core)
+    include(FetchContent)
+    FetchContent_Declare(JUCE
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG 8.0.12
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(JUCE)
+endif()
 
-project(SupaPhaser)
-
-set(PROJECT_SOURCE 
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaser.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaPhaserMain.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CustomSplashScreen.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/CustomSplashScreen.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/MultiStateButton.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/MultiStateButton.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/presets.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/WavetableFPOsc.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/WavetableFPOsc.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.cpp
+# Add the plugin
+juce_add_plugin(SupaPhaser
+    COMPANY_NAME "Smartelectronix"
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    PLUGIN_MANUFACTURER_CODE Smex
+    PLUGIN_CODE ASuP
+    FORMATS AU VST3 Standalone
+    PRODUCT_NAME "SupaPhaser"
 )
 
-set(PROJECT_IMAGES
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/blue_knob1_4.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/extend_on_off.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/heads.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/slider.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/small_knob02.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/splash.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/type_grey-back_white.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/type_orange-back.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/type_white-back.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/base.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/bigknob01rotated_cropped2.png
+# Add binary resources (images)
+juce_add_binary_data(SupaPhaser_Assets SOURCES
+    Resources/base.png
+    Resources/blue_knob1_4.png
+    Resources/bigknob01rotated_cropped2.png
+    Resources/small_knob02.png
+    Resources/type_grey-back_white.png
+    Resources/type_white-back.png
+    Resources/type_orange-back.png
+    Resources/extend_on_off.png
+    Resources/slider.png
+    Resources/heads.png
+    Resources/splash.png
 )
 
-build_vst_gui(SupaPhaser "${PROJECT_SOURCE}" "${PROJECT_IMAGES}")
+# Source files
+target_sources(SupaPhaser PRIVATE
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.cpp
+    Source/DSP/WavetableFPOsc.cpp
+    Source/UI/FilmStripKnob.cpp
+    Source/UI/FilmStripSlider.cpp
+    Source/UI/TextDisplay.cpp
+    Source/UI/SplashOverlay.cpp
+)
+
+target_compile_definitions(SupaPhaser
+    PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0
+)
+
+target_link_libraries(SupaPhaser
+    PRIVATE
+        SupaPhaser_Assets
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)

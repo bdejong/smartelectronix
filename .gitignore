@@ -1,69 +1,34 @@
+# Build output
+build/
+
+# macOS
 .DS_Store
 
-# Compiled Object files
-*.slo
-*.lo
+# IDEs
+.vs/
+.vscode/
+*.xcworkspace
+*.xcuserdata
+CMakeSettings.json
+CMakeLists.txt.user
+
+# CMake (in case of in-source builds)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Compiled objects and libraries
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
+*.a
+*.lib
 *.so
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Visual Studio files
-.vs/
-*.sln
-*.vcxproj*
-CMakeSettings.json
-
-# VST specific
+# Plugin binaries
 *.vst
-
-# Visual C++ cache files
-ipch/
-*.aps
-*.ncb
-*.opendb
-*.opensdf
-*.sdf
-*.cachefile
-*.VC.db
-*.VC.VC.opendb
-
-# Cmake
-Makefile
-CMakeCache.txt
-CMakeFiles
-CMakeLists.txt.user
-CTestTestfile.cmake
-cmake_install.cmake
-Debug/
-Release/
-x64/
-Win32/
-install_manifest.txt
-out.wav
-Testing/
-CMakeBuild
-.vscode
-
-bintray-osx.json
+*.vst3
+*.component
+*.app

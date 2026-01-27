@@ -1,0 +1,83 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Collect artifacts (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p artifacts
+          for artefacts_dir in build/*/; do
+            # Look for plugin artefact directories
+            found=$(find "$artefacts_dir" -maxdepth 1 -name "*_artefacts" -type d 2>/dev/null)
+            [ -z "$found" ] && continue
+            artefacts_dir="$found/Release"
+            if [ -d "$artefacts_dir/VST3" ]; then
+              cp -R "$artefacts_dir/VST3"/*.vst3 artifacts/ 2>/dev/null || true
+            fi
+            if [ -d "$artefacts_dir/AU" ]; then
+              cp -R "$artefacts_dir/AU"/*.component artifacts/ 2>/dev/null || true
+            fi
+          done
+
+      - name: Collect artifacts (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts
+          Get-ChildItem -Path build -Recurse -Filter "*.vst3" -Directory | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination artifacts -Recurse -Force
+          }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartelectronix-${{ runner.os }}
+          path: artifacts/
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
+      - name: Zip artifacts
+        run: |
+          cd all-artifacts
+          for dir in */; do
+            (cd "$dir" && zip -r "../../${dir%/}.zip" .)
+          done
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: '*.zip'
+          generate_release_notes: true

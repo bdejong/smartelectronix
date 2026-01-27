@@ -1,33 +1,65 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22)
+project(H2O VERSION 1.0.0)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../common/common.cmake)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-pre_build()
+# Fetch JUCE (skipped when building from root CMakeLists.txt)
+if(NOT TARGET juce::juce_core)
+    include(FetchContent)
+    FetchContent_Declare(JUCE
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG 8.0.12
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(JUCE)
+endif()
 
-project(H2O)
-
-set(PROJECT_SOURCE
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/Compressor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/Compressor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Oedit.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Oedit.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Oeditor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Oeditor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Oeffect.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Oeffect.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/H2Omain.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.cpp
+# Add the plugin
+juce_add_plugin(H2O
+    COMPANY_NAME "Smartelectronix"
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    PLUGIN_MANUFACTURER_CODE Smex
+    PLUGIN_CODE H2Oj
+    FORMATS AU VST3 Standalone
+    PRODUCT_NAME "H2O"
 )
 
-set(PROJECT_IMAGES
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/ascii.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/back.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/knob.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/saturate.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/splash.png
+# Add binary resources (images)
+juce_add_binary_data(H2O_Assets SOURCES
+    Resources/ascii.png
+    Resources/back.png
+    Resources/knob.png
+    Resources/saturate.png
+    Resources/splash.png
 )
 
-build_vst_gui(H2O "${PROJECT_SOURCE}" "${PROJECT_IMAGES}")
+# Source files
+target_sources(H2O PRIVATE
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.cpp
+    Source/DSP/Compressor.cpp
+    Source/UI/FilmStripKnob.cpp
+    Source/UI/BitmapTextDisplay.cpp
+    Source/UI/SplashOverlay.cpp
+)
+
+target_compile_definitions(H2O
+    PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0
+)
+
+target_link_libraries(H2O
+    PRIVATE
+        H2O_Assets
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)

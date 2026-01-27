@@ -1,22 +1,27 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22)
+project(SmartelectronixPlugins VERSION 1.0.0)
 
-include(CMakeToolsHelpers OPTIONAL)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set(CMAKE_VERBOSE_MAKEFILE ON) # switch on for verbose building
+# Fetch JUCE once for all plugins
+include(FetchContent)
+FetchContent_Declare(JUCE
+    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+    GIT_TAG 8.0.12
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(JUCE)
 
-project(Smartelectronix)
-
-enable_testing()
-
-add_subdirectory(AnechoicRoomSimulator)
-add_subdirectory(Bitmurderer)
-add_subdirectory(Bouncy)
-add_subdirectory(CrazyIvan)
-#add_subdirectory(Cyanide2)
-add_subdirectory(H2O)
-#add_subdirectory(Madshifta)
-add_subdirectory(OnePingOnly)
-add_subdirectory(Smexoscope)
-add_subdirectory(Smexoscope-dark)
-add_subdirectory(SupaPhaser)
-add_subdirectory(SupaTrigga)
+# Add all plugins
+add_subdirectory(anechoicroomsimulator)
+add_subdirectory(bitmurderer)
+add_subdirectory(bouncy)
+add_subdirectory(crazyivan)
+add_subdirectory(cyanide2)
+add_subdirectory(h2o)
+add_subdirectory(madshifta)
+add_subdirectory(onepingonly)
+add_subdirectory(smexoscope)
+add_subdirectory(supaphaser)
+add_subdirectory(supatrigga)

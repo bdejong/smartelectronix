@@ -1,4 +1,0 @@
-[submodule "vstgui"]
-	path = vstgui
-    url = https://github.com/steinbergmedia/vstgui.git
-    ignore = dirty

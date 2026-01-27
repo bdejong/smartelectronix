@@ -1,28 +1,63 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22)
+project(AnechoicRoomSimulator VERSION 1.0.0)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../common/common.cmake)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-pre_build()
+# Fetch JUCE (skipped when building from root CMakeLists.txt)
+if(NOT TARGET juce::juce_core)
+    include(FetchContent)
+    FetchContent_Declare(JUCE
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG 8.0.12
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(JUCE)
+endif()
 
-project(AnechoicRoomSimulator)
-
-set(PROJECT_SOURCE
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/asciitable.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASupaEditor.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/AnechoicRoomSim.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/AnechoicRoomSim.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/AnechoicRoomSimMain.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/TextDisplay.hpp
+# Add the plugin
+juce_add_plugin(AnechoicRoomSimulator
+    COMPANY_NAME "Smartelectronix"
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    PLUGIN_MANUFACTURER_CODE Smex
+    PLUGIN_CODE AneC
+    FORMATS AU VST3 Standalone
+    PRODUCT_NAME "Anechoic Room Simulator"
 )
 
-set(PROJECT_IMAGES
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/back.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/knob.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/splash.png
-  ${CMAKE_CURRENT_SOURCE_DIR}/images/type.png
+# Add binary resources (images)
+juce_add_binary_data(AnechoicRoomSimulator_Assets SOURCES
+    Resources/back.png
+    Resources/knob.png
+    Resources/type.png
+    Resources/splash.png
 )
 
-build_vst_gui(AnechoicRoomSimulator "${PROJECT_SOURCE}" "${PROJECT_IMAGES}")
+# Source files
+target_sources(AnechoicRoomSimulator PRIVATE
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.cpp
+    Source/UI/FilmStripKnob.cpp
+    Source/UI/TextDisplay.cpp
+    Source/UI/SplashOverlay.cpp
+)
+
+target_compile_definitions(AnechoicRoomSimulator
+    PUBLIC
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0
+)
+
+target_link_libraries(AnechoicRoomSimulator
+    PRIVATE
+        AnechoicRoomSimulator_Assets
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+)

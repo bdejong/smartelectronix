@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(file:*)",
+      "Bash(git -C /Users/bram.dejong/Documents/dev/_sandbox/smartelectronix log --oneline)",
+      "Bash(cmake:*)",
+      "Bash(sips:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "WebSearch",
+      "Bash(python3 -m venv:*)",
+      "Bash(/tmp/pillow-env/bin/pip install:*)"
+    ]
+  }
+}
