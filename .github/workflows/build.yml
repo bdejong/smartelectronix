@@ -13,11 +13,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libfreetype6-dev libx11-dev \
+            libxrandr-dev libxcursor-dev libxinerama-dev libwebkit2gtk-4.1-dev \
+            libcurl4-openssl-dev
 
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1
@@ -33,17 +41,26 @@ jobs:
       - name: Collect artifacts (macOS)
         if: runner.os == 'macOS'
         run: |
-          mkdir -p artifacts-vst3 artifacts-au
+          mkdir -p artifacts-vst3 artifacts-au artifacts-lv2
           for dir in build/*/; do
             found=$(find "$dir" -maxdepth 1 -name "*_artefacts" -type d 2>/dev/null)
             [ -z "$found" ] && continue
             release_dir="$found/Release"
-            if [ -d "$release_dir/VST3" ]; then
-              cp -R "$release_dir/VST3"/*.vst3 artifacts-vst3/ 2>/dev/null || true
-            fi
-            if [ -d "$release_dir/AU" ]; then
-              cp -R "$release_dir/AU"/*.component artifacts-au/ 2>/dev/null || true
-            fi
+            [ -d "$release_dir/VST3" ] && cp -R "$release_dir/VST3"/*.vst3 artifacts-vst3/ 2>/dev/null || true
+            [ -d "$release_dir/AU" ] && cp -R "$release_dir/AU"/*.component artifacts-au/ 2>/dev/null || true
+            [ -d "$release_dir/LV2" ] && cp -R "$release_dir/LV2"/*.lv2 artifacts-lv2/ 2>/dev/null || true
+          done
+
+      - name: Collect artifacts (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p artifacts-vst3 artifacts-lv2
+          for dir in build/*/; do
+            found=$(find "$dir" -maxdepth 1 -name "*_artefacts" -type d 2>/dev/null)
+            [ -z "$found" ] && continue
+            release_dir="$found"
+            [ -d "$release_dir/VST3" ] && cp -R "$release_dir/VST3"/*.vst3 artifacts-vst3/ 2>/dev/null || true
+            [ -d "$release_dir/LV2" ] && cp -R "$release_dir/LV2"/*.lv2 artifacts-lv2/ 2>/dev/null || true
           done
 
       - name: Collect artifacts (Windows)
@@ -67,6 +84,13 @@ jobs:
         with:
           name: smartelectronix-macOS-AU
           path: artifacts-au/
+
+      - name: Upload LV2 artifacts
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartelectronix-${{ runner.os }}-LV2
+          path: artifacts-lv2/
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

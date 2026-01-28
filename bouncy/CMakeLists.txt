@@ -23,7 +23,7 @@ juce_add_plugin(Bouncy
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE Bncy
-    FORMATS AU VST3 Standalone
+    FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Bouncy"
 )
 
