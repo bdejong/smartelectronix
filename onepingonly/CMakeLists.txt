@@ -23,6 +23,7 @@ juce_add_plugin(OnePingOnly
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE Ping
+    LV2URI "https://familiedejong.be/plugins/OnePingOnly"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "One Ping Only"
 )

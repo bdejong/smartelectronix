@@ -23,6 +23,7 @@ juce_add_plugin(H2O
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE H2Oj
+    LV2URI "https://familiedejong.be/plugins/H2O"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "H2O"
 )

@@ -27,13 +27,26 @@ jobs:
             libxrandr-dev libxcursor-dev libxinerama-dev libwebkit2gtk-4.1-dev \
             libcurl4-openssl-dev
 
-      - name: Install ccache
+      - name: Install ccache (Unix)
+        if: runner.os != 'Windows'
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ${{ runner.os }}-ccache
 
-      - name: Configure
+      - name: Install sccache (Windows)
+        if: runner.os == 'Windows'
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ runner.os }}-sccache
+          variant: sccache
+
+      - name: Configure (Unix)
+        if: runner.os != 'Windows'
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
       - name: Build
         run: cmake --build build --config Release

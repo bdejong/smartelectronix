@@ -58,7 +58,7 @@ void RotaryKnob::mouseDrag(const juce::MouseEvent& event)
     float newValue = dragStartValue + deltaY * dragSensitivity;
     newValue = juce::jlimit(0.0f, 1.0f, newValue);
 
-    if (std::fabsf(newValue - value) > 1e-10f)
+    if (std::fabs(newValue - value) > 1e-10f)
     {
         value = newValue;
         repaint();
@@ -77,7 +77,7 @@ void RotaryKnob::mouseDoubleClick(const juce::MouseEvent&)
 void RotaryKnob::setValue(float newValue)
 {
     newValue = juce::jlimit(0.0f, 1.0f, newValue);
-    if (std::fabsf(value - newValue) > 1e-10f)
+    if (std::fabs(value - newValue) > 1e-10f)
     {
         value = newValue;
         repaint();

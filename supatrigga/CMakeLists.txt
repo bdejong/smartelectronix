@@ -23,6 +23,7 @@ juce_add_plugin(SupaTrigga
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE GLTC
+    LV2URI "https://familiedejong.be/plugins/SupaTrigga"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "SupaTrigga"
 )

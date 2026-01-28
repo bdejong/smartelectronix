@@ -25,7 +25,7 @@ void FilmStripSlider::mouseDown(const juce::MouseEvent& event)
 {
     float newValue = 1.0f - static_cast<float>(event.getPosition().y - minY) / static_cast<float>(maxY - minY);
     newValue = juce::jlimit(0.0f, 1.0f, newValue);
-    if (std::fabsf(newValue - value) > 1e-10f)
+    if (std::fabs(newValue - value) > 1e-10f)
     {
         value = newValue;
         repaint();
@@ -42,7 +42,7 @@ void FilmStripSlider::mouseDrag(const juce::MouseEvent& event)
 void FilmStripSlider::setValue(float newValue)
 {
     newValue = juce::jlimit(0.0f, 1.0f, newValue);
-    if (std::fabsf(value - newValue) > 1e-10f)
+    if (std::fabs(value - newValue) > 1e-10f)
     {
         value = newValue;
         repaint();

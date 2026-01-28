@@ -22,6 +22,7 @@ juce_add_plugin(Bitmurderer
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE BITM
+    LV2URI "https://familiedejong.be/plugins/Bitmurderer"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Bitmurderer"
 )

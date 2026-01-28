@@ -23,6 +23,7 @@ juce_add_plugin(Madshifta
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE TBMS
+    LV2URI "https://familiedejong.be/plugins/Madshifta"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "MadShifta"
 )

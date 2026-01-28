@@ -23,6 +23,7 @@ juce_add_plugin(AnechoicRoomSimulator
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE Smex
     PLUGIN_CODE AneC
+    LV2URI "https://familiedejong.be/plugins/AnechoicRoomSimulator"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Anechoic Room Simulator"
 )
