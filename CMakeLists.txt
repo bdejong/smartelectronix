@@ -4,6 +4,13 @@ project(SmartelectronixPlugins VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Use ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
 # Fetch JUCE once for all plugins
 include(FetchContent)
 FetchContent_Declare(JUCE
@@ -25,3 +32,4 @@ add_subdirectory(onepingonly)
 add_subdirectory(smexoscope)
 add_subdirectory(supaphaser)
 add_subdirectory(supatrigga)
+
