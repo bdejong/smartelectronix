@@ -103,7 +103,7 @@ public:
         float newValue = dragStartValue + deltaY * 0.005f;
         newValue = juce::jlimit(0.0f, 1.0f, newValue);
 
-        if (std::fabsf(newValue - value) > 1e-10f)
+        if (std::fabs(newValue - value) > 1e-10f)
         {
             value = newValue;
             repaint();

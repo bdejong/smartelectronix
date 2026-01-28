@@ -25,10 +25,10 @@ namespace {
     float process1(float in, short mask, bool b_xor, bool b_and, bool power)
     {
         bool sign = in < 0.f;
-        in = clip(std::fabsf(in));
+        in = clip(std::fabs(in));
 
         if (power)
-            in = std::powf(in, 1.f / 3.f);
+            in = std::pow(in, 1.f / 3.f);
 
         short x = static_cast<short>(in * 32767.f);
 
@@ -43,7 +43,7 @@ namespace {
         float out = static_cast<float>(x) / 32767.f;
 
         if (power)
-            out = std::powf(out, 3.f);
+            out = std::pow(out, 3.f);
 
         return sign ? -out : out;
     }
@@ -367,8 +367,8 @@ void CrazyIvanProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
     // Update DSP parameters
     LP.SetParams(1.f - scaledDamp);
 
-    float x1 = std::fabsf(scaledFreq1 - scaledDFreq1);
-    float x2 = std::fabsf(scaledFreq1 + scaledDFreq1);
+    float x1 = std::fabs(scaledFreq1 - scaledDFreq1);
+    float x2 = std::fabs(scaledFreq1 + scaledDFreq1);
     if (x1 < 0.01f) x1 = 0.01f;
     if (x2 < 0.01f) x2 = 0.01f;
     x1 = currentSampleRate / x1;
