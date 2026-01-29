@@ -1,22 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Include common settings for standalone builds
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
-endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
 
 project(Smexoscope VERSION 1.0.0)
 
-# Fetch JUCE (skipped when building from root CMakeLists.txt)
-if(NOT TARGET juce::juce_core)
-    include(FetchContent)
-    FetchContent_Declare(JUCE
-        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-        GIT_TAG 8.0.12
-        GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(JUCE)
-endif()
+smartelectronix_fetch_juce()
 
 juce_add_plugin(Smexoscope
     COMPANY_NAME "Smartelectronix"
@@ -59,20 +47,5 @@ target_sources(Smexoscope PRIVATE
     Source/UI/WaveDisplay.cpp
 )
 
-target_compile_definitions(Smexoscope
-    PUBLIC
-        JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
-        JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0
-)
-
-target_link_libraries(Smexoscope
-    PRIVATE
-        Smexoscope_Assets
-        juce::juce_audio_utils
-    PUBLIC
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
-)
+smartelectronix_plugin_common(Smexoscope)
+target_link_libraries(Smexoscope PRIVATE Smexoscope_Assets)

@@ -1,24 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Include common settings for standalone builds
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
-endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
 
 project(AnechoicRoomSimulator VERSION 1.0.0)
 
-# Fetch JUCE (skipped when building from root CMakeLists.txt)
-if(NOT TARGET juce::juce_core)
-    include(FetchContent)
-    FetchContent_Declare(JUCE
-        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-        GIT_TAG 8.0.12
-        GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(JUCE)
-endif()
+smartelectronix_fetch_juce()
 
-# Add the plugin
 juce_add_plugin(AnechoicRoomSimulator
     COMPANY_NAME "Smartelectronix"
     IS_SYNTH FALSE
@@ -33,7 +20,6 @@ juce_add_plugin(AnechoicRoomSimulator
     AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
-# Add binary resources (images)
 juce_add_binary_data(AnechoicRoomSimulator_Assets SOURCES
     Resources/back.png
     Resources/knob.png
@@ -41,7 +27,6 @@ juce_add_binary_data(AnechoicRoomSimulator_Assets SOURCES
     Resources/splash.png
 )
 
-# Source files
 target_sources(AnechoicRoomSimulator PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
@@ -50,20 +35,5 @@ target_sources(AnechoicRoomSimulator PRIVATE
     Source/UI/SplashOverlay.cpp
 )
 
-target_compile_definitions(AnechoicRoomSimulator
-    PUBLIC
-        JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
-        JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_VST3_EMULATE_MIDI_CC_WITH_PARAMETERS=0
-)
-
-target_link_libraries(AnechoicRoomSimulator
-    PRIVATE
-        AnechoicRoomSimulator_Assets
-        juce::juce_audio_utils
-    PUBLIC
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
-)
+smartelectronix_plugin_common(AnechoicRoomSimulator)
+target_link_libraries(AnechoicRoomSimulator PRIVATE AnechoicRoomSimulator_Assets)
