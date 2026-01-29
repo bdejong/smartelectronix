@@ -31,6 +31,7 @@ public:
     bool acceptsMidi() const override { return true; }
     bool producesMidi() const override { return false; }
     double getTailLengthSeconds() const override { return 0.0; }
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 
     int getNumPrograms() override { return 16; }
     int getCurrentProgram() override { return currentProgram; }

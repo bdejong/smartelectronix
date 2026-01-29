@@ -30,7 +30,12 @@ jobs:
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: cmake --build build --config Release --parallel 2
+
+      - name: Build (macOS/Windows)
+        if: runner.os != 'Linux'
         run: cmake --build build --config Release --parallel
 
       - name: Collect artifacts (macOS)

@@ -39,6 +39,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout BitmurdererProcessor::create
 void BitmurdererProcessor::prepareToPlay(double, int) {}
 void BitmurdererProcessor::releaseResources() {}
 
+bool BitmurdererProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+{
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        return false;
+    if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::stereo())
+        return false;
+    return true;
+}
+
 void BitmurdererProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
