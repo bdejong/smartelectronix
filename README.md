@@ -4,6 +4,10 @@ Open source versions of all bram @ smartelectronix plugins. 20 Years after worki
 
 You can find the original smartelectronix pages here: http://bram.smartelectronix.com
 
+## Downloads
+
+Pre-built plugins for macOS, Windows, and Linux are available on the [Releases page](https://github.com/bdejong/smartelectronix/releases).
+
 ## Donations
 
 http://paypal.me/BramdeJong
