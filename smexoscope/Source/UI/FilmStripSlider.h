@@ -15,6 +15,7 @@ public:
 
     void setValue(float newValue);
     float getValue() const { return value; }
+    void setImage(const juce::Image& newImage) { handleImage = newImage; repaint(); }
 
     std::function<void(float)> onValueChange;
 

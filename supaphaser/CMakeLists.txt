@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
-project(SupaPhaser VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Include common settings for standalone builds
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
+endif()
+
+project(SupaPhaser VERSION 1.0.0)
 
 # Fetch JUCE (skipped when building from root CMakeLists.txt)
 if(NOT TARGET juce::juce_core)

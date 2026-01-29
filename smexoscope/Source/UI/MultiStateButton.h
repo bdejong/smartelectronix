@@ -45,6 +45,13 @@ public:
     }
 
     float getValue() const { return getValueForState(); }
+    void setImage(const juce::Image& newImage, int explicitFrameHeight = 0)
+    {
+        filmStrip = newImage;
+        frameHeight = (explicitFrameHeight > 0) ? explicitFrameHeight
+                                                 : filmStrip.getHeight() / numStates;
+        repaint();
+    }
 
     std::function<void(float)> onValueChange;
 

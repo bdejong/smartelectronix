@@ -18,6 +18,14 @@ public:
     void mouseDrag(const juce::MouseEvent& event) override;
     void mouseUp(const juce::MouseEvent& event) override;
 
+    void setImages(const juce::Image& bg, const juce::Image& heads, const juce::Image& readout)
+    {
+        backgroundImage = bg;
+        headsImage = heads;
+        readoutImage = readout;
+        repaint();
+    }
+
 private:
     void timerCallback() override;
 

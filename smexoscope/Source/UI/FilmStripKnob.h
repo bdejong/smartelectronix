@@ -19,6 +19,7 @@ public:
 
     void setRange(float minVal, float maxVal);
     void setInverseBitmap(bool inverse) { inverseBitmap = inverse; }
+    void setImage(const juce::Image& newImage) { filmStrip = newImage; frameHeight = filmStrip.getHeight() / numFrames; repaint(); }
 
     std::function<void(float)> onValueChange;
 

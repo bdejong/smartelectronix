@@ -5,16 +5,37 @@ SmexoscopeEditor::SmexoscopeEditor(SmexoscopeProcessor& p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
     setSize(825, 300);
+    setWantsKeyboardFocus(true);
 
-    // Load images
-    backgroundImage = juce::ImageCache::getFromMemory(BinaryData::body_png, BinaryData::body_pngSize);
-    auto blueKnobImg = juce::ImageCache::getFromMemory(BinaryData::blue_knob1_4_png, BinaryData::blue_knob1_4_pngSize);
-    auto headsImg = juce::ImageCache::getFromMemory(BinaryData::heads_png, BinaryData::heads_pngSize);
-    auto readoutImg = juce::ImageCache::getFromMemory(BinaryData::readout_png, BinaryData::readout_pngSize);
-    auto freeEtcImg = juce::ImageCache::getFromMemory(BinaryData::free_etc_png, BinaryData::free_etc_pngSize);
-    auto onOffImg = juce::ImageCache::getFromMemory(BinaryData::off_on_png, BinaryData::off_on_pngSize);
-    auto channelImg = juce::ImageCache::getFromMemory(BinaryData::lefr_right_png, BinaryData::lefr_right_pngSize);
-    auto sliderImg = juce::ImageCache::getFromMemory(BinaryData::slider_new_png, BinaryData::slider_new_pngSize);
+    // Load light skin images
+    lightSkin.background = juce::ImageCache::getFromMemory(BinaryData::body_png, BinaryData::body_pngSize);
+    lightSkin.knob = juce::ImageCache::getFromMemory(BinaryData::blue_knob1_4_png, BinaryData::blue_knob1_4_pngSize);
+    lightSkin.heads = juce::ImageCache::getFromMemory(BinaryData::heads_png, BinaryData::heads_pngSize);
+    lightSkin.readout = juce::ImageCache::getFromMemory(BinaryData::readout_png, BinaryData::readout_pngSize);
+    lightSkin.freeEtc = juce::ImageCache::getFromMemory(BinaryData::free_etc_png, BinaryData::free_etc_pngSize);
+    lightSkin.onOff = juce::ImageCache::getFromMemory(BinaryData::off_on_png, BinaryData::off_on_pngSize);
+    lightSkin.channel = juce::ImageCache::getFromMemory(BinaryData::lefr_right_png, BinaryData::lefr_right_pngSize);
+    lightSkin.slider = juce::ImageCache::getFromMemory(BinaryData::slider_new_png, BinaryData::slider_new_pngSize);
+
+    // Load dark skin images (JUCE names them with "2" suffix for files in dark/ subfolder)
+    darkSkin.background = juce::ImageCache::getFromMemory(BinaryData::body_png2, BinaryData::body_png2Size);
+    darkSkin.knob = juce::ImageCache::getFromMemory(BinaryData::blue_knob1_4_png2, BinaryData::blue_knob1_4_png2Size);
+    darkSkin.heads = juce::ImageCache::getFromMemory(BinaryData::heads_png2, BinaryData::heads_png2Size);
+    darkSkin.readout = juce::ImageCache::getFromMemory(BinaryData::readout_png2, BinaryData::readout_png2Size);
+    darkSkin.freeEtc = juce::ImageCache::getFromMemory(BinaryData::free_etc_png2, BinaryData::free_etc_png2Size);
+    darkSkin.onOff = juce::ImageCache::getFromMemory(BinaryData::off_on_png2, BinaryData::off_on_png2Size);
+    darkSkin.channel = juce::ImageCache::getFromMemory(BinaryData::lefr_right_png2, BinaryData::lefr_right_png2Size);
+    darkSkin.slider = juce::ImageCache::getFromMemory(BinaryData::slider_new_png2, BinaryData::slider_new_png2Size);
+
+    // Use light skin by default
+    backgroundImage = lightSkin.background;
+    auto blueKnobImg = lightSkin.knob;
+    auto headsImg = lightSkin.heads;
+    auto readoutImg = lightSkin.readout;
+    auto freeEtcImg = lightSkin.freeEtc;
+    auto onOffImg = lightSkin.onOff;
+    auto channelImg = lightSkin.channel;
+    auto sliderImg = lightSkin.slider;
 
     int knobW = blueKnobImg.getWidth();
     int knobFrameH = blueKnobImg.getHeight() / 75;
@@ -142,4 +163,37 @@ void SmexoscopeEditor::updateLabels()
     ampLabel->setText(processorRef.getDisplayText(SmexoscopeProcessor::PARAM_AMP_WINDOW), juce::dontSendNotification);
     trigLabel->setText(processorRef.getDisplayText(SmexoscopeProcessor::PARAM_TRIGGER_SPEED), juce::dontSendNotification);
     threshLabel->setText(processorRef.getDisplayText(SmexoscopeProcessor::PARAM_TRIGGER_LIMIT), juce::dontSendNotification);
+}
+
+bool SmexoscopeEditor::keyPressed(const juce::KeyPress&)
+{
+    useDarkSkin = !useDarkSkin;
+    applySkin(useDarkSkin);
+    return true;
+}
+
+void SmexoscopeEditor::applySkin(bool dark)
+{
+    auto& skin = dark ? darkSkin : lightSkin;
+
+    backgroundImage = skin.background;
+
+    timeWindowKnob->setImage(skin.knob);
+    ampWindowKnob->setImage(skin.knob);
+    triggerSpeedKnob->setImage(skin.knob);
+    triggerLimitKnob->setImage(skin.knob);
+
+    int freeEtcFrameH = skin.freeEtc.getHeight() / 6;
+    triggerTypeButton->setImage(skin.freeEtc, freeEtcFrameH);
+
+    syncDrawToggle->setImage(skin.onOff);
+    dcKillToggle->setImage(skin.onOff);
+    freezeToggle->setImage(skin.onOff);
+    channelToggle->setImage(skin.channel);
+
+    triggerLevelSlider->setImage(skin.slider);
+
+    waveDisplay->setImages(skin.background, skin.heads, skin.readout);
+
+    repaint();
 }

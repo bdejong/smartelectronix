@@ -15,12 +15,21 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override {}
+    bool keyPressed(const juce::KeyPress& key) override;
 
 private:
     void timerCallback() override;
     void updateLabels();
+    void applySkin(bool dark);
 
     SmexoscopeProcessor& processorRef;
+
+    // Skin images
+    struct SkinImages {
+        juce::Image background, knob, heads, readout, freeEtc, onOff, channel, slider;
+    };
+    SkinImages lightSkin, darkSkin;
+    bool useDarkSkin = false;
 
     juce::Image backgroundImage;
 

@@ -1,17 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version")
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CommonSettings.cmake)
 
 project(SmartelectronixPlugins VERSION 1.0.0)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Symbol visibility settings for plugins
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_C_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Use ccache if available
 find_program(CCACHE_PROGRAM ccache)

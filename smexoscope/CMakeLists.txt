@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
-project(Smexoscope VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Include common settings for standalone builds
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CommonSettings.cmake)
+endif()
+
+project(Smexoscope VERSION 1.0.0)
 
 # Fetch JUCE (skipped when building from root CMakeLists.txt)
 if(NOT TARGET juce::juce_core)
@@ -38,6 +41,14 @@ juce_add_binary_data(Smexoscope_Assets SOURCES
     Resources/off_on.png
     Resources/readout.png
     Resources/slider_new.png
+    Resources/dark/blue_knob1_4.png
+    Resources/dark/body.png
+    Resources/dark/free_etc.png
+    Resources/dark/heads.png
+    Resources/dark/lefr_right.png
+    Resources/dark/off_on.png
+    Resources/dark/readout.png
+    Resources/dark/slider_new.png
 )
 
 target_sources(Smexoscope PRIVATE
