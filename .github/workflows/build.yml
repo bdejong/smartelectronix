@@ -41,6 +41,25 @@ jobs:
           find build -name "*.component" -type d -exec cp -R {} artifacts/AU/ \;
           find build -name "*.lv2" -type d -exec cp -R {} artifacts/LV2/ \;
           find build -name "*.app" -type d -exec cp -R {} artifacts/Standalone/ \;
+          cat > artifacts/README.md << 'EOF'
+          # Smartelectronix Plugins for macOS
+
+          ## "App is damaged" error
+
+          If macOS says an app "is damaged and can't be opened", run this command in Terminal:
+
+          ```
+          xattr -cr /path/to/app.app
+          ```
+
+          Or to fix all apps at once, cd to the Standalone folder and run:
+
+          ```
+          xattr -cr *
+          ```
+
+          This removes the quarantine attribute that macOS adds to downloaded files.
+          EOF
 
       - name: Collect artifacts (Linux)
         if: runner.os == 'Linux'
@@ -56,7 +75,7 @@ jobs:
         run: |
           mkdir -p artifacts/{VST3,Standalone}
           find build -name "*.vst3" -type d -exec cp -R {} artifacts/VST3/ \;
-          find build -name "*.exe" -exec cp {} artifacts/Standalone/ \;
+          find build -name "*.exe" ! -name "*_vst3_helper.exe" -exec cp {} artifacts/Standalone/ \;
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
