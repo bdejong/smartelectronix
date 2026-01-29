@@ -35,10 +35,7 @@ jobs:
 
       - name: Install sccache (Windows)
         if: runner.os == 'Windows'
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: ${{ runner.os }}-sccache
-          variant: sccache
+        uses: mozilla-actions/sccache-action@v0.0.7
 
       - name: Configure (Unix)
         if: runner.os != 'Windows'
@@ -47,9 +44,18 @@ jobs:
       - name: Configure (Windows)
         if: runner.os == 'Windows'
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+        env:
+          SCCACHE_GHA_ENABLED: "true"
 
-      - name: Build
+      - name: Build (Unix)
+        if: runner.os != 'Windows'
         run: cmake --build build --config Release
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: cmake --build build --config Release
+        env:
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Collect artifacts (macOS)
         if: runner.os == 'macOS'
