@@ -26,6 +26,8 @@ juce_add_plugin(AnechoicRoomSimulator
     LV2URI "https://familiedejong.be/plugins/AnechoicRoomSimulator"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Anechoic Room Simulator"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 # Add binary resources (images)

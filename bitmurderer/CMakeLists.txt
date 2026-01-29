@@ -25,6 +25,8 @@ juce_add_plugin(Bitmurderer
     LV2URI "https://familiedejong.be/plugins/Bitmurderer"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Bitmurderer"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 juce_add_binary_data(Bitmurderer_Assets SOURCES

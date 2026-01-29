@@ -230,6 +230,11 @@ void Cyanide2Editor::parameterChanged(const juce::String& parameterID, float /*n
     juce::MessageManager::callAsync([this, parameterID]()
     {
         updateDisplayText(parameterID);
+        // Refresh shaper UI when parameters change (e.g., preset load)
+        if (shaperView)
+            shaperView->repaint();
+        if (previewComponent)
+            previewComponent->markDirty();
     });
 }
 

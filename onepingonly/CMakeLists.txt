@@ -26,6 +26,7 @@ juce_add_plugin(OnePingOnly
     LV2URI "https://familiedejong.be/plugins/OnePingOnly"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "One Ping Only"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{0, 2}"
 )
 
 # Source files

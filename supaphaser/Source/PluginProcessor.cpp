@@ -411,6 +411,56 @@ void SupaPhaserProcessor::setStateInformation(const void* data, int sizeInBytes)
         apvts.replaceState(juce::ValueTree::fromXml(*xml));
 }
 
+void SupaPhaserProcessor::setCurrentProgram(int index)
+{
+    if (index < 0 || index >= kNumPresets)
+        return;
+
+    currentProgram = index;
+    const auto& preset = kPresets[index];
+
+    // Apply preset values to parameters
+    if (auto* param = apvts.getParameter(PARAM_ATTACK))
+        param->setValueNotifyingHost(preset.params[0]);
+    if (auto* param = apvts.getParameter(PARAM_RELEASE))
+        param->setValueNotifyingHost(preset.params[1]);
+    if (auto* param = apvts.getParameter(PARAM_MIN_ENV))
+        param->setValueNotifyingHost(preset.params[2]);
+    if (auto* param = apvts.getParameter(PARAM_MAX_ENV))
+        param->setValueNotifyingHost(preset.params[3]);
+    if (auto* param = apvts.getParameter(PARAM_MIXTURE))
+        param->setValueNotifyingHost(preset.params[4]);
+    if (auto* param = apvts.getParameter(PARAM_FREQ))
+        param->setValueNotifyingHost(preset.params[5]);
+    if (auto* param = apvts.getParameter(PARAM_MIN_FREQ))
+        param->setValueNotifyingHost(preset.params[6]);
+    if (auto* param = apvts.getParameter(PARAM_MAX_FREQ))
+        param->setValueNotifyingHost(preset.params[7]);
+    if (auto* param = apvts.getParameter(PARAM_EXTEND))
+        param->setValueNotifyingHost(preset.params[8]);
+    if (auto* param = apvts.getParameter(PARAM_STEREO))
+        param->setValueNotifyingHost(preset.params[9]);
+    if (auto* param = apvts.getParameter(PARAM_STAGES))
+        param->setValueNotifyingHost(preset.params[10]);
+    if (auto* param = apvts.getParameter(PARAM_DISTORT))
+        param->setValueNotifyingHost(preset.params[11]);
+    if (auto* param = apvts.getParameter(PARAM_FEED))
+        param->setValueNotifyingHost(preset.params[12]);
+    if (auto* param = apvts.getParameter(PARAM_DRY_WET))
+        param->setValueNotifyingHost(preset.params[13]);
+    if (auto* param = apvts.getParameter(PARAM_GAIN))
+        param->setValueNotifyingHost(preset.params[14]);
+    if (auto* param = apvts.getParameter(PARAM_INVERT))
+        param->setValueNotifyingHost(preset.params[15]);
+}
+
+const juce::String SupaPhaserProcessor::getProgramName(int index)
+{
+    if (index >= 0 && index < kNumPresets)
+        return kPresets[index].name;
+    return {};
+}
+
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SupaPhaserProcessor();

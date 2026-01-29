@@ -26,6 +26,8 @@ juce_add_plugin(SupaTrigga
     LV2URI "https://familiedejong.be/plugins/SupaTrigga"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "SupaTrigga"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 # Source files

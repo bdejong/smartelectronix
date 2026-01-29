@@ -26,6 +26,8 @@ juce_add_plugin(Bouncy
     LV2URI "https://familiedejong.be/plugins/Bouncy"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Bouncy"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 # Source files

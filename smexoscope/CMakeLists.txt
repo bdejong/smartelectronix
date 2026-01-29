@@ -25,6 +25,8 @@ juce_add_plugin(Smexoscope
     LV2URI "https://familiedejong.be/plugins/Smexoscope"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Smexoscope"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 juce_add_binary_data(Smexoscope_Assets SOURCES

@@ -26,6 +26,8 @@ juce_add_plugin(H2O
     LV2URI "https://familiedejong.be/plugins/H2O"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "H2O"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 # Add binary resources (images)

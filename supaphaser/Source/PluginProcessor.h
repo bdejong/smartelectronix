@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "DSP/WavetableFPOsc.h"
+#include "Presets.h"
 #include <cmath>
 
 #define DIST_FIX 0.8f
@@ -39,10 +40,10 @@ public:
     double getTailLengthSeconds() const override { return 0.0; }
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 
-    int getNumPrograms() override { return 1; }
-    int getCurrentProgram() override { return 0; }
-    void setCurrentProgram(int) override {}
-    const juce::String getProgramName(int) override { return {}; }
+    int getNumPrograms() override { return kNumPresets; }
+    int getCurrentProgram() override { return currentProgram; }
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
     void changeProgramName(int, const juce::String&) override {}
 
     void getStateInformation(juce::MemoryBlock& destData) override;
@@ -91,6 +92,7 @@ public:
     }
 
 private:
+    int currentProgram = 0;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     // DSP state

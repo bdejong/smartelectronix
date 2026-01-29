@@ -26,6 +26,8 @@ juce_add_plugin(CrazyIvan
     LV2URI "https://familiedejong.be/plugins/CrazyIvan"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "Crazy Ivan"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 # Source files

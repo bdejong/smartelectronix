@@ -3,7 +3,6 @@ name: Build
 on:
   push:
     branches: [master]
-    tags: ['v*']
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -90,7 +89,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -108,9 +107,20 @@ jobs:
             (cd "$dir" && zip -r "../../${dir%/}.zip" .)
           done
 
+      - name: Delete existing release
+        run: gh release delete latest --yes --cleanup-tag || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Smartelectronix Plugins ${{ github.ref_name }}
+          tag_name: latest
+          name: Smartelectronix Plugins (Latest Build)
+          body: |
+            Latest build from commit ${{ github.sha }}
+
+            Built on ${{ github.event.head_commit.timestamp }}
           files: '*.zip'
-          generate_release_notes: true
+          prerelease: false

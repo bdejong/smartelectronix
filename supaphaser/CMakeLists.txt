@@ -26,6 +26,8 @@ juce_add_plugin(SupaPhaser
     LV2URI "https://familiedejong.be/plugins/SupaPhaser"
     FORMATS AU VST3 LV2 Standalone
     PRODUCT_NAME "SupaPhaser"
+    PLUGIN_CHANNEL_CONFIGURATIONS "{2, 2}"
+    AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
 # Add binary resources (images)
