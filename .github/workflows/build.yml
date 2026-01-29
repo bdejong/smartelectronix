@@ -25,42 +25,49 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libasound2-dev libfreetype6-dev libx11-dev \
             libxrandr-dev libxcursor-dev libxinerama-dev libwebkit2gtk-4.1-dev \
-            libcurl4-openssl-dev
+            libcurl4-openssl-dev ninja-build
 
-      - name: Install ccache (Unix)
-        if: runner.os != 'Windows'
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: ${{ runner.os }}-ccache
+      - name: Install Ninja (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
 
-      - name: Install sccache (Windows)
+      - name: Install Ninja (Windows)
         if: runner.os == 'Windows'
+        run: choco install ninja
+
+      - name: Setup sccache
         uses: mozilla-actions/sccache-action@v0.0.7
 
       - name: Configure (Unix)
         if: runner.os != 'Windows'
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
       - name: Configure (Windows)
         if: runner.os == 'Windows'
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-        env:
-          SCCACHE_GHA_ENABLED: "true"
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
       - name: Build (Unix)
         if: runner.os != 'Windows'
-        run: cmake --build build --config Release
+        run: cmake --build build
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
-        run: cmake --build build --config Release
-        env:
-          SCCACHE_GHA_ENABLED: "true"
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake --build build
 
       - name: Collect artifacts (macOS)
         if: runner.os == 'macOS'
         run: |
-          mkdir -p artifacts-vst3 artifacts-au artifacts-lv2
+          mkdir -p artifacts-vst3 artifacts-au artifacts-lv2 artifacts-standalone
           for dir in build/*/; do
             found=$(find "$dir" -maxdepth 1 -name "*_artefacts" -type d 2>/dev/null)
             [ -z "$found" ] && continue
@@ -68,27 +75,38 @@ jobs:
             [ -d "$release_dir/VST3" ] && cp -R "$release_dir/VST3"/*.vst3 artifacts-vst3/ 2>/dev/null || true
             [ -d "$release_dir/AU" ] && cp -R "$release_dir/AU"/*.component artifacts-au/ 2>/dev/null || true
             [ -d "$release_dir/LV2" ] && cp -R "$release_dir/LV2"/*.lv2 artifacts-lv2/ 2>/dev/null || true
+            [ -d "$release_dir/Standalone" ] && cp -R "$release_dir/Standalone"/*.app artifacts-standalone/ 2>/dev/null || true
           done
 
       - name: Collect artifacts (Linux)
         if: runner.os == 'Linux'
         run: |
-          mkdir -p artifacts-vst3 artifacts-lv2
+          mkdir -p artifacts-vst3 artifacts-lv2 artifacts-standalone
           for dir in build/*/; do
             found=$(find "$dir" -maxdepth 1 -name "*_artefacts" -type d 2>/dev/null)
             [ -z "$found" ] && continue
             release_dir="$found/Release"
             [ -d "$release_dir/VST3" ] && cp -R "$release_dir/VST3"/*.vst3 artifacts-vst3/ 2>/dev/null || true
             [ -d "$release_dir/LV2" ] && cp -R "$release_dir/LV2"/*.lv2 artifacts-lv2/ 2>/dev/null || true
+            if [ -d "$release_dir/Standalone" ]; then
+              for exe in "$release_dir/Standalone"/*; do
+                [ -f "$exe" ] && [ -x "$exe" ] && cp "$exe" artifacts-standalone/ 2>/dev/null || true
+              done
+            fi
           done
 
       - name: Collect artifacts (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path artifacts-vst3
+          New-Item -ItemType Directory -Force -Path artifacts-vst3, artifacts-standalone
           Get-ChildItem -Path build -Recurse -Filter "*.vst3" -Directory | ForEach-Object {
             Copy-Item -Path $_.FullName -Destination artifacts-vst3 -Recurse -Force
+          }
+          Get-ChildItem -Path build -Recurse -Filter "*.exe" -File | Where-Object {
+            $_.DirectoryName -like "*Standalone*"
+          } | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination artifacts-standalone -Force
           }
 
       - name: Upload VST3 artifacts
@@ -112,6 +130,13 @@ jobs:
         with:
           name: smartelectronix-${{ runner.os }}-LV2
           path: artifacts-lv2/
+          if-no-files-found: error
+
+      - name: Upload Standalone artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartelectronix-${{ runner.os }}-Standalone
+          path: artifacts-standalone/
           if-no-files-found: error
 
   release:
