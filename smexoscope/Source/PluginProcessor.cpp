@@ -34,6 +34,9 @@ SmexoscopeProcessor::SmexoscopeProcessor()
     }
 
     resetState();
+
+    // Default to OS dark mode setting
+    useDarkSkin = juce::Desktop::getInstance().isDarkModeActive();
 }
 
 SmexoscopeProcessor::~SmexoscopeProcessor()
@@ -420,6 +423,7 @@ juce::String SmexoscopeProcessor::getDisplayText(const juce::String& paramId) co
 void SmexoscopeProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     auto state = apvts.copyState();
+    state.setProperty("darkSkin", useDarkSkin, nullptr);
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -428,7 +432,11 @@ void SmexoscopeProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
     if (xml && xml->hasTagName(apvts.state.getType()))
-        apvts.replaceState(juce::ValueTree::fromXml(*xml));
+    {
+        auto state = juce::ValueTree::fromXml(*xml);
+        useDarkSkin = static_cast<bool>(state.getProperty("darkSkin", useDarkSkin));
+        apvts.replaceState(state);
+    }
 }
 
 juce::AudioProcessorEditor* SmexoscopeProcessor::createEditor()

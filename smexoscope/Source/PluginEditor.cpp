@@ -27,15 +27,17 @@ SmexoscopeEditor::SmexoscopeEditor(SmexoscopeProcessor& p)
     darkSkin.channel = juce::ImageCache::getFromMemory(BinaryData::lefr_right_png2, BinaryData::lefr_right_png2Size);
     darkSkin.slider = juce::ImageCache::getFromMemory(BinaryData::slider_new_png2, BinaryData::slider_new_png2Size);
 
-    // Use light skin by default
-    backgroundImage = lightSkin.background;
-    auto blueKnobImg = lightSkin.knob;
-    auto headsImg = lightSkin.heads;
-    auto readoutImg = lightSkin.readout;
-    auto freeEtcImg = lightSkin.freeEtc;
-    auto onOffImg = lightSkin.onOff;
-    auto channelImg = lightSkin.channel;
-    auto sliderImg = lightSkin.slider;
+    // Use skin preference from processor (defaults to OS dark mode, or saved state)
+    useDarkSkin = processorRef.useDarkSkin;
+    auto& initialSkin = useDarkSkin ? darkSkin : lightSkin;
+    backgroundImage = initialSkin.background;
+    auto blueKnobImg = initialSkin.knob;
+    auto headsImg = initialSkin.heads;
+    auto readoutImg = initialSkin.readout;
+    auto freeEtcImg = initialSkin.freeEtc;
+    auto onOffImg = initialSkin.onOff;
+    auto channelImg = initialSkin.channel;
+    auto sliderImg = initialSkin.slider;
 
     int knobW = blueKnobImg.getWidth();
     int knobFrameH = blueKnobImg.getHeight() / 75;
@@ -168,6 +170,7 @@ void SmexoscopeEditor::updateLabels()
 bool SmexoscopeEditor::keyPressed(const juce::KeyPress&)
 {
     useDarkSkin = !useDarkSkin;
+    processorRef.useDarkSkin = useDarkSkin;
     applySkin(useDarkSkin);
     return true;
 }

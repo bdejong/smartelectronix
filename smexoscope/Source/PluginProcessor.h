@@ -121,6 +121,9 @@ public:
     const std::vector<CPoint>& getPeaks() const { return peaks; }
     const std::vector<CPoint>& getCopy() const { return copy; }
 
+    // Dark mode state (saved with plugin state)
+    bool useDarkSkin = false;
+
     static double timeKnobToBeats(double x);
     static double tempoBeatsForKnob(double x);
     static juce::String tempoDisplayForKnob(double x);
