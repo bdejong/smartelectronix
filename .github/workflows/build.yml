@@ -110,7 +110,7 @@ jobs:
             xcrun stapler staple "$bundle"
           done
 
-      - name: Collect artifacts (macOS)
+      - name: Collect and zip artifacts (macOS)
         if: runner.os == 'macOS'
         run: |
           mkdir -p artifacts/{VST3,AU,LV2,Standalone}
@@ -118,28 +118,31 @@ jobs:
           find build -name "*.component" -type d -exec cp -R {} artifacts/AU/ \;
           find build -name "*.lv2" -type d -exec cp -R {} artifacts/LV2/ \;
           find build -name "*.app" -type d -exec cp -R {} artifacts/Standalone/ \;
+          ditto -c -k artifacts smartelectronix-macOS.zip
 
-      - name: Collect artifacts (Linux)
+      - name: Collect and zip artifacts (Linux)
         if: runner.os == 'Linux'
         run: |
           mkdir -p artifacts/{VST3,LV2,Standalone}
           find build -name "*.vst3" -type d -exec cp -R {} artifacts/VST3/ \;
           find build -name "*.lv2" -type d -exec cp -R {} artifacts/LV2/ \;
           find build -type f -executable -path "*/Standalone/*" -exec cp {} artifacts/Standalone/ \;
+          cd artifacts && zip -r ../smartelectronix-Linux.zip .
 
-      - name: Collect artifacts (Windows)
+      - name: Collect and zip artifacts (Windows)
         if: runner.os == 'Windows'
         shell: bash
         run: |
           mkdir -p artifacts/{VST3,Standalone}
           find build -name "*.vst3" -type d -exec cp -R {} artifacts/VST3/ \;
           find build -name "*.exe" ! -name "*_vst3_helper.exe" -exec cp {} artifacts/Standalone/ \;
+          cd artifacts && 7z a -r ../smartelectronix-Windows.zip .
 
-      - name: Upload artifacts
+      - name: Upload zip
         uses: actions/upload-artifact@v4
         with:
           name: smartelectronix-${{ runner.os }}
-          path: artifacts/
+          path: smartelectronix-*.zip
           if-no-files-found: error
 
   release:
@@ -154,12 +157,8 @@ jobs:
         with:
           path: all-artifacts
 
-      - name: Zip artifacts
-        run: |
-          cd all-artifacts
-          for dir in */; do
-            (cd "$dir" && zip -r "../../${dir%/}.zip" .)
-          done
+      - name: Collect zips
+        run: find all-artifacts -name "*.zip" -exec mv {} . \;
 
       - name: Delete existing release
         run: gh release delete latest --yes --cleanup-tag || true
