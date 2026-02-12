@@ -32,6 +32,59 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel 2
 
+      - name: Import Apple Certificate
+        if: runner.os == 'macOS'
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+
+      - name: Sign macOS Artifacts
+        if: runner.os == 'macOS'
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          # Sign macOS bundles (VST3, AU, Standalone)
+          find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.app" \) | while read -r bundle; do
+            echo "Signing: $bundle"
+            codesign --force --deep --strict --timestamp --options runtime \
+              --sign "$APPLE_SIGNING_IDENTITY" "$bundle"
+          done
+
+          # Sign LV2 plugin binaries (not macOS bundles, sign dylibs directly)
+          find build -type f -name "*.dylib" -path "*.lv2/*" | while read -r dylib; do
+            echo "Signing: $dylib"
+            codesign --force --strict --timestamp --options runtime \
+              --sign "$APPLE_SIGNING_IDENTITY" "$dylib"
+          done
+
+      - name: Notarize macOS Artifacts
+        if: runner.os == 'macOS'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          mkdir -p $RUNNER_TEMP/notarize
+          find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.lv2" -o -name "*.app" \) \
+            -exec cp -R {} $RUNNER_TEMP/notarize/ \;
+
+          ditto -c -k $RUNNER_TEMP/notarize $RUNNER_TEMP/notarize.zip
+
+          xcrun notarytool submit $RUNNER_TEMP/notarize.zip \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
+      - name: Staple Notarization Tickets
+        if: runner.os == 'macOS'
+        run: |
+          find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.app" \) | while read -r bundle; do
+            echo "Stapling: $bundle"
+            xcrun stapler staple "$bundle"
+          done
+
       - name: Collect artifacts (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -40,25 +93,6 @@ jobs:
           find build -name "*.component" -type d -exec cp -R {} artifacts/AU/ \;
           find build -name "*.lv2" -type d -exec cp -R {} artifacts/LV2/ \;
           find build -name "*.app" -type d -exec cp -R {} artifacts/Standalone/ \;
-          cat > artifacts/README.md << 'EOF'
-          # Smartelectronix Plugins for macOS
-
-          ## "App is damaged" error
-
-          If macOS says an app "is damaged and can't be opened", run this command in Terminal:
-
-          ```
-          xattr -cr /path/to/app.app
-          ```
-
-          Or to fix all apps at once, cd to the Standalone folder and run:
-
-          ```
-          xattr -cr *
-          ```
-
-          This removes the quarantine attribute that macOS adds to downloaded files.
-          EOF
 
       - name: Collect artifacts (Linux)
         if: runner.os == 'Linux'
