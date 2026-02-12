@@ -47,7 +47,7 @@ jobs:
           # Sign macOS bundles (VST3, AU, Standalone)
           find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.app" \) | while read -r bundle; do
             echo "Signing: $bundle"
-            codesign --force --deep --strict --timestamp --options runtime \
+            codesign --force --strict --timestamp --options runtime \
               --sign "$APPLE_SIGNING_IDENTITY" "$bundle"
           done
 
@@ -58,6 +58,12 @@ jobs:
               --sign "$APPLE_SIGNING_IDENTITY" "$dylib"
           done
 
+          # Verify all signatures
+          find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.app" \) | while read -r bundle; do
+            echo "Verifying: $bundle"
+            codesign --verify --strict "$bundle"
+          done
+
       - name: Notarize macOS Artifacts
         if: runner.os == 'macOS'
         env:
@@ -66,16 +72,35 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           mkdir -p $RUNNER_TEMP/notarize
-          find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.lv2" -o -name "*.app" \) \
+
+          # Only include proper macOS bundles (no LV2)
+          find build -type d \( -name "*.vst3" -o -name "*.component" -o -name "*.app" \) \
             -exec cp -R {} $RUNNER_TEMP/notarize/ \;
 
           ditto -c -k $RUNNER_TEMP/notarize $RUNNER_TEMP/notarize.zip
 
-          xcrun notarytool submit $RUNNER_TEMP/notarize.zip \
+          # Submit and capture output
+          SUBMIT_OUTPUT=$(xcrun notarytool submit $RUNNER_TEMP/notarize.zip \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
-            --wait
+            --wait 2>&1)
+          echo "$SUBMIT_OUTPUT"
+
+          # Extract submission ID
+          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep "id:" | head -1 | awk '{print $2}')
+
+          # Check for success
+          if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
+            echo "Notarization succeeded"
+          else
+            echo "Notarization failed — fetching log..."
+            xcrun notarytool log "$SUBMISSION_ID" \
+              --apple-id "$APPLE_ID" \
+              --password "$APPLE_PASSWORD" \
+              --team-id "$APPLE_TEAM_ID"
+            exit 1
+          fi
 
       - name: Staple Notarization Tickets
         if: runner.os == 'macOS'
