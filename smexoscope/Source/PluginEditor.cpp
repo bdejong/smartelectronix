@@ -167,12 +167,14 @@ void SmexoscopeEditor::updateLabels()
     threshLabel->setText(processorRef.getDisplayText(SmexoscopeProcessor::PARAM_TRIGGER_LIMIT), juce::dontSendNotification);
 }
 
-bool SmexoscopeEditor::keyPressed(const juce::KeyPress&)
+void SmexoscopeEditor::mouseDown (const juce::MouseEvent& event)
 {
-    useDarkSkin = !useDarkSkin;
-    processorRef.useDarkSkin = useDarkSkin;
-    applySkin(useDarkSkin);
-    return true;
+    if (event.getNumberOfClicks() == 2)
+    {
+        useDarkSkin = !useDarkSkin;
+        processorRef.useDarkSkin = useDarkSkin;
+        applySkin(useDarkSkin);
+    }
 }
 
 void SmexoscopeEditor::applySkin(bool dark)
