@@ -99,37 +99,37 @@ SupaTriggaEditor::SupaTriggaEditor(SupaTriggaProcessor &p,
   setLookAndFeel(&customLookAndFeel);
 
   // Global section
-  setupKnob(rearrangeKnob, "global");
+  setupKnob(rearrangeKnob, Section::Global);
   rearrangeAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::PROB_REARRANGE_ID, rearrangeKnob);
   
-  setupKnob(slicesKnob, "global");
+  setupKnob(slicesKnob, Section::Global);
   slicesAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::GRANULARITY_ID, slicesKnob);
   
-  setupKnob(silenceKnob, "global");
+  setupKnob(silenceKnob, Section::Global);
   silenceAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::PROB_SILENCE_ID, silenceKnob);
 
   // Brake section
-  setupKnob(brakeProbKnob, "speed");
+  setupKnob(brakeProbKnob, Section::Speed);
   brakeProbAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::PROB_SPEED_ID, brakeProbKnob);
   
-  setupKnob(brakeTimeKnob, "speed");
+  setupKnob(brakeTimeKnob, Section::Speed);
   brakeTimeAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::SPEED_ID, brakeTimeKnob);
   
-  setupToggle(brakeInstantToggle, "speed");
+  setupToggle(brakeInstantToggle, Section::Speed);
   brakeInstantAttach = std::make_unique<ButtonAttachment>(apvts, SupaTriggaProcessor::INSTANT_SPEED_ID, brakeInstantToggle);
 
   // Reverse section
-  setupKnob(reverseProbKnob, "reverse");
+  setupKnob(reverseProbKnob, Section::Reverse);
   reverseProbAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::PROB_REVERSE_ID, reverseProbKnob);
   
-  setupToggle(reverseInstantToggle, "reverse");
+  setupToggle(reverseInstantToggle, Section::Reverse);
   reverseInstantAttach = std::make_unique<ButtonAttachment>(apvts, SupaTriggaProcessor::INSTANT_REVERSE_ID, reverseInstantToggle);
 
   // Repeat section
-  setupKnob(repeatProbKnob, "repeat");
+  setupKnob(repeatProbKnob, Section::Repeat);
   repeatProbAttach = std::make_unique<SliderAttachment>(apvts, SupaTriggaProcessor::PROB_REPEAT_ID, repeatProbKnob);
   
-  setupToggle(repeatInstantToggle, "repeat");
+  setupToggle(repeatInstantToggle, Section::Repeat);
   repeatInstantAttach = std::make_unique<ButtonAttachment>(apvts, SupaTriggaProcessor::INSTANT_REPEAT_ID, repeatInstantToggle);
 
   // Make window non-resizable
@@ -141,27 +141,24 @@ SupaTriggaEditor::SupaTriggaEditor(SupaTriggaProcessor &p,
 
 SupaTriggaEditor::~SupaTriggaEditor() { setLookAndFeel(nullptr); }
 
-void SupaTriggaEditor::setupKnob(juce::Slider &slider,
-                                 const juce::String &styleClass) {
+void SupaTriggaEditor::setupKnob(juce::Slider &slider, Section section) {
   slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
   slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0); // Text is drawn by LookAndFeel
   slider.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.75f, true);
   addAndMakeVisible(slider);
 
-  // Set styling colors
-  if (styleClass == "global") {
-    slider.setColour(juce::Slider::rotarySliderFillColourId, Theme::Colors::globalAccent);
-  } else if (styleClass == "speed") {
-    slider.setColour(juce::Slider::rotarySliderFillColourId, Theme::Colors::speedAccent);
-  } else if (styleClass == "reverse") {
-    slider.setColour(juce::Slider::rotarySliderFillColourId, Theme::Colors::reverseAccent);
-  } else if (styleClass == "repeat") {
-    slider.setColour(juce::Slider::rotarySliderFillColourId, Theme::Colors::repeatAccent);
+  juce::Colour accent;
+  switch (section)
+  {
+      case Section::Global:  accent = Theme::Colors::globalAccent; break;
+      case Section::Speed:   accent = Theme::Colors::speedAccent; break;
+      case Section::Reverse: accent = Theme::Colors::reverseAccent; break;
+      case Section::Repeat:  accent = Theme::Colors::repeatAccent; break;
   }
+  slider.setColour(juce::Slider::rotarySliderFillColourId, accent);
 }
 
-void SupaTriggaEditor::setupToggle(juce::ToggleButton &toggle,
-                                   const juce::String &styleClass) {
+void SupaTriggaEditor::setupToggle(juce::ToggleButton &toggle, Section section) {
   // Configure text change on toggle state change using a listener
   toggle.setName(toggle.getToggleState() ? "On" : "Off");
   toggle.onClick = [&toggle] {
@@ -169,15 +166,15 @@ void SupaTriggaEditor::setupToggle(juce::ToggleButton &toggle,
   };
   addAndMakeVisible(toggle);
 
-  if (styleClass == "global") {
-    toggle.setColour(juce::ToggleButton::tickColourId, Theme::Colors::globalAccent);
-  } else if (styleClass == "speed") {
-    toggle.setColour(juce::ToggleButton::tickColourId, Theme::Colors::speedAccent);
-  } else if (styleClass == "reverse") {
-    toggle.setColour(juce::ToggleButton::tickColourId, Theme::Colors::reverseAccent);
-  } else if (styleClass == "repeat") {
-    toggle.setColour(juce::ToggleButton::tickColourId, Theme::Colors::repeatAccent);
+  juce::Colour accent;
+  switch (section)
+  {
+      case Section::Global:  accent = Theme::Colors::globalAccent; break;
+      case Section::Speed:   accent = Theme::Colors::speedAccent; break;
+      case Section::Reverse: accent = Theme::Colors::reverseAccent; break;
+      case Section::Repeat:  accent = Theme::Colors::repeatAccent; break;
   }
+  toggle.setColour(juce::ToggleButton::tickColourId, accent);
 }
 
 void SupaTriggaEditor::paint(juce::Graphics &g) {

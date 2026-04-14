@@ -33,8 +33,10 @@ private:
 
     SupaTriggaLookAndFeel customLookAndFeel;
 
-    void setupKnob(juce::Slider& slider, const juce::String& styleClass);
-    void setupToggle(juce::ToggleButton& toggle, const juce::String& styleClass);
+    enum class Section { Global, Speed, Reverse, Repeat };
+
+    void setupKnob(juce::Slider& slider, Section section);
+    void setupToggle(juce::ToggleButton& toggle, Section section);
 
     // Header Components
     // Not strictly needed as component, can be drawn in paint() instead to save overhead.
