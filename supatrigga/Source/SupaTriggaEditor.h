@@ -16,8 +16,6 @@ public:
     void drawToggleButton(juce::Graphics& g, juce::ToggleButton& button,
                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
-private:
-    juce::Typeface::Ptr interFont;
 };
 
 class SupaTriggaEditor : public juce::AudioProcessorEditor

@@ -7,10 +7,6 @@ SupaTriggaLookAndFeel::SupaTriggaLookAndFeel() {
   setColour(juce::Slider::rotarySliderFillColourId, Theme::Colors::globalAccent);
   setColour(juce::Slider::rotarySliderOutlineColourId, Theme::Colors::track);
   setColour(juce::Slider::textBoxTextColourId, Theme::Colors::textValue);
-
-#if JUCE_MAC
-  interFont = juce::Typeface::createSystemTypefaceFor(juce::FontOptions{}.withName("Inter").withHeight(12.0f).withStyle("Bold"));
-#endif
 }
 
 void SupaTriggaLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y,
@@ -54,9 +50,6 @@ void SupaTriggaLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y,
   g.setColour(slider.findColour(juce::Slider::textBoxTextColourId));
 
   auto font = juce::Font(juce::FontOptions{}.withHeight(12.0f).withStyle("Bold"));
-  if (interFont != nullptr) {
-    font = juce::Font(juce::FontOptions(interFont).withHeight(12.0f));
-  }
   g.setFont(font);
 
   juce::String text = slider.getTextFromValue(slider.getValue());
@@ -95,9 +88,6 @@ void SupaTriggaLookAndFeel::drawToggleButton(
                   : Theme::Colors::textSecondary);
 
   auto font = juce::Font(juce::FontOptions{}.withHeight(12.0f).withStyle("Bold"));
-  if (interFont != nullptr) {
-    font = juce::Font(juce::FontOptions(interFont).withHeight(12.0f));
-  }
   g.setFont(font);
 
   g.drawText(button.getName(), button.getLocalBounds(), juce::Justification::centred, false);
