@@ -20,9 +20,14 @@ juce_add_plugin(SupaTrigga
     AU_MAIN_TYPE kAudioUnitType_Effect
 )
 
+juce_add_binary_data(SupaTrigga_Assets SOURCES
+    Resources/Inter-Bold.otf
+)
+
 target_sources(SupaTrigga PRIVATE
     Source/PluginProcessor.cpp
     Source/SupaTriggaEditor.cpp
 )
 
 smartelectronix_plugin_common(SupaTrigga)
+target_link_libraries(SupaTrigga PRIVATE SupaTrigga_Assets)

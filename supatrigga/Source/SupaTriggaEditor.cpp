@@ -1,5 +1,6 @@
 #include "SupaTriggaEditor.h"
 #include "Theme.h"
+#include "BinaryData.h"
 
 SupaTriggaLookAndFeel::SupaTriggaLookAndFeel()
 {
@@ -7,6 +8,10 @@ SupaTriggaLookAndFeel::SupaTriggaLookAndFeel()
     setColour(juce::Slider::rotarySliderFillColourId, Theme::Colors::globalAccent);
     setColour(juce::Slider::rotarySliderOutlineColourId, Theme::Colors::track);
     setColour(juce::Slider::textBoxTextColourId, Theme::Colors::textValue);
+
+    // Load embedded Inter Bold font
+    interBold = juce::Typeface::createSystemTypefaceFor(
+        BinaryData::InterBold_otf, BinaryData::InterBold_otfSize);
 }
 
 void SupaTriggaLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y,
@@ -55,7 +60,9 @@ void SupaTriggaLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y,
     // Text Value
     g.setColour(slider.findColour(juce::Slider::textBoxTextColourId));
 
-    auto font = juce::Font(juce::FontOptions{}.withHeight(12.0f).withStyle("Bold"));
+    auto font = interBold != nullptr
+        ? juce::Font(juce::FontOptions(interBold).withHeight(12.0f))
+        : juce::Font(juce::FontOptions{}.withHeight(12.0f).withStyle("Bold"));
     g.setFont(font);
 
     juce::String text = slider.getTextFromValue(slider.getValue());
@@ -94,7 +101,9 @@ void SupaTriggaLookAndFeel::drawToggleButton(juce::Graphics& g, juce::ToggleButt
                     ? Theme::Colors::textValue
                     : Theme::Colors::textSecondary);
 
-    auto font = juce::Font(juce::FontOptions{}.withHeight(12.0f).withStyle("Bold"));
+    auto font = interBold != nullptr
+        ? juce::Font(juce::FontOptions(interBold).withHeight(12.0f))
+        : juce::Font(juce::FontOptions{}.withHeight(12.0f).withStyle("Bold"));
     g.setFont(font);
 
     g.drawText(button.getName(), button.getLocalBounds(), juce::Justification::centred, false);
