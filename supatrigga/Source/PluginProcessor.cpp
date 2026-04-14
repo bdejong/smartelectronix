@@ -61,7 +61,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SupaTriggaProcessor::createP
         juce::AudioProcessorParameter::genericParameter,
         [](float value, int) {
             int slices = 1 << static_cast<int>(value * (BITSLIDES + 0.5f));
-            return juce::String(slices) + " slices/measure";
+            return juce::String(slices);
         },
         nullptr));
 
