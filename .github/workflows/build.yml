@@ -84,7 +84,8 @@ jobs:
             --apple-id "$APPLE_ID" \
             --password "$APPLE_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
-            --wait 2>&1)
+            --verbose \
+            --wait 2>&1) || true
           echo "$SUBMIT_OUTPUT"
 
           # Extract submission ID
@@ -95,10 +96,15 @@ jobs:
             echo "Notarization succeeded"
           else
             echo "Notarization failed — fetching log..."
-            xcrun notarytool log "$SUBMISSION_ID" \
-              --apple-id "$APPLE_ID" \
-              --password "$APPLE_PASSWORD" \
-              --team-id "$APPLE_TEAM_ID"
+            if [ -n "$SUBMISSION_ID" ]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --apple-id "$APPLE_ID" \
+                --password "$APPLE_PASSWORD" \
+                --team-id "$APPLE_TEAM_ID" \
+                --verbose || echo "Failed to fetch notarization log"
+            else
+              echo "No submission ID found — submit itself likely failed"
+            fi
             exit 1
           fi
 
