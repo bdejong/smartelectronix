@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include "SupaTriggaEditor.h"
 #include <ctime>
 
 SupaTriggaProcessor::SupaTriggaProcessor()
@@ -60,7 +61,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SupaTriggaProcessor::createP
         juce::AudioProcessorParameter::genericParameter,
         [](float value, int) {
             int slices = 1 << static_cast<int>(value * (BITSLIDES + 0.5f));
-            return juce::String(slices) + " slices/measure";
+            return juce::String(slices);
         },
         nullptr));
 
@@ -506,11 +507,11 @@ void SupaTriggaProcessor::randomize()
     }
 }
 
-bool SupaTriggaProcessor::hasEditor() const { return false; }
+bool SupaTriggaProcessor::hasEditor() const { return true; }
 
 juce::AudioProcessorEditor* SupaTriggaProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new SupaTriggaEditor(*this, apvts);
 }
 
 void SupaTriggaProcessor::getStateInformation(juce::MemoryBlock& destData)

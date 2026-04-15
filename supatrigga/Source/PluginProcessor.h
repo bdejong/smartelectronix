@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstdlib>
 
+class SupaTriggaEditor;
+
 // Constants from original
 constexpr int NUMBERIO = 2;
 constexpr int MAXSIZE = 2000000;
