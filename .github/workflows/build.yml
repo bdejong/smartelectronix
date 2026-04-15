@@ -91,6 +91,12 @@ jobs:
           # Extract submission ID
           SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep "id:" | head -1 | awk '{print $2}')
 
+          # Check for known errors
+          if echo "$SUBMIT_OUTPUT" | grep -qi "agreement.*missing\|agreement.*expired"; then
+            echo "::error::Apple Developer agreement has expired or is missing. Visit https://appstoreconnect.apple.com/ and accept the pending agreements."
+            exit 1
+          fi
+
           # Check for success
           if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
             echo "Notarization succeeded"
